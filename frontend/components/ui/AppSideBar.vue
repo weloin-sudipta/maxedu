@@ -35,16 +35,14 @@
                 <!-- ACTIVE SIDE INDICATOR -->
                 <div v-if="isActive(item)" class="absolute left-0 top-2 h-8 w-1 rounded-r-full bg-indigo-600 shadow-md">
                 </div>
-
-                <!-- MAIN LINK -->
-                <NuxtLink :to="item.children ? '#' : item.route" @mouseenter="item.children ? item.isOpen = true : null"
-                    @mouseleave="item.children ? item.isOpen = false : null" :class="[
+                
+                <NuxtLink :to="item.children ? '#' : item.route"
+                    @click.prevent="item.children ? item.isOpen = !item.isOpen : null" :class="[
                         isActive(item)
                             ? 'bg-indigo-50 text-indigo-600 shadow-md shadow-indigo-100/60'
                             : 'text-gray-600 hover:bg-white hover:shadow-md hover:shadow-indigo-100/40',
                         'flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 hover:-translate-y-0.5'
                     ]">
-
                     <div class="flex items-center gap-4">
                         <span
                             class="w-6 text-center text-lg transition-all duration-300 group-hover/item:scale-110 group-hover/item:text-indigo-600">
@@ -125,7 +123,7 @@ const navItems = reactive([
     },
     { name: 'Library', icon: 'fa fa-book', route: '/library' },
     { name: 'Events', icon: 'fa fa-calendar', route: '/events' },
-    { name: 'Profile', icon: 'fa fa-address-card', route: '/student-profile' },
+    { name: 'Profile', icon: 'fa fa-address-card', route: '/profile' },
     //   { name: 'Students', icon: 'fa fa-users', route: '/student_list' },
 
     { name: 'Logout', icon: 'fa fa-sign-out', route: '/logout' },
