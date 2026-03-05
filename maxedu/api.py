@@ -1061,14 +1061,16 @@ def get_student_dashboard_data():
             attendance={"percentage": 0},
             gpa={"score_percentage": 0},
             assignments=[]
-        )
-
-
+        )# Get user role
+        
 @frappe.whitelist()
-def test_frappe_api():
-	"""Test API endpoint to verify Frappe API is working"""
-	return {
-		"success": True,
-		"message": "Frappe API working",
-		"status": "connected"
-	}
+def get_user_role(user):
+    roles = frappe.get_roles(user)
+    if "Student" in roles:
+        return "Student"
+    elif "Instructor" in roles:
+        return "Instructor"
+    elif "Administrator" in roles:
+        return "Administrator"
+    else:
+        return "User"

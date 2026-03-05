@@ -10,13 +10,15 @@ export const useUserProfile = () => {
     userImage: ''
   }))
 
+  const userRole = useState('userRole', () => null)
+
   const loadProfile = async () => {
 
-    if (profileData.value.fullName) return   // prevents multiple calls
+    if (profileData.value.fullName) return
 
     const userEmail = await auth.getLoggedUser()
 
-    const resource = createResource({
+    const profileResource = createResource({
       url: 'frappe.client.get',
       params: {
         doctype: 'User',
@@ -24,18 +26,31 @@ export const useUserProfile = () => {
       }
     })
 
-    const data = await resource.submit()
+    const roleResource = createResource({
+      url: 'maxedu.api.get_user_role',
+      params: {
+        user: userEmail
+      }
+    })
+
+    const profile = await profileResource.submit()
+    const role = await roleResource.submit()
 
     profileData.value = {
-      firstName: data.first_name || '',
-      lastName: data.last_name || '',
-      email: data.email || '',
-      fullName: data.full_name || '',
-      userImage: data.user_image || ''
+      firstName: profile.first_name || '',
+      lastName: profile.last_name || '',
+      email: profile.email || '',
+      fullName: profile.full_name || '',
+      userImage: profile.user_image || ''
     }
+
+    userRole.value = role
+
+    console.log('User Profile:', profileData.value)
+    console.log('User Role:', userRole.value)
 
   }
 
-  return { profileData, loadProfile }
+  return { profileData, userRole, loadProfile }
 
 }
