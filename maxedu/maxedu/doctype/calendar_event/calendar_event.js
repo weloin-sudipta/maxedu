@@ -1,0 +1,8 @@
+// Copyright (c) 2025, weloin.com and contributors
+// For license information, please see license.txt
+
+// frappe.ui.form.on("Calendar event", {
+// 	refresh(frm) {
+
+// 	},
+// });

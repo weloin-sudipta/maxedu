@@ -1,0 +1,7 @@
+## Maxedu
+
+none
+
+#### License
+
+mit
