@@ -3,7 +3,6 @@ import frappe
 def after_install():
     create_student_custom_fields()
 
-
 def create_student_custom_fields():
 
     fields = [
@@ -12,13 +11,6 @@ def create_student_custom_fields():
             "label": "Caste",
             "fieldtype": "Data",
             "insert_after": "nationality"
-        },
-        {
-            "fieldname": "category",
-            "label": "Category",
-            "fieldtype": "Select",
-            "options": "General\nOBC\nSC\nST\nEWS",
-            "insert_after": "caste"
         },
         {
             "fieldname": "religion",
@@ -33,15 +25,15 @@ def create_student_custom_fields():
             "insert_after": "student_mobile_number"
         },
         {
-            "fieldname": "hostle_facility",
-            "label":  "Hostle Facility",
-            "fieldtype": "Data",
+            "fieldname": "hostel_facility",
+            "label": "Hostel Facility",
+            "fieldtype": "Select",
+            "options": "Yes\nNo",
             "insert_after": "pincode"
         },
     ]
 
     for field in fields:
-
         if not frappe.db.exists(
             "Custom Field",
             {"dt": "Student", "fieldname": field["fieldname"]}
@@ -53,3 +45,5 @@ def create_student_custom_fields():
             })
 
             custom_field.insert(ignore_permissions=True)
+
+    frappe.db.commit()

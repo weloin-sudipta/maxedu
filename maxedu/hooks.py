@@ -84,7 +84,7 @@ app_license = "mit"
 
 # before_install = "maxedu.install.before_install"
 after_install = "maxedu.setup.install.after_install"
-
+# after_migrate = "maxedu.setup.install.after_install"
 # Uninstallation
 # ------------
 

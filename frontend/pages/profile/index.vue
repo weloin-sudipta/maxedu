@@ -26,7 +26,7 @@
 
                         <div class="flex flex-wrap justify-center md:justify-start gap-6 mt-4">
                             <div class="flex flex-col">
-                                <span class="label-tiny">Admission No</span>
+                                <span class="label-tiny">Student ID</span>
                                 <span class="value-bold text-indigo-600">#{{ student.admNo }}</span>
                             </div>
                             <div class="w-px h-8 bg-slate-100 hidden md:block"></div>
@@ -148,76 +148,82 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import feesTab from './tabs/feesTab.vue'
 import examTab from './tabs/examTab.vue'
 import attendanceTab from './tabs/attendanceTab.vue'
-import { useUserProfile } from '~/composable/useUserProfile'
+import { useProfile } from '~/composable/useProfile'
 
-const { profileData } = useUserProfile()
+// Reactive tab state
 const activeTab = ref('profile')
-
-
 const tabComponents = {
     fees: feesTab,
     exam: examTab,
     attendance: attendanceTab,
 }
 
-/**
- * DYNAMIC STUDENT DATA OBJECT
- * In a real app, you would populate this via an API call.
- */
+// Reactive student data (to replace static object)
 const student = ref({
-    name: "Edward Thomas",
-    admNo: "18001",
-    rollNo: "100035",
-    class: "Class 1 (Section A)",
-    localId: "0890678456",
-
-    academic: {
-        "Admission Date": "04/04/2025",
-        "Session": "2025-26",
-        "RTE Status": "No",
-        "Category": "General",
-        "Caste": "General",
-        "Religion": "Christianity",
-        "Blood Group": "A+",
-        "Student House": "Blue House"
-    },
-
-    secondary: {
-        "Parental Records": {
-            "Father": "Olivier Thomas (Lawyer)",
-            "Mother": "Caroline Thomas (Teacher)",
-            "Guardian": "Olivier Thomas",
-            "Guardian Relation": "Father"
-        },
-        "Contact & Security": {
-            "Mobile": "8906785675",
-            "Email": "nathan455@gmail.com",
-            "National ID": "907896785",
-            "Health History": "Standard Checkup OK"
-        }
-    },
-
-    logistics: {
-        "Transport Route": "Brooklyn West (Vehicle: VH4584)",
-        "Pick-up Point": "Brooklyn South Station",
-        "Hostel Facility": "Boys Hostel 101, Room B1",
-        "Current Address": "56 Main Street, Suite 3, Brooklyn, NY 11210",
-        "Permanent Address": "56 Main Street, Suite 3, Brooklyn, NY 11210"
-    }
+    name: '',
+    admNo: '',
+    rollNo: '',
+    class: '',
+    localId: '',
+    academic: {},
+    secondary: {},
+    logistics: {},
 })
 
-const tabs = [
-    { id: 'profile', name: 'Profile' },
-    { id: 'fees', name: 'Fees' },
-    { id: 'exam', name: 'Examination' },
-    { id: 'attendance', name: 'Attendance' },
-    { id: 'documents', name: 'Documents' },
-    { id: 'timeline', name: 'Timeline' },
-]
+// Fetch profile from backend
+onMounted(async () => {
+    const profile = await useProfile()
+    
+    if (profile && !profile.error) {
+        // Map API response to the same structure your template expects
+        student.value = {
+            name: profile.student_name || `${profile.first_name || ''} ${profile.last_name || ''}`,
+            admNo: profile.admNo || profile.student_id || '—',
+            rollNo: profile.rollNo || profile.student_id?.split('-').pop() || '—',
+            class: profile.program_name || '—',
+            localId: profile.localId || '—',
+
+            academic: {
+                "Admission Date": profile.program_enrollment_date || '—',
+                "Session": profile.program_session || '—',
+                "Gender": profile.gender || '—',
+                "Category": profile.category || '—',
+                "Caste": profile.caste || '—',
+                "Religion": profile.religion || '—',
+                "Blood Group": profile.blood_group || '—',
+                "Date of Birth": profile.date_of_birth || '—'
+            },
+
+            secondary: {
+                "Parental Records": {
+                    "Father": profile.guardians?.[0]?.guardian_name || '—',
+                    "Mother": profile.mother_name || '—',
+                    "Guardian": profile.guardians?.[0]?.guardian_name || '—',
+                    "Guardian Relation": profile.guardians?.[0]?.relation || '—'
+                },
+                "Contact & Security": {
+                    "Mobile": profile.mobile_number || '—',
+                    "Email": profile.email || '—',
+                    "Nationality": profile.nationality || '—',
+                    "Parent Mobile": profile.parent_mobile_number || '—'
+                }
+            },
+
+            logistics: {
+                "Country": profile.country || '—',
+                "State": profile.state || '—',
+                "Pincode": profile.pincode || '—',
+                "Hostel Facility": profile.hostel_facility || '—',
+                "Current Address": profile.address_line_1 || '—',
+                "Permanent Address": profile.address_line_2 || '—'
+            }
+        }
+    }
+})
 </script>
 
 <style scoped>
