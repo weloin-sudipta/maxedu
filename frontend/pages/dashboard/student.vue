@@ -251,39 +251,62 @@
 import { ref, onMounted } from 'vue'
 import ApexCharts from 'apexcharts'
 import AppModal from '~/components/ui/AppModal.vue'
+import { useStudentDashboard } from '~/composable/userDashboard'
 import { useUserProfile } from '~/composable/useUserProfile'
+
+const { dashboardData, loading, error, loadDashboard } = useStudentDashboard()
+onMounted(async () => {
+    await loadDashboard()
+    console.log('Student Dashboard:', dashboardData.value)
+})
 
 const { profileData } = useUserProfile()
 const showModal = ref(false)
-const programData = ref({
-    name: "Bachelor of Science in UI/UX Design & Development",
-    semester: "4th Semester",
+const programData = computed(()=>{
+const studentInfo = dashboardData.value?.student_info
+
+return studentInfo ? {    
+    name: studentInfo.program,
+    semester: studentInfo.semester,
     endDate: "June 24, 2026",
     daysRemaining: 112,
     description: "A comprehensive program focusing on the intersection of visual design, user experience research, and modern front-end engineering frameworks.",
-    subjects: [
-        { code: "CS401", title: "Advanced User Research", credits: 4 },
-        { code: "DS202", title: "Design Systems & Components", credits: 3 },
-        { code: "FE305", title: "Vue.js Framework Mastery", credits: 5 },
-        { code: "MT101", title: "Quantitative Design Analysis", credits: 3 }
-    ]
+            subjects: dashboardData.value?.courses?.map(c => ({
+            code: c.code,
+            title: c.name,
+            credits: 1
+        })) || []} : {}
 })
 
-const todayClasses = [
-    { subject: 'Advanced Mathematics', time: '09:00 AM', room: '302-A', color: 'border-indigo-500' },
-    { subject: 'UI/UX Design Principles', time: '11:30 AM', room: 'Lab 04', color: 'border-cyan-500' },
-    { subject: 'Database Management', time: '02:00 PM', room: '201-B', color: 'border-orange-500' },
-]
+// classes
+const todayClasses = computed(() => {
+  if (!dashboardData.value?.schedule) return []
+  const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+  const today = dayNames[new Date().getDay()]
+  return dashboardData.value.schedule
+    .filter(s => s.dayOfWeek === today)
+    .map(s => ({
+        subject: s.courseName,
+        time: `${s.startTime} - ${s.endTime}`,
+        room: s.location,
+        color: 'border-indigo-500'
+    }))
+})
 
 const exams = [
     { id: 1, title: 'Data Structures Mid-Term', date: 'March 06, 2026', daysLeft: 2 },
     { id: 2, title: 'English Literature Proficiency', date: 'March 12, 2026', daysLeft: 8 },
 ]
 
-const assignments = [
-    { id: 1, name: 'Marketing Research Paper', progress: 75, due: 'Tomorrow' },
-    { id: 2, name: 'Figma Dashboard Prototype', progress: 40, due: 'Fri' },
-]
+// Assignments
+const assignments = computed(() => {
+  return dashboardData.value?.assignments?.map(a => ({
+    id: a.id,
+    name: a.title,
+    progress: 0,
+    due: a.date
+  })) || []
+})
 
 const notices = [
     { id: 1, title: 'Library Hours Updated', desc: 'Open until 11:00 PM during exam week.', dotColor: 'bg-green-500' },
