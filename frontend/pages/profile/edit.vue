@@ -15,13 +15,16 @@
         </div>
         <div class="flex gap-3">
           <button @click="$router.back()" class="btn-outline">Discard</button>
-          <button @click="saveProfile" class="btn-primary">Save Changes</button>
+          <button @click="saveProfile" :disabled="saving" class="btn-primary">
+            <span v-if="saving">Saving...</span>
+            <span v-else>Save Changes</span>
+          </button>
         </div>
       </header>
 
       <!-- Form -->
       <form @submit.prevent="saveProfile" class="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        
+
         <!-- Left Column -->
         <div class="lg:col-span-4 space-y-6">
           <!-- Photo -->
@@ -29,15 +32,19 @@
             <h4 class="label-tiny mb-6">Profile Photograph</h4>
             <div class="relative w-48 h-48 mx-auto mb-6 group">
               <div class="w-full h-full rounded-[2.5rem] overflow-hidden ring-8 ring-slate-50 shadow-inner bg-slate-100">
-                <img :src="photoPreview" class="w-full h-full object-cover transition-opacity group-hover:opacity-50" />
+                <img v-if="photoPreview" :src="photoPreview" class="w-full h-full object-cover transition-opacity group-hover:opacity-50" @error="photoPreview = null" />
+                <div v-else class="w-full h-full flex items-center justify-center">
+                  <span class="text-4xl font-black text-indigo-600">{{ initials }}</span>
+                </div>
               </div>
               <label class="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                 <i class="fa fa-camera text-2xl text-indigo-600 mb-2"></i>
                 <span class="text-[10px] font-black uppercase text-indigo-600">Change Photo</span>
-                <input type="file" class="hidden" @change="handlePhotoUpload" accept="image/*" />
+                <input type="file" class="hidden" @change="handlePhotoUpload" accept="image/*" ref="fileInput" />
               </label>
             </div>
-            <p class="text-[9px] font-bold text-slate-400 uppercase">Allowed JPG, GIF or PNG. Max size 2MB</p>
+            <p v-if="uploadingPhoto" class="text-[10px] font-bold text-indigo-500 uppercase">Uploading...</p>
+            <p v-else class="text-[9px] font-bold text-slate-400 uppercase">Allowed JPG, GIF or PNG. Max size 2MB</p>
           </div>
 
           <!-- Core Identity -->
@@ -140,12 +147,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useProfile, updateProfile } from '~/composable/useProfile'
+import { ref, computed, onMounted } from 'vue'
+import { useProfileLoader, updateProfile } from '~/composable/useProfile'
 
-const photoPreview = ref("https://demo.smart-school.in/uploads/student_images/1751522818-50232403968661e028c798!tha.jpeg")
+const photoPreview = ref(null)
+const photoFile = ref(null)
+const uploadingPhoto = ref(false)
+const saving = ref(false)
 
-// Form state
 const form = ref({
   name: "",
   admNo: "",
@@ -170,8 +179,12 @@ const form = ref({
   }
 })
 
-// Load profile using the reactive composable
-const { profileData, loadProfile } = useProfile()
+const initials = computed(() => {
+  const name = form.value.name || ''
+  return name.split(' ').filter(Boolean).map(w => w[0]?.toUpperCase()).slice(0, 2).join('')
+})
+
+const { profileData, loadProfile } = useProfileLoader()
 
 onMounted(async () => {
   try {
@@ -196,7 +209,7 @@ onMounted(async () => {
     form.value.secondary["Parental Records"]["Mother"] = profile.guardians?.[1]?.guardian_name || ""
 
     form.value.logistics["Hostel Facility"] = profile.hostel_facility || ""
-    form.value.logistics["Current Address"] = `${profile.address_line_1 || ""} ${profile.address_line_2 || ""}`
+    form.value.logistics["Current Address"] = `${profile.address_line_1 || ""} ${profile.address_line_2 || ""}`.trim()
 
     if (profile.photo_url) {
       photoPreview.value = profile.photo_url
@@ -206,8 +219,7 @@ onMounted(async () => {
   }
 })
 
-// Handle photo uploads
-const handlePhotoUpload = (event) => {
+const handlePhotoUpload = async (event) => {
   const file = event.target.files[0]
   if (!file) return
 
@@ -216,24 +228,48 @@ const handlePhotoUpload = (event) => {
     return
   }
 
+  photoFile.value = file
   photoPreview.value = URL.createObjectURL(file)
+
+  uploadingPhoto.value = true
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('is_private', '0')
+    formData.append('doctype', 'User')
+    formData.append('fieldname', 'user_image')
+
+    const response = await $fetch('/api/method/upload_file', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    })
+
+    const fileUrl = response?.message?.file_url
+    if (fileUrl) {
+      photoPreview.value = fileUrl
+      photoFile.value = null
+    }
+  } catch (err) {
+    console.error("Photo upload failed:", err)
+    alert("Failed to upload photo. Please try again.")
+  } finally {
+    uploadingPhoto.value = false
+  }
 }
 
-// Save profile changes
 const saveProfile = async () => {
+  saving.value = true
   try {
+    const nameParts = (form.value.name || '').split(' ').filter(Boolean)
     const payload = {
-      name: form.value.name,
-      mobile_number: form.value.secondary["Contact & Security"]["Mobile"],
-      email: form.value.secondary["Contact & Security"]["Email"],
-      category: form.value.academic["Category"],
-      caste: form.value.academic["Caste"],
-      religion: form.value.academic["Religion"],
-      blood_group: form.value.academic["Blood Group"],
-      hostel_facility: form.value.logistics["Hostel Facility"],
-      address_line_1: form.value.logistics["Current Address"],
-      // Optionally include photo if uploaded
-      photo_url: photoPreview.value
+      firstName: nameParts[0] || '',
+      middleName: nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : '',
+      lastName: nameParts.length > 1 ? nameParts[nameParts.length - 1] : '',
+      mobile: form.value.secondary["Contact & Security"]["Mobile"],
+      language: 'en',
+      timezone: 'Asia/Kolkata',
+      user_image: photoPreview.value || undefined,
     }
 
     const res = await updateProfile(payload)
@@ -246,6 +282,8 @@ const saveProfile = async () => {
   } catch (err) {
     console.error("Error saving profile:", err)
     alert("An unexpected error occurred while updating profile.")
+  } finally {
+    saving.value = false
   }
 }
 </script>
@@ -258,7 +296,7 @@ const saveProfile = async () => {
   @apply w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3 text-xs font-bold text-slate-700 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/50 transition-all;
 }
 .btn-primary {
-  @apply px-8 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all;
+  @apply px-8 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-50;
 }
 .btn-outline {
   @apply px-8 py-3 bg-white border border-slate-200 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-50 transition-all;

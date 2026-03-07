@@ -1,15 +1,18 @@
 import frappe
 
+
 @frappe.whitelist()
 def test_working():
     return "working"
 
-# --- Helper functions ---
+
 def user_has_role(role):
     return role in frappe.get_roles(frappe.session.user)
 
+
 def user_is_guest():
     return frappe.session.user == "Guest"
+
 
 def get_user_role():
     if user_is_guest():
@@ -22,7 +25,7 @@ def get_user_role():
         return "Parent"
     return None
 
-# --- Main API ---
+
 @frappe.whitelist()
 def get_profile():
     if user_has_role("Student"):
@@ -30,51 +33,47 @@ def get_profile():
     else:
         return {"error": "Profile information is only available for students."}
 
-# --- Fetch full student profile ---
+
 def get_student_profile():
     user = frappe.session.user
     if user_is_guest():
         return {"error": "Guest user has no profile."}
 
-    # Get User doc
     user_doc = frappe.get_doc("User", user)
     user_email = user_doc.email
 
     try:
-        # Get Student doc by email
         student_doc = frappe.get_doc("Student", {"student_email_id": user_email})
 
-        # Map siblings safely
         siblings = []
         for sib in student_doc.get("siblings") or []:
             siblings.append({
                 "full_name": sib.get("full_name"),
                 "gender": sib.get("gender"),
                 "studying_in_same_institute": sib.get("studying_in_same_institute"),
-                "date_of_birth": sib.get("date_of_birth")
+                "date_of_birth": sib.get("date_of_birth"),
             })
 
-        # Map guardians safely
         guardians = []
         for grd in student_doc.get("guardians") or []:
             guardians.append({
                 "guardian_name": grd.get("guardian_name"),
                 "relation": grd.get("relation"),
-                "guardian_id": grd.get("guardian")
+                "guardian_id": grd.get("guardian"),
             })
 
-
-        # Program
         program_enrollments = frappe.get_all(
             "Program Enrollment",
             filters={"student": student_doc.name},
-            fields="*"
+            fields="*",
         )
 
-        # Return full mapped student profile
+        photo_url = student_doc.get("image") or user_doc.get("user_image") or None
+
         return {
             "student_id": student_doc.name,
             "full_name": student_doc.get("student_name") or None,
+            "student_name": student_doc.get("student_name") or None,
             "first_name": student_doc.get("first_name") or None,
             "middle_name": student_doc.get("middle_name") or None,
             "last_name": student_doc.get("last_name") or None,
@@ -101,6 +100,7 @@ def get_student_profile():
             "reason_for_leaving": student_doc.get("reason_for_leaving") or None,
             "siblings": siblings,
             "guardians": guardians,
+            "photo_url": photo_url,
             "program_name": program_enrollments[0].program if program_enrollments else None,
             "program_session": program_enrollments[0].academic_year if program_enrollments else None,
             "program_enrollment_date": program_enrollments[0].enrollment_date if program_enrollments else None,
@@ -108,61 +108,75 @@ def get_student_profile():
 
     except frappe.DoesNotExistError:
         return {"error": "Student profile not found."}
-    
-    
 
-import frappe
 
 @frappe.whitelist()
-def update_student_profile(data):
-    import json
-
-    if isinstance(data, str):
-        data = json.loads(data)
+def update_profile(data):
+    data = frappe.parse_json(data)
 
     user = frappe.session.user
-
-    if user == "Guest":
-        return {"error": "Guest cannot update profile"}
-
-    # Get user
     user_doc = frappe.get_doc("User", user)
 
-    # Get student using email
-    student_doc = frappe.get_doc("Student", {
-        "student_email_id": user_doc.email
-    })
+    if data.get("firstName"):
+        user_doc.first_name = data.get("firstName")
+    if data.get("middleName") is not None:
+        user_doc.middle_name = data.get("middleName")
+    if data.get("lastName"):
+        user_doc.last_name = data.get("lastName")
+    if data.get("phone"):
+        user_doc.phone = data.get("phone")
+    if data.get("mobile"):
+        user_doc.mobile_no = data.get("mobile")
+    if data.get("language"):
+        user_doc.language = data.get("language")
+    if data.get("timezone"):
+        user_doc.time_zone = data.get("timezone")
 
-    # ---- Update Student Fields ----
-    student_doc.student_name = data.get("name")
-    student_doc.student_mobile_number = data.get("mobile_number")
-    student_doc.category = data.get("category")
-    student_doc.caste = data.get("caste")
-    student_doc.religion = data.get("religion")
-    student_doc.blood_group = data.get("blood_group")
-    student_doc.hostel_facility = data.get("hostel_facility")
+    if data.get("user_image"):
+        user_doc.user_image = data.get("user_image")
 
-    student_doc.address_line_1 = data.get("address_line_1")
-    student_doc.address_line_2 = data.get("address_line_2")
+    user_doc.save(ignore_permissions=True)
 
-    # ---- Update Guardians ----
-    guardians = data.get("guardians", [])
-
-    if guardians:
-        student_doc.set("guardians", [])
-
-        for g in guardians:
-            student_doc.append("guardians", {
-                "guardian": g.get("guardian_id"),
-                "guardian_name": g.get("guardian_name"),
-                "relation": g.get("relation")
-            })
-
-    student_doc.save(ignore_permissions=True)
-
-    frappe.db.commit()
+    if data.get("user_image"):
+        try:
+            student_doc = frappe.get_doc("Student", {"student_email_id": user})
+            student_doc.image = data.get("user_image")
+            student_doc.save(ignore_permissions=True)
+        except frappe.DoesNotExistError:
+            pass
 
     return {
+        "status": "success",
         "message": "Profile updated successfully",
-        "student_id": student_doc.name
-    }    
+    }
+
+
+@frappe.whitelist()
+def upload_profile_photo():
+    user = frappe.session.user
+
+    if not frappe.request or not frappe.request.files:
+        return {"error": "No file uploaded"}
+
+    filedata = frappe.request.files.get("file")
+    if not filedata:
+        return {"error": "No file uploaded"}
+
+    from frappe.handler import upload_file
+
+    ret = upload_file()
+
+    file_url = ret.get("file_url") if isinstance(ret, dict) else ret.file_url
+
+    user_doc = frappe.get_doc("User", user)
+    user_doc.user_image = file_url
+    user_doc.save(ignore_permissions=True)
+
+    try:
+        student_doc = frappe.get_doc("Student", {"student_email_id": user})
+        student_doc.image = file_url
+        student_doc.save(ignore_permissions=True)
+    except frappe.DoesNotExistError:
+        pass
+
+    return {"file_url": file_url, "status": "success"}

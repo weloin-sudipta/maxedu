@@ -27,7 +27,7 @@ export const useUserProfile = () => {
     })
 
     const roleResource = createResource({
-      url: 'maxedu.api.get_user_role',
+      url: 'maxedu.api_folder.subjects.get_program',
       params: {
         user: userEmail
       }
@@ -46,7 +46,7 @@ export const useUserProfile = () => {
 
     userRole.value = role
 
-    console.log('User Profile:', profileData.value)
+    // console.log('User Profile:', profileData.value)
     console.log('User Role:', userRole.value)
 
   }
