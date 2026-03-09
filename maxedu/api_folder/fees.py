@@ -9,24 +9,25 @@ import frappe
 @frappe.whitelist()
 def get_my_fee():
     student = frappe.get_doc("Student", {"student_email_id": frappe.session.user})
-    fees = frappe.get_doc("Fees", {"student": student.name})
+    
+    fees_list = frappe.get_all("Fees", filters={"student": student.name}, limit_page_length=1)
+    
+    if not fees_list:
+        return {"message": "No fees found for this student", "components": []}
 
-    components_list = []
-
-    for component in fees.get("components"):
-        components_list.append({
-            "fees_category": component.get("fees_category") or None,
-            "amount": component.get("amount") or 0
-        })
-
+    fees = frappe.get_doc("Fees", fees_list[0].name)
+    
+    components_list = [
+        {"fees_category": c.fees_category, "amount": c.amount} for c in fees.components
+    ]
     return {
-        "feesId": fees.name or None,
-        "program": fees.get("program") or None,
-        "currency": fees.get("currency") or None,
-        "total_fees": fees.get("grand_total") or 0,
-        "due_date": fees.get("due_date") or None,
-        "grand_total_in_words": fees.get("grand_total_in_words") or None,
-        "outstanding_amount": fees.get("outstanding_amount") or 0,
-        "student_name": student.get("student_name") or None,
+        "feesId": fees.name,
+        "program": fees.program,
+        "currency": fees.currency,
+        "total_fees": fees.grand_total,
+        "due_date": fees.due_date,
+        "grand_total_in_words": fees.grand_total_in_words,
+        "outstanding_amount": fees.outstanding_amount,
+        "student_name": student.student_name,
         "components": components_list
     }

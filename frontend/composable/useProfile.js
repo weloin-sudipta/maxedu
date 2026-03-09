@@ -54,7 +54,7 @@ export const updateProfile = async (payload) => {
 
 export const getFees = async () => {
   const feesResource = createResource({
-    url: 'maxedu.api_folder.fees.get_fee',
+    url: 'maxedu.api_folder.fees.get_my_fee',
   })
   const fees = await feesResource.submit()
   return fees
