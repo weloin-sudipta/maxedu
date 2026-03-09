@@ -27,10 +27,10 @@ export const useUserProfile = () => {
     })
 
     const roleResource = createResource({
-      url: 'maxedu.api_folder.subjects.get_program',
-      params: {
-        user: userEmail
-      }
+      url: 'maxedu.api_folder.fees.get_my_fee',
+      // params: {
+      //   user: userEmail
+      // }
     })
 
     const profile = await profileResource.submit()
@@ -47,7 +47,7 @@ export const useUserProfile = () => {
     userRole.value = role
 
     // console.log('User Profile:', profileData.value)
-    console.log('User Role:', userRole.value)
+    console.log('User Fees:', userRole.value)
 
   }
 
