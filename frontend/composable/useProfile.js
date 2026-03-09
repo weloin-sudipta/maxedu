@@ -51,3 +51,11 @@ export const updateProfile = async (payload) => {
     return { error: err.message || 'Unknown error' }
   }
 }
+
+export const getFees = async () => {
+  const feesResource = createResource({
+    url: 'maxedu.api_folder.fees.get_fee',
+  })
+  const fees = await feesResource.submit()
+  return fees
+}
