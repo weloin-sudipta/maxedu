@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-[#f8fafc] p-4 lg:p-8 font-sans text-slate-900">
     <div class="max-w-[1440px] mx-auto space-y-6">
 
-      <HeroHeader title="Exam Roadmap" subtitle="Academic Session 2025-26" icon="fa fa-calendar-check-o">
+      <HeroHeader title="Exam Roadmap" :subtitle="`Academic Session ${studentYear}`" icon="fa fa-calendar-check-o">
         <button @click="activeTab = 'confirmed'"
           :class="[activeTab === 'confirmed' ? 'bg-white shadow-md text-rose-600' : 'text-slate-400 hover:text-slate-600']"
           class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
@@ -41,10 +41,10 @@
                   <i class="fa fa-clock-o text-rose-400"></i> {{ exam.time }}
                 </div>
                 <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                  <i class="fa fa-map-marker text-rose-400"></i> Hall {{ exam.room }}
+                  <i class="fa fa-map-marker text-rose-400"></i> {{ exam.room }}
                 </div>
                 <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                  <i class="fa fa-id-badge text-rose-400"></i> Seat: {{ exam.seat }}
+                  <i class="fa fa-book text-rose-400"></i> {{ exam.course }}
                 </div>
               </div>
             </div>
@@ -54,14 +54,17 @@
             </button>
           </div>
         </div>
+
+        <div v-if="confirmedExams.length === 0" class="text-center py-20 text-slate-400 font-bold uppercase text-xs tracking-widest">
+           No confirmed exams found.
+        </div>
       </div>
 
       <div v-if="activeTab === 'tentative'"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-right duration-400">
         <div class="col-span-full px-6 flex items-center gap-3 mb-2">
           <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-          <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Expected Windows • Subject to Final
-            Approval</h2>
+          <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Expected Windows • Subject to Final Approval</h2>
         </div>
 
         <div v-for="exam in tentativeExams" :key="exam.id"
@@ -71,23 +74,10 @@
               <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-xl">
                 <i class="fa fa-hourglass-half"></i>
               </div>
-              <span
-                class="px-3 py-1 bg-amber-50 text-amber-600 text-[8px] font-black uppercase rounded-full border border-amber-100">Draft
-                Schedule</span>
+              <span class="px-3 py-1 bg-amber-50 text-amber-600 text-[8px] font-black uppercase rounded-full border border-amber-100">Draft Schedule</span>
             </div>
-
             <h3 class="text-lg font-black text-slate-800 tracking-tight mb-2">{{ exam.subject }}</h3>
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Expected: {{ exam.expectedWeek }}
-            </p>
-
-            <!-- <div
-              class="flex items-center justify-between p-4 bg-amber-50/50 rounded-2xl border border-dashed border-amber-200">
-              <div>
-                <p class="text-[9px] font-black text-amber-700 uppercase">Probability</p>
-                <p class="text-sm font-black text-amber-900">{{ exam.probability }}% Certain</p>
-              </div>
-              <i class="fa fa-info-circle text-amber-300"></i>
-            </div> -->
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Expected: {{ exam.expectedWeek }}</p>
           </div>
           <i class="fa fa-calendar-o absolute -right-4 -bottom-4 text-7xl opacity-5"></i>
         </div>
@@ -98,102 +88,73 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import HeroHeader from '~/components/ui/HeroHeader.vue'
+import { useExams } from '~/composable/useExaminations';
 
 const config = useRuntimeConfig()
 useSeoMeta({
     title: `Exam Schedule - ${config.public.appName}`,
-    description: `Explore your academic roadmap with MaxEdu's comprehensive breakdown of subjects, chapters, and lesson details. Strategically designed to guide your learning journey and maximize exam performance.`,
-    keywords: 'subjects, chapters, lessons, learning path, academic roadmap, exam preparation'
 })
 
 const activeTab = ref('confirmed');
-
-const confirmedExams = ref([
-  {
-    id: 1,
-    subject: 'Artificial Intelligence',
-    month: 'MAR', day: '12', dayName: 'THURSDAY',
-    time: '10:00 AM - 01:00 PM',
-    room: 'B-204',
-    seat: 'A-42'
-  },
-  {
-    id: 2,
-    subject: 'Network Security',
-    month: 'MAR', day: '15', dayName: 'SUNDAY',
-    time: '02:00 PM - 05:00 PM',
-    room: 'Lab 02',
-    seat: 'B-12'
-  }
-]);
+const confirmedExams = ref([]);
+const studentYear = ref('2025-26');
 
 const tentativeExams = ref([
-  {
-    id: 101,
-    subject: 'Cloud Infrastructure',
-    expectedWeek: '3rd Week of April',
-    probability: 85
-  },
-  {
-    id: 102,
-    subject: 'Database Management',
-    expectedWeek: 'Last Week of April',
-    probability: 70
-  },
-  {
-    id: 103,
-    subject: 'Ethical Hacking',
-    expectedWeek: '1st Week of May',
-    probability: 90
-  }
+  { id: 101, subject: 'Cloud Infrastructure', expectedWeek: '3rd Week of April', probability: 85 },
+  { id: 102, subject: 'Database Management', expectedWeek: 'Last Week of April', probability: 70 }
 ]);
+
+// Helper to format 24h time to 12h
+const formatTime = (timeStr) => {
+  if (!timeStr) return '';
+  const [h, m] = timeStr.split(':');
+  const hour = parseInt(h);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${m} ${ampm}`;
+};
+
+onMounted(async () => {
+  try {
+    const response = await useExams();
+    // Handling the array inside the PromiseResult
+    const data = Array.isArray(response) ? response : [];
+
+    if (data.length > 0) {
+      studentYear.value = data[0].academic_year;
+      
+      confirmedExams.value = data.map((item, index) => {
+        const dateObj = new Date(item.date);
+        
+        return {
+          id: item.exam_id || index,
+          subject: item.subject,
+          course: item.course, // Added to show the specific course
+          // Date Transformations
+          month: dateObj.toLocaleString('default', { month: 'short' }).toUpperCase(),
+          day: dateObj.getDate().toString().padStart(2, '0'),
+          dayName: dateObj.toLocaleString('default', { weekday: 'long' }).toUpperCase(),
+          // Time Transformation
+          time: `${formatTime(item.start_time)} - ${formatTime(item.end_time)}`,
+          room: item.room.replace('HTL-ROOM-', 'Room '), // Cleaning up the string
+          seat: 'TBA' // Not provided in backend yet
+        };
+      });
+    }
+  } catch (error) {
+    console.error("Error loading exams:", error);
+  }
+});
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #d9dee3;
-  border-radius: 10px;
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.animate-in {
-  animation-fill-mode: both;
-}
-
-.slide-in-from-left {
-  animation: slideInLeft 0.4s ease-out;
-}
-
-.slide-in-from-right {
-  animation: slideInRight 0.4s ease-out;
-}
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #d9dee3; border-radius: 10px; }
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+.animate-in { animation-fill-mode: both; }
+.slide-in-from-left { animation: slideInLeft 0.4s ease-out; }
+.slide-in-from-right { animation: slideInRight 0.4s ease-out; }
 </style>
