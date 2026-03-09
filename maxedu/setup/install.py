@@ -1,7 +1,12 @@
 import frappe
 
 def after_install():
+    setup_custom_doctypes()
     create_student_custom_fields()
+
+def setup_custom_doctypes():
+    frappe.reload_doc("maxedu", "doctype", "student_assignment")
+    frappe.reload_doc("maxedu", "doctype", "study_material")
 
 def create_student_custom_fields():
 
