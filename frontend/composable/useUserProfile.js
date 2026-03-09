@@ -14,6 +14,7 @@ export const useUserProfile = () => {
 
   const loadProfile = async () => {
 
+    // prevent duplicate calls
     if (profileData.value.fullName) return
 
     const userEmail = await auth.getLoggedUser()
@@ -27,14 +28,11 @@ export const useUserProfile = () => {
     })
 
     const roleResource = createResource({
-      url: 'maxedu.api_folder.exam.get_results',
-      // params: {
-      //   user: userEmail
-      // }
+      url: 'maxedu.api_folder.profile.get_user_info'
     })
 
     const profile = await profileResource.submit()
-    const role = await roleResource.submit()
+    const roleData = await roleResource.submit()
 
     profileData.value = {
       firstName: profile.first_name || '',
@@ -44,13 +42,11 @@ export const useUserProfile = () => {
       userImage: profile.user_image || ''
     }
 
-    userRole.value = role
+    userRole.value = roleData?.role || null
 
-    // console.log('User Profile:', profileData.value)
-    console.log('User Fees:', userRole.value)
-
+    console.log('User Profile:', profileData.value)
+    console.log('User Role:', userRole.value)
   }
 
   return { profileData, userRole, loadProfile }
-
 }

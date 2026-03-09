@@ -25,7 +25,20 @@ def get_user_role():
         return "Parent"
     return None
 
+@frappe.whitelist()
+def get_user_info():
+    if user_is_guest():
+        return {"role": "Guest", "email": None, "first_name": "Guest", "last_name": "User"}
 
+    user_doc = frappe.get_doc("User", frappe.session.user)
+
+    return {
+        "role": get_user_role(),
+        "email": user_doc.email,
+        "first_name": user_doc.first_name,
+        "last_name": user_doc.last_name,
+    }
+    
 @frappe.whitelist()
 def get_profile():
     if user_has_role("Student"):
