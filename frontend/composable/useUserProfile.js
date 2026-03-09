@@ -27,7 +27,7 @@ export const useUserProfile = () => {
     })
 
     const roleResource = createResource({
-      url: 'maxedu.api_folder.fees.get_my_fee',
+      url: 'maxedu.api_folder.exam.get_results',
       // params: {
       //   user: userEmail
       // }
