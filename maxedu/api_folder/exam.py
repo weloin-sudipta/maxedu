@@ -29,6 +29,9 @@ def get_exams():
         )
 
         for exam in group_exams:
+
+            date_range = get_exam_date_range(exam.get("assessment_group"))
+
             exams.append({
                 "exam_id": exam.get("name"),
                 "subject": exam.get("assessment_name"),
@@ -43,7 +46,9 @@ def get_exams():
                 "student_group": exam.get("student_group"),
                 "academic_year": exam.get("academic_year"),
                 "grading_scale": exam.get("grading_scale"),
-                "program": exam.get("program")
+                "program": exam.get("program"),
+                "exam_start_date": date_range.get("exam_start_date"),
+                "exam_end_date": date_range.get("exam_end_date")
             })
 
     return exams
@@ -62,3 +67,22 @@ def get_results():
     )
 
     return assessment_result 
+
+def get_exam_date_range(assessment_group):
+    plans = frappe.get_all(
+        "Assessment Plan",
+        filters={"assessment_group": assessment_group},
+        fields=["schedule_date"],
+        order_by="schedule_date asc"
+    )
+
+    if not plans:
+        return {"exam_start_date": None, "exam_end_date": None}
+
+    start_date = plans[0].schedule_date
+    end_date = plans[-1].schedule_date
+
+    return {
+        "exam_start_date": start_date,
+        "exam_end_date": end_date
+    }
