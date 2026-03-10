@@ -33,8 +33,8 @@
               <p class="text-xl font-black text-indigo-600">{{ studentMeta.avgGrade || 'N/A' }}</p>
             </div>
             <div class="text-center">
-              <p class="text-[9px] font-black text-slate-400 uppercase">Status</p>
-              <p class="text-xl font-black text-emerald-500">PASS</p>
+              <!-- <p class="text-[9px] font-black text-slate-400 uppercase">Status</p> -->
+              <!-- <p class="text-xl font-black text-emerald-500">PASS</p> -->
             </div>
           </div>
         </div>
@@ -190,6 +190,8 @@ const handleDownload = () => {
 onMounted(async () => {
   try {
     const result = await useExamResults();
+    console.log(result[0]);
+    
     
     // Check if result is an array and has at least one item
     if (result && result.length > 0) {
@@ -201,7 +203,7 @@ onMounted(async () => {
         academic_year: first.academic_year,
         program: first.program,
         student_id: first.student,
-        avgGrade: first.grade // In a real scenario, you might calculate this across all subjects
+        avgGrade: first.grade
       };
 
       // 2. Map the array to the subjects ref used in the table
@@ -210,7 +212,7 @@ onMounted(async () => {
         const colorClass = getColorByGrade(item.grade);
         
         return {
-          id: item.name || index, // EDU-RES-...
+          id: item.name || index, 
           code: item.assessment_group, // "12 class exam"
           name: item.course, // "physics"
           grade: item.grade || 'N/A',
