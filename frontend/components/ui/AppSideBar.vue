@@ -3,10 +3,10 @@
     bg-gradient-to-b from-white via-white to-indigo-50/40 
     backdrop-blur-xl border-r border-gray-200/60 
     shadow-xl shadow-indigo-100/40 z-50 group flex-shrink-0"
-        :class="[(isCollapsed && !isHovered) ? 'w-[85px]' : 'w-[270px]']" @mouseenter="isHovered = true"
-        @mouseleave="isHovered = false">
+        :class="[isExpanded ? 'w-[270px]' : 'w-[85px]']" 
+        @mouseenter="handleMouseEnter"
+        @mouseleave="handleMouseLeave">
 
-        <!-- HEADER -->
         <div class="flex items-center justify-between px-6 h-20 flex-shrink-0">
             <div class="flex items-center gap-3 overflow-hidden">
                 <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-tr from-indigo-600 to-purple-500 
@@ -15,24 +15,24 @@
                     <i class="fa fa-graduation-cap"></i>
                 </div>
 
-                <span v-show="!isCollapsed || isHovered"
-                    class="font-bold text-xl text-gray-800 whitespace-nowrap tracking-wide">
-                    {{ $config.public.appName }}
-                </span>
+                <transition name="fade">
+                    <span v-show="isExpanded"
+                        class="font-bold text-xl text-gray-800 whitespace-nowrap tracking-wide">
+                        {{ $config.public.appName }}
+                    </span>
+                </transition>
             </div>
 
-            <button v-show="!isCollapsed || isHovered" @click="isCollapsed = !isCollapsed" class="p-2 text-gray-400 transition rounded-full 
+            <button v-show="isExpanded" @click="isCollapsed = !isCollapsed" class="p-2 text-gray-400 transition rounded-full 
         hover:bg-indigo-100 hover:text-indigo-600 duration-300">
                 <i class="fa fa-angle-double-left text-xl"></i>
             </button>
         </div>
 
-        <!-- NAVIGATION -->
         <nav class="flex-1 px-4 mt-6 space-y-2 overflow-y-auto custom-scrollbar">
 
             <div v-for="item in navItems" :key="item.name" class="relative group/item">
 
-                <!-- ACTIVE SIDE INDICATOR -->
                 <div v-if="isActive(item)" class="absolute left-0 top-2 h-8 w-1 rounded-r-full bg-indigo-600 shadow-md">
                 </div>
                 
@@ -49,19 +49,18 @@
                             <i :class="item.icon"></i>
                         </span>
 
-                        <span v-show="!isCollapsed || isHovered" class="font-medium whitespace-nowrap tracking-wide">
+                        <span v-show="isExpanded" class="font-medium whitespace-nowrap tracking-wide">
                             {{ item.name }}
                         </span>
                     </div>
 
-                    <i v-if="item.children && (!isCollapsed || isHovered)"
+                    <i v-if="item.children && isExpanded"
                         class="fa fa-angle-down transition-transform duration-300 text-xs text-gray-400"
                         :class="{ 'rotate-180 text-indigo-600': item.isOpen }"></i>
                 </NuxtLink>
 
-                <!-- SUBMENU -->
                 <transition name="expand">
-                    <div v-if="item.children && item.isOpen && (!isCollapsed || isHovered)" class="overflow-hidden">
+                    <div v-if="item.children && item.isOpen && isExpanded" class="overflow-hidden">
                         <div class="mt-2 ml-4 pl-6 border-l border-indigo-100 space-y-1 my-2">
 
                             <NuxtLink v-for="sub in item.children" :key="sub.name" :to="sub.route" :class="[
@@ -81,8 +80,7 @@
 
         </nav>
 
-        <!-- FOOTER -->
-        <div v-show="!isCollapsed || isHovered" class="p-4 border-t border-gray-100 text-xs text-gray-400 text-center">
+        <div v-show="isExpanded" class="p-4 border-t border-gray-100 text-xs text-gray-400 text-center">
             © 2026 <b>{{ $config.public.appName }}</b>
         </div>
 
@@ -90,13 +88,31 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
 const isCollapsed = ref(false)
 const isHovered = ref(false)
+let hoverTimeout = null
+
+// New Logic: Check if sidebar should be wide
+const isExpanded = computed(() => {
+    return !isCollapsed.value || isHovered.value
+})
+
+// Prevent "flickering" expansion when moving mouse quickly
+const handleMouseEnter = () => {
+    hoverTimeout = setTimeout(() => {
+        isHovered.value = true
+    }, 50) // Tiny delay for a smoother feel
+}
+
+const handleMouseLeave = () => {
+    clearTimeout(hoverTimeout)
+    isHovered.value = false
+}
 
 const navItems = reactive([
     { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
@@ -124,24 +140,15 @@ const navItems = reactive([
     { name: 'Library', icon: 'fa fa-book', route: '/library' },
     { name: 'Events', icon: 'fa fa-calendar', route: '/events' },
     { name: 'Profile', icon: 'fa fa-address-card', route: '/profile' },
-    //   { name: 'Students', icon: 'fa fa-users', route: '/student_list' },
-
     { name: 'Logout', icon: 'fa fa-sign-out', route: '/logout' },
 ])
 
 const isActive = (item) => {
-    if (item.route && item.route === route.path) {
-        return true
-    }
-
-    if (item.children) {
-        return item.children.some(child => child.route === route.path)
-    }
-
+    if (item.route && item.route === route.path) return true
+    if (item.children) return item.children.some(child => child.route === route.path)
     return false
 }
 
-// Auto open submenu if child route active
 onMounted(() => {
     navItems.forEach(item => {
         if (item.children && isActive(item)) {
@@ -152,10 +159,18 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Added a fade transition for text elements so they don't pop in instantly */
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
+}
+
 .expand-enter-active,
 .expand-leave-active {
     transition: all 0.4s cubic-bezier(.4, 0, .2, 1);
-    max-height: 300px;
+    max-height: 400px;
     opacity: 1;
 }
 
