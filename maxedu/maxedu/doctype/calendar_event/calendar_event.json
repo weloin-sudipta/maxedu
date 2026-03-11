@@ -11,7 +11,8 @@
   "column_break_uhww",
   "start_time",
   "end_time",
-  "program"
+  "program",
+  "student"
  ],
  "fields": [
   {
@@ -49,6 +50,12 @@
    "fieldtype": "Table MultiSelect",
    "label": "Program",
    "options": "Calendar Program"
+  },
+  {
+   "fieldname": "student",
+   "fieldtype": "Table MultiSelect",
+   "label": "Student",
+   "options": "Calendar Student Group"
   }
  ],
  "grid_page_length": 50,
