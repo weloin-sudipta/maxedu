@@ -87,10 +87,10 @@
               </div>
             </div>
 
-            <div class="flex md:flex-col justify-end gap-2 shrink-0">
+            <!-- <div class="flex md:flex-col justify-end gap-2 shrink-0">
               <button class="btn-action-gray"><i class="fa fa-share-alt"></i></button>
               <button class="btn-action-indigo">View</button>
-            </div>
+            </div> -->
           </div>
         </div>
 
