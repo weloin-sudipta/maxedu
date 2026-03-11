@@ -60,18 +60,3 @@ export const getFees = async () => {
   return fees
 }
 
-export const allEvents = async () => {
-  const events = createResource({
-    url: 'maxedu.api_folder.event.get_all_events',
-  })
-  const data = await events.submit()
-  return data
-}
-
-export const test = async () => {
-  const feesResource = createResource({
-    url: 'maxedu.api_folder.event.get_all_event_tags',
-  })
-  const test = await feesResource.submit()
-  return test
-}
