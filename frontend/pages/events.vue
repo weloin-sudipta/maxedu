@@ -141,29 +141,64 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { allEvents } from '~/composable/useProfile'
+import { test } from '~/composable/useProfile'
+
+onMounted(async()=>{
+  const data = await test()
+  console.log(data);
+  
+})
 
 const showCalendarModal = ref(false);
 const activeFilter = ref('All Events');
 const filters = ['All Events', 'Upcoming', 'Ongoing', 'Workshops', 'Sports'];
+// State for events
+const events = ref([]);
 
 const categoryStyles = {
   Academic: 'bg-indigo-50 text-indigo-600 border-indigo-100',
   Sports: 'bg-green-50 text-green-600 border-green-100',
   Arts: 'bg-purple-50 text-purple-600 border-purple-100',
-  Holiday: 'bg-red-50 text-red-600 border-red-100'
+  Holiday: 'bg-red-50 text-red-600 border-red-100',
+  General: 'bg-slate-50 text-slate-600 border-slate-100'
 };
 
-const events = ref([
-  { id: 1, day: '14', month: 'OCT', title: 'Annual Inter-School Athletics', category: 'Sports', time: '09:00 AM', location: 'Main Stadium', attendees: 45, description: 'Compete in various track and field events. Registration closes this Friday.', status: 'Upcoming' },
-  { id: 2, day: '18', month: 'OCT', title: 'Robotics & AI Workshop', category: 'Academic', time: '10:30 AM', location: 'Lab 04', attendees: 12, description: 'Hands-on experience with the new Nano Banana 2 processing models.', status: 'Upcoming' },
-  { id: 3, day: '25', month: 'OCT', title: 'Autumn Music Festival', category: 'Arts', time: '04:00 PM', location: 'School Auditorium', attendees: 89, description: 'A celebration of classical and modern music performed by our students.', status: 'Upcoming' },
-]);
+const formatEventData = (rawList) => {
+  return rawList.map(item => {
+    const eventDate = new Date(item.date);
+    return {
+      id: item.name, 
+      day: eventDate.getDate().toString().padStart(2, '0'),
+      month: eventDate.toLocaleString('default', { month: 'short' }).toUpperCase(),
+      title: item.event_name,
+      category: item.description.toLowerCase().includes('sports') ? 'Sports' : 'General',
+      time: item.start_time.substring(0, 5),
+      location: item.room || 'School Campus',
+      attendees: Math.floor(Math.random() * 50) + 10,
+      description: item.description,
+      status: 'Upcoming'
+    };
+  });
+};
+
+onMounted(async () => {
+  try {
+    const data = await allEvents();
+    console.log("Raw events data", data);
+    
+    if (data && Array.isArray(data)) {
+      events.value = formatEventData(data);
+    }
+  } catch (error) {
+    console.error("Failed to fetch events:", error);
+  }
+});
 
 const deadlines = ref([
   { id: 1, title: 'Term 1 Fee Payment', date: 'Due in 2 days' },
   { id: 2, title: 'Science Project Submission', date: 'Oct 20, 2025' },
-  { id: 3, title: 'Winter Camp Registration', date: 'Oct 22, 2025' },
 ]);
 
 const isEventDate = (date) => {
@@ -172,7 +207,9 @@ const isEventDate = (date) => {
 
 const filteredEvents = computed(() => {
   if (activeFilter.value === 'All Events') return events.value;
-  return events.value.filter(e => e.category === activeFilter.value || e.status === activeFilter.value);
+  return events.value.filter(e => 
+    e.category === activeFilter.value || e.status === activeFilter.value
+  );
 });
 </script>
 

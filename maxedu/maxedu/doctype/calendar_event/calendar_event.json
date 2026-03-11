@@ -8,11 +8,13 @@
   "date",
   "event_name",
   "room",
-  "column_break_uhww",
   "start_time",
   "end_time",
+  "student",
+  "column_break_uhww",
   "program",
-  "student"
+  "event_tag",
+  "description"
  ],
  "fields": [
   {
@@ -52,10 +54,21 @@
    "options": "Calendar Program"
   },
   {
-   "fieldname": "student",
+   "fieldname": "student ",
    "fieldtype": "Table MultiSelect",
-   "label": "Student",
+   "label": "Student Group",
    "options": "Calendar Student Group"
+  },
+  {
+   "fieldname": "event_tag",
+   "fieldtype": "Table MultiSelect",
+   "label": "Event Tag",
+   "options": "Calendar Event Tag"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
   }
  ],
  "grid_page_length": 50,
