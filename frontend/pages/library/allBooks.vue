@@ -152,6 +152,13 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import {useExams} from '~/composable/useBook'
+
+onMounted(async()=>{
+  const books = await useExams()
+  console.log(books);
+  
+})
 
 const searchQuery = ref('');
 const selectedCategory = ref('All');

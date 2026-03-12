@@ -78,6 +78,25 @@
 
             </div>
 
+            <!-- Logout Button styled like nav items -->
+            <div class="relative group/item">
+                <button
+                    @click="handleLogout"
+                    :disabled="isLoggingOut"
+                    class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 
+                    text-gray-600 hover:bg-red-50 hover:text-red-500 hover:shadow-md hover:-translate-y-0.5
+                    disabled:opacity-50 disabled:cursor-not-allowed">
+                    <div class="flex items-center gap-4">
+                        <span class="w-6 text-center text-lg transition-all duration-300 group-hover/item:scale-110 group-hover/item:text-red-500">
+                            <i :class="isLoggingOut ? 'fa fa-spinner fa-spin' : 'fa fa-sign-out'"></i>
+                        </span>
+                        <span v-show="isExpanded" class="font-medium whitespace-nowrap tracking-wide">
+                            {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
+                        </span>
+                    </div>
+                </button>
+            </div>
+
         </nav>
 
         <div v-show="isExpanded" class="p-4 border-t border-gray-100 text-xs text-gray-400 text-center">
@@ -90,28 +109,40 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { logout } from '~/composable/useAuth'
 
 const route = useRoute()
-
 const isCollapsed = ref(false)
 const isHovered = ref(false)
+const isLoggingOut = ref(false)
 let hoverTimeout = null
 
-// New Logic: Check if sidebar should be wide
 const isExpanded = computed(() => {
     return !isCollapsed.value || isHovered.value
 })
 
-// Prevent "flickering" expansion when moving mouse quickly
 const handleMouseEnter = () => {
     hoverTimeout = setTimeout(() => {
         isHovered.value = true
-    }, 50) // Tiny delay for a smoother feel
+    }, 50)
 }
 
 const handleMouseLeave = () => {
     clearTimeout(hoverTimeout)
     isHovered.value = false
+}
+
+const handleLogout = async () => {
+    if (isLoggingOut.value) return
+    try {
+        isLoggingOut.value = true
+        await logout()
+        navigateTo('/login')
+    } catch (error) {
+        console.error('Logout failed:', error)
+    } finally {
+        isLoggingOut.value = false
+    }
 }
 
 const navItems = reactive([
@@ -126,8 +157,8 @@ const navItems = reactive([
             { name: 'Timetable', route: '/academics/timetable' },
             { name: 'Assignments', route: '/academics/assignments' },
         ]
-    }, { name: 'Attendance', icon: 'fa fa-calendar-check-o', route: '/attendance' },
-
+    },
+    { name: 'Attendance', icon: 'fa fa-calendar-check-o', route: '/attendance' },
     {
         name: 'Examination',
         icon: 'fa fa-file-text-o',
@@ -140,7 +171,6 @@ const navItems = reactive([
     { name: 'Library', icon: 'fa fa-book', route: '/library' },
     { name: 'Events', icon: 'fa fa-calendar', route: '/events' },
     { name: 'Profile', icon: 'fa fa-address-card', route: '/profile' },
-    { name: 'Logout', icon: 'fa fa-sign-out', route: '/logout' },
 ])
 
 const isActive = (item) => {
@@ -159,7 +189,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Added a fade transition for text elements so they don't pop in instantly */
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.3s ease;
 }

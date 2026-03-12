@@ -6,25 +6,25 @@
   <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-white/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
 
   <!-- Login Card -->
-  <div class="relative z-10 w-full max-w-md p-10">
+  <div class="relative z-10 w-full max-w-xl p-10 pb-5">
 
     <div class="bg-white/20 backdrop-blur-xl border border-white/30 shadow-2xl rounded-[2.5rem] p-10">
 
       <!-- Logo -->
-      <div class="text-center mb-8">
-        <div class="w-20 h-20 mx-auto bg-white/30 rounded-3xl flex items-center justify-center shadow-lg backdrop-blur-md">
+      <div class="text-center mb-5">
+        <div class="w-16 h-16 mx-auto bg-white/30 rounded-3xl flex items-center justify-center shadow-lg backdrop-blur-md">
           <i class="fa fa-graduation-cap text-3xl text-indigo-600"></i>
         </div>
-        <h1 class="mt-6 text-3xl font-black text-indigo-600 tracking-tight">
+        <!-- <h1 class="mt-6 text-3xl font-black text-indigo-600 tracking-tight">
           {{ config.public.appName }} ERP
-        </h1>
+        </h1> -->
         <p class="text-white/70 text-xs uppercase tracking-[0.3em] mt-2">
           Academic Management System
         </p>
       </div>
 
       <!-- Form -->
-      <form class="space-y-6">
+      <form @submit.prevent="handlelogin" class="space-y-6">
 
         <!-- Email -->
         <div>
@@ -32,6 +32,7 @@
             Email Address
           </label>
           <input
+          v-model="email"
             type="email"
             placeholder="Enter your email"
             class="w-full mt-2 px-5 py-3 rounded-2xl bg-white/30 border border-white/40 text-white placeholder-white/60 text-sm font-semibold outline-none focus:ring-4 focus:ring-white/30 transition-all"
@@ -44,6 +45,7 @@
             Password
           </label>
           <input
+            v-model="password"
             type="password"
             placeholder="Enter your password"
             class="w-full mt-2 px-5 py-3 rounded-2xl bg-white/30 border border-white/40 text-white placeholder-white/60 text-sm font-semibold outline-none focus:ring-4 focus:ring-white/30 transition-all"
@@ -64,7 +66,7 @@
         <!-- Button -->
         <button
           type="submit"
-          class="w-full py-3 rounded-2xl bg-white text-indigo-600 font-black uppercase tracking-widest text-xs shadow-xl hover:scale-[1.02] hover:shadow-2xl transition-all duration-300 active:scale-95"
+          class="w-full py-3.5 rounded-2xl bg-white text-indigo-600 font-black uppercase tracking-widest text-xs shadow-xl hover:scale-[1.02] hover:shadow-2xl transition-all duration-300 active:scale-95"
         >
           Sign In
         </button>
@@ -72,21 +74,21 @@
       </form>
 
       <!-- Divider -->
-      <div class="flex items-center gap-4 my-8">
+      <!-- <div class="flex items-center gap-4 my-8">
         <div class="flex-1 h-px bg-white/30"></div>
         <span class="text-white/60 text-xs uppercase tracking-widest">or</span>
         <div class="flex-1 h-px bg-white/30"></div>
-      </div>
+      </div> -->
 
       <!-- Social Login -->
-      <div class="flex gap-4">
+      <!-- <div class="flex gap-4">
         <button class="flex-1 py-3 rounded-2xl bg-white/30 text-white font-bold text-xs hover:bg-white/40 transition">
           Google
         </button>
         <button class="flex-1 py-3 rounded-2xl bg-white/30 text-white font-bold text-xs hover:bg-white/40 transition">
           Microsoft
         </button>
-      </div>
+      </div> -->
 
     </div>
 
@@ -104,6 +106,23 @@
 definePageMeta({
     layout: 'authLayout'
 })
+
+import {login} from '~/composable/useAuth'
+
+const email = ref('')
+const password = ref('')
+
+const handlelogin=async()=>{
+  try {
+    console.log(email.value, password.value);
+    await login(email.value, password.value)
+  } catch (error) {
+    console.log(error);
+    
+    throw error
+  }
+}
+
 const config = useRuntimeConfig()
 useSeoMeta({
     title: `Login - ${config.public.appName}`,

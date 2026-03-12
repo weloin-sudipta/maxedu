@@ -248,6 +248,9 @@
 </template>
 
 <script setup>
+definePageMeta({
+  middleware: 'auth'
+})
 import { ref, onMounted } from 'vue'
 import ApexCharts from 'apexcharts'
 import AppModal from '~/components/ui/AppModal.vue'
