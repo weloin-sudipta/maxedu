@@ -7,10 +7,10 @@
  "fields": [
   {
    "fieldname": "tag_name",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Tag Name",
-   "reqd": 1,
-   "unique": 1
+   "options": "Tag",
+   "in_list_view": 1
   }
  ],
  "permissions": [
