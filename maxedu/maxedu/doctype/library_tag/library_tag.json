@@ -1,0 +1,25 @@
+{
+ "doctype": "DocType",
+ "name": "Library Tag",
+ "module": "Maxedu",
+ "autoname": "field:tag_name",
+ "istable": 0,
+ "fields": [
+  {
+   "fieldname": "tag_name",
+   "fieldtype": "Data",
+   "label": "Tag Name",
+   "reqd": 1,
+   "unique": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  }
+ ]
+}

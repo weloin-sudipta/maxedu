@@ -1,0 +1,182 @@
+{
+    "actions": [],
+    "autoname": "naming_series:",
+    "naming_rule": "By \"Naming Series\" field",
+    "creation": "2026-03-12 10:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "naming_series",
+        "book_request",
+        "member",
+        "member_name",
+        "column_break_1",
+        "book",
+        "book_title",
+        "book_isbn",
+        "section_break_dates",
+        "issue_date",
+        "due_date",
+        "column_break_dates",
+        "return_date",
+        "status",
+        "section_fine",
+        "fine_per_day",
+        "days_overdue",
+        "total_fine",
+        "fine_paid"
+    ],
+    "fields": [
+        {
+            "fieldname": "naming_series",
+            "fieldtype": "Select",
+            "label": "Naming Series",
+            "options": "LIB-ISS-.####",
+            "default": "LIB-ISS-.####",
+            "hidden": 1
+        },
+        {
+            "fieldname": "book_request",
+            "fieldtype": "Link",
+            "label": "Book Request",
+            "options": "Book Request"
+        },
+        {
+            "fieldname": "member",
+            "fieldtype": "Link",
+            "label": "Member",
+            "options": "Library Member",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "member_name",
+            "fieldtype": "Data",
+            "label": "Member Name",
+            "fetch_from": "member.full_name",
+            "read_only": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "book",
+            "fieldtype": "Link",
+            "label": "Book",
+            "options": "Library Book",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "book_title",
+            "fieldtype": "Data",
+            "label": "Book Title",
+            "fetch_from": "book.title",
+            "read_only": 1
+        },
+        {
+            "fieldname": "book_isbn",
+            "fieldtype": "Link",
+            "label": "Book ISBN (Copy)",
+            "options": "Library Book Inventory",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "section_break_dates",
+            "fieldtype": "Section Break",
+            "label": "Dates"
+        },
+        {
+            "fieldname": "issue_date",
+            "fieldtype": "Date",
+            "label": "Issue Date",
+            "reqd": 1,
+            "default": "Today"
+        },
+        {
+            "fieldname": "due_date",
+            "fieldtype": "Date",
+            "label": "Due Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "column_break_dates",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "return_date",
+            "fieldtype": "Date",
+            "label": "Return Date"
+        },
+        {
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "label": "Status",
+            "options": "Issued\nReturned\nOverdue",
+            "default": "Issued",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "section_fine",
+            "fieldtype": "Section Break",
+            "label": "Fine Details",
+            "depends_on": "eval:doc.status=='Returned' || doc.status=='Overdue'"
+        },
+        {
+            "fieldname": "fine_per_day",
+            "fieldtype": "Currency",
+            "label": "Fine Per Day",
+            "read_only": 1,
+            "depends_on": "eval:doc.status=='Returned' || doc.status=='Overdue'"
+        },
+        {
+            "fieldname": "days_overdue",
+            "fieldtype": "Int",
+            "label": "Days Overdue",
+            "read_only": 1,
+            "depends_on": "eval:doc.status=='Returned' || doc.status=='Overdue'"
+        },
+        {
+            "fieldname": "total_fine",
+            "fieldtype": "Currency",
+            "label": "Total Fine",
+            "read_only": 1,
+            "depends_on": "eval:doc.status=='Returned' || doc.status=='Overdue'"
+        },
+        {
+            "fieldname": "fine_paid",
+            "fieldtype": "Check",
+            "label": "Fine Paid",
+            "default": 0,
+            "depends_on": "eval:(doc.status=='Returned' || doc.status=='Overdue') && doc.total_fine > 0"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2026-03-12 13:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Maxedu",
+    "name": "Book Issue",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "issue_date",
+    "sort_order": "DESC",
+    "states": []
+}
