@@ -4,6 +4,7 @@
     "module": "Maxedu",
     "custom": 0,
     "autoname": "naming_series:",
+    "title_field": "title",
     "naming_rule": "By \"Naming Series\" field",
     "field_order": [
         "naming_series",
