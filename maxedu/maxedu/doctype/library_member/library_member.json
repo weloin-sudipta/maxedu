@@ -1,0 +1,135 @@
+{
+    "doctype": "DocType",
+    "name": "Library Member",
+    "module": "Maxedu",
+    "autoname": "field:library_id",
+    "field_order": [
+        "library_id",
+        "member_type",
+        "user",
+        "student",
+        "instructor",
+        "staff",
+        "column_break_1",
+        "full_name",
+        "email",
+        "phone",
+        "join_date",
+        "expiry_date",
+        "max_books_allowed",
+        "status"
+    ],
+    "fields": [
+        {
+            "fieldname": "library_id",
+            "fieldtype": "Data",
+            "label": "Library ID",
+            "unique": 1,
+            "reqd": 1
+        },
+        {
+            "fieldname": "member_type",
+            "fieldtype": "Select",
+            "label": "Member Type",
+            "options": "Student\nInstructor\nStaff",
+            "reqd": 1
+        },
+        {
+            "fieldname": "user",
+            "fieldtype": "Link",
+            "label": "User",
+            "options": "User"
+        },
+        {
+            "fieldname": "student",
+            "fieldtype": "Link",
+            "label": "Student",
+            "options": "Student",
+            "depends_on": "eval:doc.member_type=='Student'",
+            "mandatory_depends_on": "eval:doc.member_type=='Student'"
+        },
+        {
+            "fieldname": "instructor",
+            "fieldtype": "Link",
+            "label": "Instructor",
+            "options": "Instructor",
+            "depends_on": "eval:doc.member_type=='Instructor'",
+            "mandatory_depends_on": "eval:doc.member_type=='Instructor'"
+        },
+        {
+            "fieldname": "staff",
+            "fieldtype": "Link",
+            "label": "Staff",
+            "options": "Employee",
+            "depends_on": "eval:doc.member_type=='Staff'",
+            "mandatory_depends_on": "eval:doc.member_type=='Staff'"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "full_name",
+            "fieldtype": "Data",
+            "label": "Full Name",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "email",
+            "fieldtype": "Email",
+            "label": "Email",
+            "reqd": 1,
+            "in_list_view": 1,
+            "unique": 1
+        },
+        {
+            "fieldname": "phone",
+            "fieldtype": "Data",
+            "label": "Phone"
+        },
+        {
+            "fieldname": "join_date",
+            "fieldtype": "Date",
+            "label": "Join Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "expiry_date",
+            "fieldtype": "Date",
+            "label": "Expiry Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "max_books_allowed",
+            "fieldtype": "Int",
+            "label": "Max Books Allowed",
+            "default": 3
+        },
+        {
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "label": "Status",
+            "options": "Active\nSuspended",
+            "default": "Active"
+        }
+    ],
+    "sort_field": "join_date",
+    "sort_order": "DESC",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1,
+            "print": 1,
+            "export": 1,
+            "share": 1,
+            "email": 1,
+            "report": 1
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "states": []
+}
