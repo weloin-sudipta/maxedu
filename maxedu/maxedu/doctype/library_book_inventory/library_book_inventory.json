@@ -16,6 +16,7 @@
         "total_copies",
         "available_copies",
         "location",
+        "column_break_2",
         "borrow_period_days",
         "fine_per_day",
         "section_online",
@@ -91,9 +92,14 @@
         },
         {
             "fieldname": "location",
-            "fieldtype": "Data",
+            "fieldtype": "Link",
+            "options": "Library Shelf",
             "label": "Shelf / Location",
             "depends_on": "eval:doc.copy_type=='Physical'"
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
         },
         {
             "fieldname": "borrow_period_days",
