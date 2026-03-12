@@ -1,25 +1,28 @@
 {
- "doctype": "DocType",
- "name": "Library Tag",
- "module": "Maxedu",
- "autoname": "field:tag_name",
- "istable": 0,
- "fields": [
-  {
-   "fieldname": "tag_name",
-   "fieldtype": "Link",
-   "label": "Tag Name",
-   "options": "Tag",
-   "in_list_view": 1
-  }
- ],
- "permissions": [
-  {
-   "role": "System Manager",
-   "read": 1,
-   "write": 1,
-   "create": 1,
-   "delete": 1
-  }
- ]
+    "doctype": "DocType",
+    "name": "Library Tag",
+    "istable": 1,
+    "fields": [
+        {
+            "fieldname": "tag",
+            "fieldtype": "Link",
+            "label": "Tag",
+            "options": "Tag",
+            "reqd": 1
+        }
+    ],
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ]
 }

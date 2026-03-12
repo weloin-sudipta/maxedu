@@ -3,7 +3,6 @@
     "name": "Library Book",
     "module": "Maxedu",
     "custom": 0,
-    "istable": 0,
     "autoname": "naming_series:",
     "naming_rule": "By \"Naming Series\" field",
     "field_order": [
@@ -102,9 +101,9 @@
         },
         {
             "fieldname": "tags",
-            "fieldtype": "Table MultiSelect",
+            "fieldtype": "Data",
             "label": "Tags",
-            "options": "Library Tag"
+            "placeholder": "Enter tags separated by comma (e.g., Science, Math, Python)"
         },
         {
             "fieldname": "column_break_2",
