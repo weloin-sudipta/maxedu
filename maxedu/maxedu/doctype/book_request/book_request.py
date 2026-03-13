@@ -32,16 +32,17 @@ def get_available_books(doctype, txt, searchfield, start, page_len, filters):
 
 
 class BookRequest(Document):
+    pass
 
-    def before_insert(self):
+#     def before_insert(self):
 
-        member = frappe.db.get_value(
-            "Library Member",
-            {"user": frappe.session.user},
-            "name"
-        )
+#         member = frappe.db.get_value(
+#             "Library Member",
+#             {"user": frappe.session.user},
+#             "name"
+#         )
 
-        if not member:
-            frappe.throw("No Library Member linked with this User.")
+#         if not member:
+#             frappe.throw("No Library Member linked with this User.")
 
-        self.member = member
+#         self.member = member
