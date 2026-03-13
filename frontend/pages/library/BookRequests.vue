@@ -1,19 +1,25 @@
 <template>
   <div class="space-y-8 p-4 lg:p-8 bg-slate-50/50 min-h-screen">
-    <div class=" mx-auto">
+    <div class="mx-auto max-w-5xl">
       <div class="flex items-center justify-between mb-8">
         <div>
           <h2 class="text-2xl font-black text-slate-800 tracking-tight">My Book Requests</h2>
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Track your active and past physical book loans</p>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+            Track your active and past physical book loans
+          </p>
         </div>
         <div class="h-12 w-12 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-indigo-600">
-          <i class="fa fa-history"></i>
+          <i class="fa fa-history" :class="{ 'fa-spin': loading }"></i>
         </div>
       </div>
 
-      <div v-if="requests.length > 0" class="space-y-6">
-        <div v-for="request in requests" :key="request.id" 
-             class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-200/60 animate-in slide-in-from-bottom-4 duration-500">
+      <div v-if="loading" class="space-y-4">
+        <div v-for="i in 2" :key="i" class="h-48 w-full bg-slate-200 animate-pulse rounded-[2.5rem]"></div>
+      </div>
+
+      <div v-else-if="requestedBook && requestedBook.length > 0" class="space-y-6">
+        <div v-for="request in requestedBook" :key="request.name" 
+             class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-200/60 animate-in">
           
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
             <div class="flex items-center gap-4">
@@ -21,16 +27,19 @@
                 <i class="fa fa-book"></i>
               </div>
               <div>
-                <h3 class="text-sm font-black text-slate-800 uppercase tracking-wide">{{ request.book_name }}</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Requested on {{ request.date }}</p>
+                <h3 class="text-sm font-black text-slate-800 uppercase tracking-wide">{{ request.book_title }}</h3>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                  ID: {{ request.book }} • Requested on {{ formatDate(request.request_date) }}
+                </p>
               </div>
             </div>
-            <div :class="['px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border shadow-sm', statusTheme(request.status).bg]">
+            
+            <div :class="['px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border shadow-sm transition-all', statusTheme(request.status).bg]">
               {{ request.status }}
             </div>
           </div>
 
-          <div class="relative px-2">
+          <div class="relative px-2 mb-4">
             <div class="absolute top-5 left-0 w-full h-[3px] bg-slate-100 rounded-full"></div>
             
             <div 
@@ -59,6 +68,11 @@
               </div>
             </div>
           </div>
+
+          <div v-if="request.remarks" class="mt-8 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">My Remarks</p>
+            <p class="text-xs text-slate-600 italic">"{{ request.remarks }}"</p>
+          </div>
         </div>
       </div>
 
@@ -71,57 +85,67 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { onMounted } from 'vue';
+import { useBooks } from '~/composable/useLibraryBooks';
 
-const requests = ref([]);
+const { requestedBook, loading, fetchRequestedBook } = useBooks();
 
-// Step definitions for the tracker
+// 1. Updated Steps to match your API Statuses: "Request", "Issued", "Returned"
+// Note: "Handover" is included as a common middle state if your system uses it.
 const steps = [
-  { key: 'Pending', label: 'Requested', icon: 'fa fa-paper-plane' },
-  { key: 'Issued', label: 'Approved', icon: 'fa fa-check-shield' },
-  { key: 'Handover', label: 'Ready for Collection', icon: 'fa fa-handshake-o' },
-  { key: 'Completed', label: 'Returned', icon: 'fa fa-archive' }
+  { key: 'Request', label: 'Requested', icon: 'fa fa-paper-plane' },
+  { key: 'Issued', label: 'In My Possession', icon: 'fa fa-handshake-o' },
+  { key: 'Returned', label: 'Returned', icon: 'fa fa-archive' }
 ];
 
+// 2. Map Status to Progress Bar Percentage
 const getProgressWidth = (status) => {
-  const mapping = { 'Pending': '0%', 'Issued': '33.33%', 'Handover': '66.66%', 'Completed': '100%' };
+  const mapping = { 
+    'Request': '0%', 
+    'Issued': '50%', 
+    'Returned': '100%' 
+  };
   return mapping[status] || '0%';
 };
 
+// 3. Logic to determine if a circle is "filled"
 const isStepReached = (currentStatus, stepKey) => {
-  const order = ['Pending', 'Issued', 'Handover', 'Completed'];
+  const order = ['Request', 'Issued', 'Returned'];
   return order.indexOf(currentStatus) >= order.indexOf(stepKey);
 };
 
+// 4. Status Themes matching your portal UI
 const statusTheme = (status) => {
   const themes = {
-    'Pending': { bg: 'bg-yellow-50 text-yellow-600 border-yellow-100' },
-    'Issued': { bg: 'bg-blue-50 text-blue-600 border-blue-100' },
-    'Handover': { bg: 'bg-green-50 text-green-600 border-green-100' },
-    'Completed': { bg: 'bg-slate-50 text-slate-500 border-slate-100' }
+    'Request': { bg: 'bg-amber-50 text-amber-600 border-amber-100' },
+    'Issued': { bg: 'bg-indigo-50 text-indigo-600 border-indigo-100' },
+    'Returned': { bg: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
   };
-  return themes[status] || themes['Pending'];
+  return themes[status] || { bg: 'bg-slate-50 text-slate-500 border-slate-100' };
 };
 
-onMounted(async () => {
-  // Simulate delay to show growing animation
-  setTimeout(() => {
-    requests.value = [
-      { id: 1, book_name: 'Mathematics 101', status: 'Pending', date: 'Mar 10, 2026' },
-      { id: 2, book_name: 'Physics Fundamentals', status: 'Issued', date: 'Mar 09, 2026' },
-      { id: 3, book_name: 'Chemistry Lab Guide', status: 'Handover', date: 'Mar 08, 2026' },
-    ];
-  }, 100);
+// 5. Helper to format dates
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+};
+
+onMounted(() => {
+  fetchRequestedBook();
 });
 </script>
 
 <style scoped>
-.rotate-360 { transform: rotate(360deg); }
-
-/* Custom animation for cards */
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-in { animation: slideUp 0.6s ease-out forwards; }
+
+/* Smoothly rotate the icon when reached */
+.rotate-360 { transform: rotate(360deg); }
 </style>
