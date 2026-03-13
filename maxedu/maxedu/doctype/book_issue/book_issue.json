@@ -78,11 +78,10 @@
         },
         {
             "fieldname": "book_isbn",
-            "fieldtype": "Link",
-            "label": "Book ISBN (Copy)",
-            "options": "Library Book Inventory",
+            "fieldtype": "Data",
+            "label": "Book ISBN",
             "reqd": 1,
-            "in_list_view": 1
+            "unique": 1
         },
         {
             "fieldname": "section_break_dates",
