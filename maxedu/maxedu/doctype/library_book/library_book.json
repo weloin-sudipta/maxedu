@@ -9,7 +9,6 @@
     "field_order": [
         "naming_series",
         "title",
-        "isbn",
         "author",
         "edition",
         "column_break_1",
@@ -38,14 +37,6 @@
             "fieldtype": "Data",
             "label": "Title",
             "reqd": 1,
-            "in_list_view": 1
-        },
-        {
-            "fieldname": "isbn",
-            "fieldtype": "Data",
-            "label": "ISBN",
-            "reqd": 1,
-            "unique": 1,
             "in_list_view": 1
         },
         {

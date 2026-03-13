@@ -8,9 +8,9 @@ from frappe.model.document import Document
 class LibraryMember(Document):
 
     def before_insert(self):
-        if not self.library_id:
-            self.library_id = self.generate_library_id()
-            self.name = self.library_id
+        if not self.library_member_id:
+            self.library_member_id = self.generate_library_id()
+            self.name = self.library_member_id
 
     def generate_library_id(self):
         prefix_map = {
@@ -31,9 +31,9 @@ class LibraryMember(Document):
             as_dict=True
         )
 
-        if last_id and last_id[0].library_id:
+        if last_id and last_id[0].library_member_id:
             # Extract the numeric part and increment
-            last_num = int(last_id[0].library_id.replace(prefix, ""))
+            last_num = int(last_id[0].library_member_id.replace(prefix, ""))
             new_num = last_num + 1
         else:
             new_num = 1

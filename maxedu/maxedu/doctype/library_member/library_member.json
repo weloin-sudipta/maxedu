@@ -2,18 +2,18 @@
     "doctype": "DocType",
     "name": "Library Member",
     "module": "Maxedu",
-    "autoname": "field:library_id",
+    "autoname": "field:library_member_id",
+    "title_field": "full_name",
     "field_order": [
-        "library_id",
+        "library_member_id",
         "member_type",
-        "user",
         "student",
         "instructor",
         "staff",
-        "column_break_1",
         "full_name",
         "email",
         "phone",
+        "column_break_1",
         "join_date",
         "expiry_date",
         "max_books_allowed",
@@ -21,12 +21,10 @@
     ],
     "fields": [
         {
-            "fieldname": "library_id",
-            "fieldtype": "Data",
-            "label": "Library ID",
-            "unique": 1,
-            "reqd": 1,
-            "read_only": 1
+            "fieldname": "library_member_id",
+            "fieldtype": "Select",
+            "label": "Library Member ID",
+            "hidden": 1
         },
         {
             "fieldname": "member_type",
@@ -34,12 +32,6 @@
             "label": "Member Type",
             "options": "Student\nInstructor\nStaff",
             "reqd": 1
-        },
-        {
-            "fieldname": "user",
-            "fieldtype": "Link",
-            "label": "User",
-            "options": "User"
         },
         {
             "fieldname": "student",
@@ -66,33 +58,36 @@
             "mandatory_depends_on": "eval:doc.member_type=='Staff'"
         },
         {
-            "fieldname": "column_break_1",
-            "fieldtype": "Column Break"
-        },
-        {
             "fieldname": "full_name",
             "fieldtype": "Data",
             "label": "Full Name",
             "reqd": 1,
+            "read_only": 1,
             "in_list_view": 1
         },
         {
             "fieldname": "email",
-            "fieldtype": "Email",
+            "fieldtype": "Data",
             "label": "Email",
-            "reqd": 1,
-            "in_list_view": 1,
-            "unique": 1
+            "read_only": 1,
+            "in_list_view": 1
         },
         {
             "fieldname": "phone",
             "fieldtype": "Data",
-            "label": "Phone"
+            "label": "Phone",
+            "read_only": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
         },
         {
             "fieldname": "join_date",
             "fieldtype": "Date",
             "label": "Join Date",
+            "default": "Today",
             "reqd": 1
         },
         {

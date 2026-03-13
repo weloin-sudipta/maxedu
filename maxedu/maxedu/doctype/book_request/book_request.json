@@ -4,11 +4,12 @@
     "doctype": "DocType",
     "engine": "InnoDB",
     "field_order": [
+        "member",
         "member_name",
-        "book",
-        "column_break_1",
-        "book_title",
         "request_date",
+        "column_break_1",
+        "book",
+        "book_title",
         "status",
         "section_break_1",
         "remarks"
@@ -19,9 +20,7 @@
             "fieldtype": "Link",
             "label": "Member",
             "options": "Library Member",
-            "reqd": 1,
-            "hidden": 1,
-            "read_only": 1
+            "reqd": 1
         },
         {
             "fieldname": "member_name",
@@ -32,6 +31,18 @@
             "in_list_view": 1
         },
         {
+            "fieldname": "request_date",
+            "fieldtype": "Date",
+            "label": "Request Date",
+            "reqd": 1,
+            "default": "Today",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
             "fieldname": "book",
             "fieldtype": "Link",
             "label": "Book",
@@ -40,23 +51,11 @@
             "in_list_view": 1
         },
         {
-            "fieldname": "column_break_1",
-            "fieldtype": "Column Break"
-        },
-        {
             "fieldname": "book_title",
             "fieldtype": "Data",
             "label": "Book Title",
             "fetch_from": "book.title",
             "read_only": 1
-        },
-        {
-            "fieldname": "request_date",
-            "fieldtype": "Date",
-            "label": "Request Date",
-            "reqd": 1,
-            "default": "Today",
-            "in_list_view": 1
         },
         {
             "fieldname": "status",
