@@ -1,49 +1,27 @@
 {
     "actions": [],
-    "autoname": "naming_series:",
-    "naming_rule": "By \"Naming Series\" field",
     "creation": "2026-03-12 10:00:00.000000",
     "doctype": "DocType",
     "engine": "InnoDB",
     "field_order": [
-        "naming_series",
-        "request_id",
-        "member",
         "member_name",
-        "column_break_1",
         "book",
+        "column_break_1",
         "book_title",
         "request_date",
-        "request_type",
         "status",
-        "section_break_isbn",
-        "book_isbn",
         "section_break_1",
         "remarks"
     ],
     "fields": [
-        {
-            "fieldname": "naming_series",
-            "fieldtype": "Select",
-            "label": "Naming Series",
-            "options": "LIB-REQ-.####",
-            "default": "LIB-REQ-.####",
-            "hidden": 1
-        },
-        {
-            "fieldname": "request_id",
-            "fieldtype": "Data",
-            "label": "Request ID",
-            "unique": 1,
-            "read_only": 1
-        },
         {
             "fieldname": "member",
             "fieldtype": "Link",
             "label": "Member",
             "options": "Library Member",
             "reqd": 1,
-            "in_list_view": 1
+            "hidden": 1,
+            "read_only": 1
         },
         {
             "fieldname": "member_name",
@@ -54,16 +32,16 @@
             "in_list_view": 1
         },
         {
-            "fieldname": "column_break_1",
-            "fieldtype": "Column Break"
-        },
-        {
             "fieldname": "book",
             "fieldtype": "Link",
             "label": "Book",
             "options": "Library Book",
             "reqd": 1,
             "in_list_view": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
         },
         {
             "fieldname": "book_title",
@@ -77,39 +55,17 @@
             "fieldtype": "Date",
             "label": "Request Date",
             "reqd": 1,
-            "default": "Today"
-        },
-        {
-            "fieldname": "request_type",
-            "fieldtype": "Select",
-            "label": "Request Type",
-            "options": "Issue\nReservation",
-            "default": "Issue",
-            "reqd": 1,
+            "default": "Today",
             "in_list_view": 1
         },
         {
             "fieldname": "status",
             "fieldtype": "Select",
             "label": "Status",
-            "options": "Pending\nApproved\nRejected\nIssued\nReserved\nReturned\nCancelled",
-            "default": "Pending",
+            "options": "Request\nCancel",
+            "default": "Request",
             "reqd": 1,
             "in_list_view": 1
-        },
-        {
-            "fieldname": "section_break_isbn",
-            "fieldtype": "Section Break",
-            "label": "Book Copy Selection",
-            "depends_on": "eval:doc.status=='Approved' || doc.status=='Issued' || doc.status=='Returned'"
-        },
-        {
-            "fieldname": "book_isbn",
-            "fieldtype": "Link",
-            "label": "Book ISBN (Copy)",
-            "options": "Library Book Inventory",
-            "depends_on": "eval:doc.status=='Approved' || doc.status=='Issued' || doc.status=='Returned'",
-            "mandatory_depends_on": "eval:doc.status=='Approved' && doc.request_type=='Issue'"
         },
         {
             "fieldname": "section_break_1",
@@ -123,7 +79,7 @@
     ],
     "index_web_pages_for_search": 1,
     "links": [],
-    "modified": "2026-03-12 13:00:00.000000",
+    "modified": "2026-03-13 10:00:00.000000",
     "modified_by": "Administrator",
     "module": "Maxedu",
     "name": "Book Request",
@@ -132,14 +88,12 @@
         {
             "create": 1,
             "delete": 1,
-            "email": 1,
+            "read": 1,
+            "write": 1,
             "export": 1,
             "print": 1,
-            "read": 1,
             "report": 1,
-            "role": "System Manager",
-            "share": 1,
-            "write": 1
+            "role": "System Manager"
         }
     ],
     "sort_field": "request_date",
