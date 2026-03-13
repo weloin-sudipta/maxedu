@@ -171,6 +171,7 @@ const navItems = reactive([
     { name: 'Library', icon: 'fa fa-book', route: '/library' },
     { name: 'Events', icon: 'fa fa-calendar', route: '/events' },
     { name: 'Profile', icon: 'fa fa-address-card', route: '/profile' },
+    { name: 'Facoulty', icon: 'fa fa-chalkboard-user', route: '/facoulty' },
 ])
 
 const isActive = (item) => {

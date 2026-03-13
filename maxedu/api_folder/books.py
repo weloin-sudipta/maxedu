@@ -19,3 +19,24 @@ def all_available_book():
     ).run(as_dict=True)
 
     return books
+
+
+@frappe.whitelist()
+def all_borrowed_books():
+
+    BookIssue = DocType("Book Issue")
+    LibraryMember = DocType("Library Member")
+
+    # Single query: join Library Member, filter by logged-in user and status "Issued"
+    books = (
+        frappe.qb.from_(BookIssue)
+        .join(LibraryMember)
+        .on(BookIssue.member == LibraryMember.name)
+        .select(BookIssue.star)
+        .where(
+            (LibraryMember.email == frappe.session.user) &
+            (BookIssue.status == "Issued")
+        )
+    ).run(as_dict=True)
+
+    return books
