@@ -151,56 +151,108 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import {useExams} from '~/composable/useBook'
+import { ref, computed, watch, onMounted } from 'vue';
+import { useBooks } from '~/composable/useBook';
 
-onMounted(async()=>{
-  const books = await useExams()
-  console.log(books);
-  
-})
-
+// --- State ---
+const catalog = ref([]);
+const loading = ref(true);
 const searchQuery = ref('');
 const selectedCategory = ref('All');
 const selectedType = ref('All');
 const selectedStatus = ref('All');
-const itemsPerPage = ref(5);
+const itemsPerPage = ref(10);
 const currentPage = ref(1);
 
-const categories = ['Physics', 'Chemistry', 'History', 'Math', 'Computer Science', 'Literature', 'Self-Help'];
+// --- Data Fetching & Cleaning ---
+onMounted(async () => {
+  try {
+    const response = await useBooks();
+    
+    // Normalize the data structure
+    const normalizedData = response.map(book => ({
+      ...book,
+      id: book.name,
+      category: book.category || 'Uncategorized',
+      type: book.copy_type || 'Physical',
+      // We keep the original status for filtering
+      is_available: book.status === 'Available' 
+    }));
 
-const catalog = ref([
-  { id: 101, title: 'The Art of Electronics', author: 'Horowitz', shelf: 'S-12', category: 'Physics', type: 'Physical', available: true },
-  { id: 102, title: 'Inorganic Chemistry', author: 'J.D. Lee', shelf: 'C-04', category: 'Chemistry', type: 'Online', available: false }, // Will be forced to true
-  { id: 103, title: 'Modern World History', author: 'Norman Lowe', shelf: 'H-01', category: 'History', type: 'Physical', available: true },
-  { id: 104, title: 'Calculus Vol II', author: 'Apostol', shelf: 'M-15', category: 'Math', type: 'Physical', available: true },
-  { id: 105, title: 'Clean Code', author: 'Robert Martin', shelf: 'CS-09', category: 'Computer Science', type: 'Online', available: true },
-  { id: 106, title: 'The Great Gatsby', author: 'Fitzgerald', shelf: 'L-01', category: 'Literature', type: 'Physical', available: true },
-]);
+    // 2. De-duplication Logic
+    // Only show one entry if Title, Category, and Type are identical
+    const seen = new Set();
+    const uniqueBooks = normalizedData.filter(book => {
+      const duplicateKey = `${book.title}-${book.category}-${book.type}`
+        .toLowerCase()
+        .replace(/\s+/g, ''); // Remove spaces to ensure strict matching
+      
+      if (seen.has(duplicateKey)) {
+        return false;
+      }
+      seen.add(duplicateKey);
+      return true;
+    });
 
-// LOGIC: Online copies are ALWAYS available
-const isAvailable = (book) => book.type === 'Online' || book.available;
+    catalog.value = uniqueBooks;
+  } catch (error) {
+    console.error("Library Catalog Error:", error);
+  } finally {
+    loading.value = false;
+  }
+});
 
+
+// Generate dynamic categories list based on unique data
+const categories = computed(() => {
+  const cats = catalog.value.map(b => b.category);
+  return [...new Set(cats)].filter(Boolean).sort();
+});
+
+// Online logic: Online is always available, Physical depends on status
+const isAvailable = (book) => {
+  return book.type === 'Online' || book.status === 'Available';
+};
+
+// Filter Logic
 const filteredCatalog = computed(() => {
   return catalog.value.filter(book => {
-    const matchesSearch = book.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                         book.author.toLowerCase().includes(searchQuery.value.toLowerCase());
+    // Search match (Title, Author, or ISBN)
+    const query = searchQuery.value.toLowerCase();
+    const matchesSearch = 
+      (book.title?.toLowerCase().includes(query)) || 
+      (book.author?.toLowerCase().includes(query)) ||
+      (book.isbn?.toLowerCase().includes(query));
+
+    // Category match
     const matchesCat = selectedCategory.value === 'All' || book.category === selectedCategory.value;
+    
+    // Type match
     const matchesType = selectedType.value === 'All' || book.type === selectedType.value;
+    
+    // Status match
+    const bookIsAvailable = isAvailable(book);
     const matchesStatus = selectedStatus.value === 'All' || 
-                         (selectedStatus.value === 'Available' ? isAvailable(book) : !isAvailable(book));
+                         (selectedStatus.value === 'Available' ? bookIsAvailable : !bookIsAvailable);
     
     return matchesSearch && matchesCat && matchesType && matchesStatus;
   });
 });
 
+// Pagination Logic
 const totalPages = computed(() => Math.ceil(filteredCatalog.value.length / itemsPerPage.value) || 0);
+
 const paginatedCatalog = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   return filteredCatalog.value.slice(start, start + itemsPerPage.value);
 });
 
-watch([searchQuery, selectedCategory, selectedType, selectedStatus, itemsPerPage], () => currentPage.value = 1);
+// --- Watchers ---
+
+// Reset to first page whenever any filter or search term changes
+watch([searchQuery, selectedCategory, selectedType, selectedStatus, itemsPerPage], () => {
+  currentPage.value = 1;
+});
 </script>
 
 <style scoped>

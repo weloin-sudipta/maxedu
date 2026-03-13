@@ -13,7 +13,8 @@ def all_available_book():
         .on(Book.name == Inventory.book)
         .select(
             Book.star,
-            Inventory.status
+            Inventory.status,
+            Inventory.copy_type
         )
     ).run(as_dict=True)
 

@@ -1,6 +1,6 @@
 import { createResource } from "./useFrappeFetch"
 
-export const useExams = async () => {
+export const useBooks = async () => {
   const bookResource = createResource({
       url: 'maxedu.api_folder.books.all_available_book',
   })
