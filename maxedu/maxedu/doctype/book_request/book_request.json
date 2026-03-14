@@ -8,6 +8,7 @@
         "member",
         "member_name",
         "request_date",
+        "request_type",
         "column_break_1",
         "book",
         "book_title",
@@ -40,6 +41,15 @@
             "in_list_view": 1
         },
         {
+            "fieldname": "request_type",
+            "fieldtype": "Select",
+            "label": "Request Type",
+            "options": "Issue\nReservation",
+            "default": "Issue",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
             "fieldname": "column_break_1",
             "fieldtype": "Column Break"
         },
@@ -62,8 +72,8 @@
             "fieldname": "status",
             "fieldtype": "Select",
             "label": "Status",
-            "options": "Request\nCancel",
-            "default": "Request",
+            "options": "Pending\nApproved\nIssued\nReserved\nReturned\nCancel",
+            "default": "Pending",
             "reqd": 1,
             "in_list_view": 1
         },

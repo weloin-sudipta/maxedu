@@ -3,7 +3,7 @@
     "name": "Library Book Inventory",
     "module": "Maxedu",
     "istable": 0,
-    "autoname": "field:isbn",
+    "autoname": "field:book",
     "naming_rule": "By fieldname",
     "field_order": [
         "book",

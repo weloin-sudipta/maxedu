@@ -17,6 +17,7 @@
         "section_break_dates",
         "issue_date",
         "due_date",
+        "renewal_count",
         "column_break_dates",
         "return_date",
         "status",
@@ -100,6 +101,13 @@
             "fieldtype": "Date",
             "label": "Due Date",
             "reqd": 1
+        },
+        {
+            "fieldname": "renewal_count",
+            "fieldtype": "Int",
+            "label": "Renewal Count",
+            "default": 0,
+            "read_only": 1
         },
         {
             "fieldname": "column_break_dates",

@@ -5,6 +5,7 @@ export const useBooks = () => {
     const data = ref([])
     const requestedBook = ref([])
     const allBooks = ref([])
+    const recommendations = ref([])
     const loading = ref(false)
     const error = ref(null)
 
@@ -65,5 +66,24 @@ export const useBooks = () => {
         }
     }
 
-    return { data, loading, error, fetchData, requestedBook, fetchRequestedBook, allBooks,fetchAllBooks }
+    const fetchRecommendations = async () => {
+        loading.value = true
+        error.value = null
+        try {
+            const resource = createResource({
+                url: 'maxedu.api_folder.library.get_book_recommendations',
+            })
+            const res = await resource.fetch()
+            console.log("Recommendations:", res);
+            
+            recommendations.value = res.sections || []
+        } catch (err) {
+            console.error("Failed to load recommendations:", err)
+            error.value = err.message || "Unknown error"
+        } finally {
+            loading.value = false
+        }
+    }
+
+    return { data, loading, error, fetchData, requestedBook, fetchRequestedBook, allBooks, fetchAllBooks, recommendations, fetchRecommendations }
 }

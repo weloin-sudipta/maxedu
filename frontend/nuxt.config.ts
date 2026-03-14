@@ -1,6 +1,6 @@
 // @ts-ignore – JSON import from bench config
-import { webserver_port } from '../../../sites/common_site_config.json'
-
+// import { webserver_port } from '../../../sites/common_site_config.json'
+//  webserver_port = 8000;
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -25,11 +25,11 @@ export default defineNuxtConfig({
   nitro: {
     devProxy: {
       '/api': {
-        target: `http://localhost:${webserver_port}`,
+        target: `http://localhost:8000`,
         changeOrigin: true,
       },
       '/assets': {
-        target: `http://localhost:${webserver_port}`,
+        target: `http://localhost:8000`,
         changeOrigin: true,
       },
     },
@@ -38,11 +38,11 @@ export default defineNuxtConfig({
     server: {
       proxy: {
         '/api': {
-          target: `http://localhost:${webserver_port}`,
+          target: `http://localhost:8000`,
           changeOrigin: true,
         },
         '/assets': {
-          target: `http://localhost:${webserver_port}`,
+          target: `http://localhost:8000`,
           changeOrigin: true,
         },
       },

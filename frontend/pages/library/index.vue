@@ -10,10 +10,14 @@
         </div>
 
         <!-- Tabs -->
-        <div class="flex p-1.5 bg-slate-100 rounded-2xl">
+        <div class="flex p-1.5 bg-slate-100 rounded-2xl overflow-x-auto">
           <button @click="currentView = 'issued'" :class="tabClass(currentView === 'issued')">Issued Books</button>
           <button @click="currentView = 'all'" :class="tabClass(currentView === 'all')">All Books</button>
           <button @click="currentView = 'requests'" :class="tabClass(currentView === 'requests')">Book Requests</button>
+          <button @click="currentView = 'recommendations'" :class="tabClass(currentView === 'recommendations')">Recommendations</button>
+          <nuxt-link to="/library/tracking" :class="tabClass(false)">
+            <i class="fa fa-chart-line mr-1"></i> Tracking
+          </nuxt-link>
         </div>
       </header>
 
@@ -23,7 +27,8 @@
           :is="
             currentView === 'issued' ? IssuedBooks 
             : currentView === 'all' ? AllBooks 
-            : BookRequests
+            : currentView === 'requests' ? BookRequests 
+            : Recommendations
           " 
         />
       </transition>
@@ -37,6 +42,7 @@ import { ref } from 'vue';
 import IssuedBooks from './issuedBooks.vue'
 import AllBooks from './allBooks.vue'
 import BookRequests from './BookRequests.vue'
+import Recommendations from './recommendations.vue'
 
 const currentView = ref('issued');
 

@@ -86,7 +86,8 @@
               </span>
             </td>
             <td class="px-6 py-5 text-right">
-              <button :class="[isAvailable(book) ? 'btn-action-active' : 'btn-reserve']">
+              <button @click="handleBookRequest(book, isAvailable(book))" :class="[isAvailable(book) ? 'btn-action-active' : 'btn-reserve']" :disabled="requestingBook === book.name">
+                <i v-if="requestingBook === book.name" class="fa fa-spinner fa-spin mr-2"></i>
                 {{ book.copy_type === 'Online' ? 'Read Now' : (isAvailable(book) ? 'Request' : 'Reserve') }}
               </button>
             </td>
@@ -141,10 +142,69 @@ const selectedType = ref('All');
 const selectedStatus = ref('All');
 const itemsPerPage = ref(10); // Default rows
 const currentPage = ref(1);
+const requestingBook = ref(null);
 
 onMounted(() => fetchAllBooks());
 
 const isAvailable = (book) => book.copy_type === 'Online' || book.status === 'Available';
+
+const handleBookRequest = async (book, isAvailable) => {
+  if (book.copy_type === 'Online') {
+    // For online books, open in new tab
+    window.open(book.url || '#', '_blank');
+    return;
+  }
+
+  // For physical books, create a Frappe doc call
+  requestingBook.value = book.name;
+  try {
+    const requestType = isAvailable ? 'Issue' : 'Reservation';
+    
+    // Get the current member - this would come from your auth context
+    const memberEmail = frappe.session?.user;
+    if (!memberEmail) {
+      frappe.show_alert({
+        message: 'You must be logged in to request books',
+        indicator: 'red'
+      });
+      return;
+    }
+
+    // Member just submits request with book name
+    // Librarian will search and select the physical copy later
+    const response = await frappe.call({
+      method: 'frappe.client.insert',
+      args: {
+        doc: {
+          doctype: 'Book Request',
+          member: memberEmail,  // Will be linked to Library Member
+          book: book.name,
+          request_type: requestType,
+          request_date: new Date().toISOString().split('T')[0],
+          status: 'Pending',
+          remarks: ''
+        }
+      }
+    });
+
+    if (response.message) {
+      frappe.show_alert({
+        message: requestType === 'Issue' ? 'Book request submitted! Librarian will find a copy for you.' : 'Reservation created! Librarian will notify you when available.',
+        indicator: 'green'
+      });
+      // Refresh the data
+      fetchAllBooks();
+    }
+  } catch (error) {
+    console.error('Book request error:', error);
+    frappe.show_alert({
+      message: 'Failed to submit request. Please try again.',
+      indicator: 'red'
+    });
+  } finally {
+    requestingBook.value = null;
+  }
+};
 
 const categories = computed(() => {
   if (!allBooks.value) return [];

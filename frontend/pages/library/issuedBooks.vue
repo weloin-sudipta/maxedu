@@ -30,26 +30,28 @@
             />
           </div>
         </div>
-        
-        <div class="flex gap-2 w-full sm:w-auto">
-          <button class="btn-icon h-10 w-10"><i class="fa fa-print"></i></button>
-          <button class="btn-primary flex items-center gap-2">
-            <i class="fa fa-history"></i> Request Renewal
-          </button>
-        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="loading" class="flex items-center justify-center py-20">
+      <div class="text-center">
+        <i class="fa fa-circle-o-notch fa-spin text-indigo-600 text-3xl mb-4"></i>
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading your books...</p>
       </div>
     </div>
 
     <!-- Table -->
-    <div class="overflow-x-auto min-h-[300px]">
-      <table class="w-full text-left border-collapse">
+    <div v-else class="overflow-x-auto min-h-[300px]">
+      <table class="w-full text-left border-collapse hidden md:table">
         <thead>
           <tr class="bg-slate-50/50">
             <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Book Details</th>
-            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">ISBN No</th>
+            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">ISBN</th>
             <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Issue Date</th>
             <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Due Date</th>
-            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest text-right">Status</th>
+            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Days Left</th>
+            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-50">
@@ -63,34 +65,64 @@
                 </div>
                 <div class="flex flex-col">
                   <span class="text-sm font-black text-slate-700 group-hover:text-indigo-600 transition-colors">{{ book.book_title }}</span>
-                  <span class="text-[10px] font-bold text-slate-400">By {{ book.member_name }}</span>
+                  <span class="text-[10px] font-bold text-slate-400">Renewed: {{ book.renewal_count || 0 }}x</span>
                 </div>
               </div>
             </td>
 
-            <!-- Accession No -->
+            <!-- ISBN -->
             <td class="px-6 py-5">
               <span class="text-xs font-black text-slate-600 px-3 py-1 bg-slate-100 rounded-lg border border-slate-200/50 uppercase">{{ book.book_isbn }}</span>
             </td>
 
             <!-- Issue Date -->
             <td class="px-6 py-5">
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ book.issue_date }}</span>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ formatDate(book.issue_date) }}</span>
             </td>
 
             <!-- Due Date -->
             <td class="px-6 py-5">
-              <div class="flex flex-col">
-                <span class="text-xs font-black text-red-500">{{ book.due_date }}</span>
-                <span class="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">Please return by 4PM</span>
+              <span :class="['text-xs font-black', book.is_overdue ? 'text-red-600' : 'text-slate-700']">
+                {{ formatDate(book.due_date) }}
+              </span>
+            </td>
+
+            <!-- Days Left -->
+            <td class="px-6 py-5">
+              <div v-if="book.is_overdue" class="flex items-center gap-2">
+                <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm border bg-red-50 text-red-600 border-red-100">
+                  {{ book.days_overdue }} days overdue
+                </span>
+              </div>
+              <div v-else-if="book.days_left <= 3" class="flex items-center gap-2">
+                <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm border bg-amber-50 text-amber-600 border-amber-100">
+                  {{ book.days_left }} days left
+                </span>
+              </div>
+              <div v-else>
+                <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm border bg-green-50 text-green-600 border-green-100">
+                  {{ book.days_left }} days left
+                </span>
               </div>
             </td>
 
-            <!-- Status -->
-            <td class="px-6 py-5 text-right">
-              <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm border bg-amber-50 text-amber-600 border-amber-100">
-                {{ book.status }}
-              </span>
+            <!-- Actions -->
+            <td class="px-6 py-5 text-center">
+              <div class="flex items-center justify-center gap-2">
+                <button 
+                  @click="renewBook(book.name)"
+                  :disabled="book.has_reservation || renewingBook === book.name"
+                  :title="book.has_reservation ? 'Cannot renew: book has pending reservation' : 'Renew this book'"
+                  class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all"
+                  :class="book.has_reservation 
+                    ? 'bg-slate-50 text-slate-400 cursor-not-allowed opacity-50'
+                    : 'bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white'
+                  "
+                >
+                  <i v-if="renewingBook === book.name" class="fa fa-spinner fa-spin mr-1"></i>
+                  {{ book.has_reservation ? 'Reserved' : 'Renew' }}
+                </button>
+              </div>
             </td>
           </tr>
 
@@ -103,17 +135,48 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Mobile View -->
+      <div class="md:hidden space-y-4 p-4">
+        <div v-for="book in paginatedBooks" :key="book.name" class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <h3 class="text-sm font-black text-slate-800">{{ book.book_title }}</h3>
+              <p class="text-[10px] font-bold text-slate-400">ISBN: {{ book.book_isbn }}</p>
+            </div>
+            <button 
+              @click="renewBook(book.name)"
+              :disabled="book.has_reservation || renewingBook === book.name"
+              class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all"
+              :class="book.has_reservation 
+                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+              "
+            >
+              Renew
+            </button>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[10px] font-bold">
+            <div><span class="text-slate-400">Issued:</span> {{ formatDate(book.issue_date) }}</div>
+            <div><span class="text-slate-400">Due:</span> {{ formatDate(book.due_date) }}</div>
+            <div :class="book.is_overdue ? 'text-red-600' : 'text-slate-700'">
+              <span class="text-slate-400">Days Left:</span> {{ book.is_overdue ? `${book.days_overdue} overdue` : `${book.days_left} days` }}
+            </div>
+            <div><span class="text-slate-400">Renewed:</span> {{ book.renewal_count || 0 }}x</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Pagination -->
-    <div class="flex flex-col md:flex-row justify-between items-center p-8 bg-slate-50/30 border-t border-slate-100 gap-4">
+    <div v-if="!loading && totalPages > 1" class="flex flex-col md:flex-row justify-between items-center p-8 bg-slate-50/30 border-t border-slate-100 gap-4">
       <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
         Showing {{ filteredBooks.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1 }} - 
         {{ Math.min(currentPage * itemsPerPage, filteredBooks.length) }} of 
         {{ filteredBooks.length }} Issued Books
       </span>
       
-      <div v-if="totalPages > 0" class="flex items-center gap-2">
+      <div class="flex items-center gap-2">
         <button @click="currentPage--" :disabled="currentPage === 1" class="page-btn-fixed">
           <i class="fa fa-chevron-left text-xs text-slate-400"></i>
         </button>
@@ -137,30 +200,60 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
-import { useBooks } from '~/composable/useLibraryBooks';
-
-const { data, loading, fetchData } = useBooks();
+import { createResource } from '~/composable/useFrappeFetch';
 
 const searchQuery = ref('');
 const itemsPerPage = ref(5);
 const currentPage = ref(1);
+const loading = ref(false);
+const borrowedBooks = ref([]);
+const renewingBook = ref(null);
 
-// Fetch API data on mount
+// Fetch user's borrowed books on mount
 onMounted(async () => {
-    await fetchData();
+    await fetchBorrowedBooks();
 });
 
-// Only "Issued" books
-const issuedBooks = computed(() => {
-    if (!data.value) return [];
-    return data.value.filter(book => book.status === "Issued");
-});
+const fetchBorrowedBooks = async () => {
+    loading.value = true;
+    try {
+        const resource = createResource({
+            url: 'maxedu.api_folder.library.get_user_borrowed_books',
+        });
+        const res = await resource.fetch();
+        borrowedBooks.value = res.books || [];
+    } catch (err) {
+        console.error("Failed to load borrowed books:", err);
+    } finally {
+        loading.value = false;
+    }
+};
+
+const renewBook = async (bookIssueName) => {
+    renewingBook.value = bookIssueName;
+    try {
+        const resource = createResource({
+            url: 'maxedu.api_folder.library.request_renewal',
+            args: { book_issue_name: bookIssueName }
+        });
+        const res = await resource.fetch();
+        if (res.success) {
+            // Refresh the list
+            await fetchBorrowedBooks();
+            frappe.show_alert({message: res.message, indicator: 'green'});
+        }
+    } catch (err) {
+        frappe.show_alert({message: err.message || "Renewal failed", indicator: 'red'});
+    } finally {
+        renewingBook.value = null;
+    }
+};
 
 // Filter by search query (title or ISBN)
 const filteredBooks = computed(() => {
-    return issuedBooks.value.filter(b =>
-        b.book_title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        b.book_isbn.toLowerCase().includes(searchQuery.value.toLowerCase())
+    return borrowedBooks.value.filter(b =>
+        (b.book_title || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        (b.book_isbn || '').toLowerCase().includes(searchQuery.value.toLowerCase())
     );
 });
 
@@ -174,6 +267,13 @@ const paginatedBooks = computed(() => {
 // Reset page when search or itemsPerPage changes
 watch(searchQuery, () => currentPage.value = 1);
 watch(itemsPerPage, () => currentPage.value = 1);
+
+// Format date helper
+const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+};
 </script>
 
 <style scoped>

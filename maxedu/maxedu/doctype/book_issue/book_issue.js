@@ -1,5 +1,5 @@
 frappe.ui.form.on("Book Issue", {
-    refresh: function(frm) {
+    refresh: function (frm) {
         // Filter book_isbn: only show copies of the selected book
         // frm.set_query("book_isbn", function() {
         //     let filters = {
@@ -19,7 +19,7 @@ frappe.ui.form.on("Book Issue", {
     //     frm.set_value("book_isbn", "");
     // },
 
-    book_request: function(frm) {
+    book_request: function (frm) {
         // Only run if a book request is selected
         if (!frm.doc.book_request) return;
 
@@ -45,7 +45,7 @@ frappe.ui.form.on("Book Issue", {
 
             // Optionally, set due date based on borrow period
             if (doc.borrow_period_days) {
-                frm.set_value("due_date", doc.borrow_period_days);
+                frm.set_value("due_date", doc.due_date);
             }
 
             // Set status default
@@ -53,7 +53,7 @@ frappe.ui.form.on("Book Issue", {
         });
     },
 
-    return_date: function(frm) {
+    return_date: function (frm) {
         // Show a preview of fine when return date is set
         if (frm.doc.return_date && frm.doc.due_date) {
             let diff = frappe.datetime.get_day_diff(frm.doc.return_date, frm.doc.due_date);

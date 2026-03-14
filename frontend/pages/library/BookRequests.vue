@@ -90,10 +90,10 @@ import { useBooks } from '~/composable/useLibraryBooks';
 
 const { requestedBook, loading, fetchRequestedBook } = useBooks();
 
-// 1. Updated Steps to match your API Statuses: "Request", "Issued", "Returned"
-// Note: "Handover" is included as a common middle state if your system uses it.
+// 1. Updated Steps to match the new API Statuses: Pending → Approved → Issued → Returned
 const steps = [
-  { key: 'Request', label: 'Requested', icon: 'fa fa-paper-plane' },
+  { key: 'Pending', label: 'Pending', icon: 'fa fa-hourglass-start' },
+  { key: 'Approved', label: 'Approved', icon: 'fa fa-check-circle' },
   { key: 'Issued', label: 'In My Possession', icon: 'fa fa-handshake-o' },
   { key: 'Returned', label: 'Returned', icon: 'fa fa-archive' }
 ];
@@ -101,25 +101,31 @@ const steps = [
 // 2. Map Status to Progress Bar Percentage
 const getProgressWidth = (status) => {
   const mapping = { 
-    'Request': '0%', 
-    'Issued': '50%', 
-    'Returned': '100%' 
+    'Pending': '0%',
+    'Approved': '33%',
+    'Issued': '67%', 
+    'Returned': '100%',
+    'Reserved': '50%',
+    'Cancel': '0%'
   };
   return mapping[status] || '0%';
 };
 
 // 3. Logic to determine if a circle is "filled"
 const isStepReached = (currentStatus, stepKey) => {
-  const order = ['Request', 'Issued', 'Returned'];
+  const order = ['Pending', 'Approved', 'Issued', 'Returned'];
   return order.indexOf(currentStatus) >= order.indexOf(stepKey);
 };
 
-// 4. Status Themes matching your portal UI
+// 4. Status Themes matching your portal UI (updated with new statuses)
 const statusTheme = (status) => {
   const themes = {
-    'Request': { bg: 'bg-amber-50 text-amber-600 border-amber-100' },
+    'Pending': { bg: 'bg-amber-50 text-amber-600 border-amber-100' },
+    'Approved': { bg: 'bg-blue-50 text-blue-600 border-blue-100' },
     'Issued': { bg: 'bg-indigo-50 text-indigo-600 border-indigo-100' },
     'Returned': { bg: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
+    'Reserved': { bg: 'bg-purple-50 text-purple-600 border-purple-100' },
+    'Cancel': { bg: 'bg-red-50 text-red-600 border-red-100' }
   };
   return themes[status] || { bg: 'bg-slate-50 text-slate-500 border-slate-100' };
 };
