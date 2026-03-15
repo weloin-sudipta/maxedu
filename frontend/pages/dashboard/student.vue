@@ -40,119 +40,24 @@
 
             <!-- LEFT SIDE -->
             <div class="lg:col-span-8 space-y-8">
-
-                <!-- PROGRAM -->
                 <CurrentProgram :program-data="programData" @click="showModal = true" />
-
-                <!-- TODAY CLASSES -->
                 <TodayClass :todayClasses="todayClasses" />
-
-
-                <!-- UPCOMING EXAMS -->
                 <UpcomingExams :upcomingExams="upcomingExams" />
-
-                <!-- ASSIGNMENT DEADLINES -->
                 <Assignment :assignments="assignments" />
-
                 <PaymentHistory />
-
             </div>
 
 
             <!-- RIGHT SIDE -->
             <div class="lg:col-span-4 space-y-8">
 
-
                 <!-- ATTENDANCE -->
-                <div class="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-sm">
-
-                    <div class="flex justify-between items-start mb-6">
-
-                        <div>
-                            <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">
-                                Total Attendance
-                            </h3>
-
-                            <p class="text-xl font-black text-slate-800">
-                                120/180
-                            </p>
-
-                        </div>
-
-                        <span class="bg-green-100 text-green-600 text-[10px] font-black px-2 py-1 rounded-lg">
-                            #1
-                        </span>
-
-                    </div>
-
-                </div>
-
-
+                <Attendance />
                 <StopWatch />
-
-
-                <!-- BOOKS -->
-                <div class="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-sm">
-
-                    <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-6">
-                        Recommended Books
-                    </h3>
-
-                    <div class="space-y-4">
-
-                        <div v-for="book in recommendedBooks" :key="book.title"
-                            class="flex items-center gap-4 p-2 hover:bg-slate-50 rounded-xl">
-
-                            <!-- <img :src="book.cover" class="w-10 h-14 object-cover rounded-md shadow" /> -->
-
-                            <div>
-
-                                <p class="text-xs font-black text-slate-700">
-                                    {{ book.title }}
-                                </p>
-
-                                <p class="text-[10px] text-slate-400">
-                                    ~by {{ book.author }}
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="bg-white rounded-[2.5rem] p-5 border border-slate-200 shadow-sm">
-                    <h6 class="font-bold text-gray-800 mb-4">Campus Notices</h6>
-                    <div class="relative pl-6 border-l-2 border-gray-100 space-y-6">
-                        <div v-for="notice in notices" :key="notice.id" class="relative">
-                            <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full border-4 border-white"
-                                :class="notice.dotColor"></div>
-                            <p class="text-xs font-bold text-gray-800">{{ notice.title }}</p>
-                            <p class="text-[11px] text-gray-500 mt-1">{{ notice.desc }}</p>
-                        </div>
-                    </div>
-                </div>
-
+                <BookRecommendetion :recommendedBooks="recommendedBooks" />
+                <CampusNotice :notices="notices" />
                 <AcademicCalendar />
-
-                <div class="bg-indigo-900 p-5 rounded-xl shadow-sm text-white relative overflow-hidden">
-                    <div class="relative z-10">
-                        <h6 class="font-bold mb-1">Annual Tech Fest</h6>
-                        <p class="text-xs opacity-70 mb-4">Join the biggest event of the year.</p>
-                        <div class="flex -space-x-2">
-                            <img v-for="i in 4" :key="i" :src="`https://i.pravatar.cc/100?img=${i + 10}`"
-                                class="w-8 h-8 rounded-full border-2 border-indigo-900" />
-                            <div
-                                class="w-8 h-8 rounded-full bg-indigo-700 border-2 border-indigo-900 flex items-center justify-center text-[10px] font-bold">
-                                +12</div>
-                        </div>
-                    </div>
-                    <i class="fa fa-calendar absolute -right-4 -bottom-4 text-8xl text-white opacity-10"></i>
-                </div>
-
-
+                <Event />
             </div>
 
         </div>
@@ -273,6 +178,11 @@ import TodayClass from '~/components/dashbaord/todayClass.vue'
 import StopWatch from '~/components/dashbaord/stopWatch.vue'
 import AcademicCalendar from '~/components/dashbaord/academicCalendar.vue'
 import PaymentHistory from '~/components/dashbaord/paymentHistory.vue'
+import Attendance from '~/components/dashbaord/attendance.vue'
+import BookRecommendetion from '~/components/dashbaord/bookRecommendetion.vue'
+import CampusNotice from '~/components/dashbaord/campusNotice.vue'
+import Event from '~/components/dashbaord/event.vue'
+
 const { dashboardData, loading, error, loadDashboard } = useStudentDashboard()
 const showModal = ref(false)
 
