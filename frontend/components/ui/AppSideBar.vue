@@ -150,7 +150,7 @@ const navItems = reactive([
   // MAIN SECTION
   { header: 'Main Menu' },
   { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
-  { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notice-news' },
+  { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
   { name: 'Events', icon: 'fa fa-calendar', route: '/events' },
 
   // ACADEMIC SECTION
@@ -190,7 +190,7 @@ const navItems = reactive([
     ]
   },
   { name: 'Library', icon: 'fa fa-book', route: '/library' },
-  { name: 'Faculty', icon: 'fa fa-graduation-cap', route: '/facoulty' },
+  { name: 'Faculty', icon: 'fa-solid fa-book-open-reader', route: '/facoulty' },
   { name: 'Profile', icon: 'fa fa-address-card', route: '/profile' },
 ])
 

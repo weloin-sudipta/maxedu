@@ -1,180 +1,129 @@
 <template>
-    <main class="flex-1 overflow-y-auto p-6 pt-4 custom-scrollbar">
-        <div class="mb-6 grid grid-cols-1 md:grid-cols-12 gap-6 bg-transparent">
-            <div
-                class="col-span-12 md:col-span-8 border-b md:border-b-0 md:border-r border-gray-200 pb-6 md:pb-0 md:pr-6">
-                <h5 class="text-xl text-gray-600 mb-2">Welcome back, <span class="font-semibold text-gray-900">{{ profileData?.firstName || 'User' }} {{
-                        profileData?.lastName || '' }}
-                        👋🏻</span></h5>
-                <p class="text-gray-500 max-w-md mb-6">Your progress this week is Awesome. let's keep it up and get a
-                    lot of points reward!</p>
+    <main class="flex-1 overflow-y-auto p-6 lg:p-10 custom-scrollbar bg-[#f8fafc]">
 
-                <div class="flex flex-wrap gap-6">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 flex items-center justify-center bg-indigo-100 rounded-lg">
-                            <img src="/laptop.svg" alt="Laptop Icon" class="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Hours Spent</p>
-                            <h5 class="text-indigo-600 font-bold text-lg">34h</h5>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 flex items-center justify-center bg-cyan-100 rounded-lg">
-                            <img src="/lightbulb.svg" alt="Lightbulb Icon" class="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Test Results</p>
-                            <h5 class="text-cyan-600 font-bold text-lg">82%</h5>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 flex items-center justify-center bg-orange-100 rounded-lg">
-                            <img src="/check.svg" alt="Check Icon" class="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Course Completed</p>
-                            <h5 class="text-orange-600 font-bold text-lg">14</h5>
-                        </div>
-                    </div>
+        <!-- HERO -->
+        <div class="relative bg-white rounded-[2.5rem] p-8 lg:p-12 overflow-hidden shadow-2xl mb-10">
+            <div class="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
+
+                <div class="max-w-xl text-center lg:text-left">
+
+                    <span class="text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] mb-4 block">
+                        Student Overview
+                    </span>
+
+                    <h1 class="text-3xl lg:text-5xl font-black text-black leading-tight mb-4">
+                        Welcome back, <br />
+
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                            {{ profileData?.firstName || 'Scholar' }}!
+                        </span>
+
+                    </h1>
+
+                    <p class="text-slate-400 text-sm font-medium leading-relaxed">
+                        Your academic progress this week is looking excellent.
+                    </p>
+
                 </div>
+
+                <!-- BIGGER IMAGE -->
+                <img :src="walkingStudent" alt="Student" class="w-80 lg:w-[420px] object-contain" />
+
             </div>
 
-            <div class="col-span-12 md:col-span-4 md:pl-6 flex items-center justify-between">
-                <div>
-                    <h5 class="font-semibold text-gray-800 mb-1">Time Spendings</h5>
-                    <p class="text-gray-400 text-sm mb-4">Weekly report</p>
-                    <div class="flex items-center gap-2">
-                        <h5 class="text-xl font-bold">231<span class="text-gray-400 font-normal">h</span> 14<span
-                                class="text-gray-400 font-normal">m</span></h5>
-                        <span
-                            class="px-2 py-0.5 text-xs font-semibold text-green-600 bg-green-100 rounded-full">+18.4%</span>
-                    </div>
-                </div>
-                <div id="leadsReportChart"
-                    class="w-32 h-32 bg-gray-50 rounded-full border-4 border-indigo-50"></div>
-            </div>
+            <div class="absolute -right-20 -top-20 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
+
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
 
-            <div class="col-span-12 md:col-span-8 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="p-5 border-b border-gray-50 flex justify-between items-center bg-indigo-50/30">
-                    <div>
-                        <h6 class="font-bold text-gray-800">My Current Program</h6>
-                        <p class="text-xs text-gray-500">Academic Year 2025-2026</p>
-                    </div>
-                    <button @click="showModal = true"
-                        class="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-700 transition-all shadow-md">
-                        View Full Details
-                    </button>
-                </div>
-                <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-3">
-                        <p class="text-lg font-bold text-gray-900 leading-tight">{{ programData.name }}</p>
-                        <div class="flex items-center gap-2 text-sm text-gray-600">
-                            <span class="px-2 py-0.5 bg-gray-100 rounded text-xs">Full-Time</span>
-                            <span>Semester {{ programData.semester }}</span>
-                        </div>
-                        <div class="mt-4">
-                            <div class="flex justify-between text-xs mb-1">
-                                <span class="text-gray-500">Curriculum Progress</span>
-                                <span class="font-bold text-indigo-600">78%</span>
-                            </div>
-                            <div class="w-full bg-gray-100 h-2 rounded-full">
-                                <div class="bg-indigo-500 h-2 rounded-full" style="width: 78%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        class="bg-orange-50 border border-orange-100 rounded-xl p-4 flex flex-col justify-center items-center text-center">
-                        <p class="text-[10px] uppercase font-bold text-orange-400 mb-1">Course Completion Date</p>
-                        <p class="text-lg font-bold text-orange-700">{{ programData.endDate }}</p>
-                        <div
-                            class="mt-2 text-[10px] px-3 py-1 bg-white text-orange-600 rounded-full font-bold shadow-sm">
-                            {{ programData.daysRemaining }} Days Remaining
-                        </div>
-                    </div>
-                </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            <!-- LEFT SIDE -->
+            <div class="lg:col-span-8 space-y-8">
+
+                <!-- PROGRAM -->
+                <CurrentProgram :program-data="programData" @click="showModal = true" />
+
+                <!-- TODAY CLASSES -->
+                <TodayClass :todayClasses="todayClasses" />
+
+
+                <!-- UPCOMING EXAMS -->
+                <UpcomingExams :upcomingExams="upcomingExams" />
+
+                <!-- ASSIGNMENT DEADLINES -->
+                <Assignment :assignments="assignments" />
+
+                <PaymentHistory />
+
             </div>
 
-            <div class="col-span-12 md:col-span-4 space-y-6">
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                    <h6 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fa fa-file-text-o text-orange-500"></i> Upcoming Exams
-                    </h6>
-                    <div v-for="exam in exams" :key="exam.id"
-                        class="mb-3 last:mb-0 p-3 bg-orange-50 rounded-lg border border-orange-100">
-                        <div class="flex justify-between items-start">
+
+            <!-- RIGHT SIDE -->
+            <div class="lg:col-span-4 space-y-8">
+
+
+                <!-- ATTENDANCE -->
+                <div class="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-sm">
+
+                    <div class="flex justify-between items-start mb-6">
+
+                        <div>
+                            <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                Total Attendance
+                            </h3>
+
+                            <p class="text-xl font-black text-slate-800">
+                                120/180
+                            </p>
+
+                        </div>
+
+                        <span class="bg-green-100 text-green-600 text-[10px] font-black px-2 py-1 rounded-lg">
+                            #1
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <StopWatch />
+
+
+                <!-- BOOKS -->
+                <div class="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-sm">
+
+                    <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-6">
+                        Recommended Books
+                    </h3>
+
+                    <div class="space-y-4">
+
+                        <div v-for="book in recommendedBooks" :key="book.title"
+                            class="flex items-center gap-4 p-2 hover:bg-slate-50 rounded-xl">
+
+                            <!-- <img :src="book.cover" class="w-10 h-14 object-cover rounded-md shadow" /> -->
+
                             <div>
-                                <p class="text-sm font-bold text-orange-900">{{ exam.title }}</p>
-                                <p class="text-xs text-orange-700">{{ exam.date }}</p>
+
+                                <p class="text-xs font-black text-slate-700">
+                                    {{ book.title }}
+                                </p>
+
+                                <p class="text-[10px] text-slate-400">
+                                    ~by {{ book.author }}
+                                </p>
+
                             </div>
-                            <span class="text-[10px] bg-orange-200 text-orange-800 px-2 py-1 rounded">{{ exam.daysLeft
-                                }} days left</span>
+
                         </div>
+
                     </div>
+
                 </div>
 
-            </div>
-
-            <div class="col-span-12 md:col-span-4 bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-4">
-                    <h6 class="font-bold text-gray-800">Today's Classes</h6>
-                    <span class="text-indigo-600 text-xs font-semibold cursor-pointer">View Schedule</span>
-                </div>
-                <div class="space-y-4">
-                    <div v-for="(cls, i) in todayClasses" :key="i"
-                        class="flex gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors border-l-4"
-                        :class="cls.color">
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-gray-800">{{ cls.subject }}</p>
-                            <p class="text-xs text-gray-500">{{ cls.time }} • Room {{ cls.room }}</p>
-                        </div>
-                        <div class="text-right">
-                            <span
-                                class="text-[10px] font-bold px-2 py-1 bg-white rounded shadow-sm border border-gray-100">{{
-                                    cls.type }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="col-span-12 md:col-span-4 space-y-6">
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                    <h6 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fa fa-tasks text-blue-500"></i> Assignment Deadlines
-                    </h6>
-                    <div v-for="task in assignments" :key="task.id" class="flex items-center gap-3 mb-4">
-                        <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <div class="flex-1">
-                            <p class="text-sm text-gray-700 font-medium">{{ task.name }}</p>
-                            <div class="w-full bg-gray-100 h-1.5 rounded-full mt-1">
-                                <div class="bg-blue-500 h-1.5 rounded-full" :style="{ width: task.progress + '%' }">
-                                </div>
-                            </div>
-                        </div>
-                        <p class="text-[10px] font-bold text-gray-400">{{ task.due }}</p>
-                    </div>
-                </div>
-                <!-- <div class="bg-gradient-to-r from-red-500 to-pink-600 p-5 rounded-xl shadow-md text-white">
-                    <div class="flex justify-between items-center mb-2">
-                        <p class="text-xs uppercase font-bold opacity-80">Fee Reminder</p>
-                        <i class="fa fa-exclamation-triangle"></i>
-                    </div>
-                    <h4 class="text-2xl font-bold">$1,250.00</h4>
-                    <p class="text-xs mt-1">Due Date: March 15, 2026</p>
-                    <button
-                        class="mt-4 w-full bg-white text-red-600 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-gray-100 transition-colors">
-                        Pay Now
-                    </button>
-                </div> -->
-
-            </div>
-
-            <div class="col-span-12 md:col-span-4 space-y-6">
-
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <div class="bg-white rounded-[2.5rem] p-5 border border-slate-200 shadow-sm">
                     <h6 class="font-bold text-gray-800 mb-4">Campus Notices</h6>
                     <div class="relative pl-6 border-l-2 border-gray-100 space-y-6">
                         <div v-for="notice in notices" :key="notice.id" class="relative">
@@ -185,6 +134,8 @@
                         </div>
                     </div>
                 </div>
+
+                <AcademicCalendar />
 
                 <div class="bg-indigo-900 p-5 rounded-xl shadow-sm text-white relative overflow-hidden">
                     <div class="relative z-10">
@@ -200,183 +151,251 @@
                     </div>
                     <i class="fa fa-calendar absolute -right-4 -bottom-4 text-8xl text-white opacity-10"></i>
                 </div>
+
+
             </div>
 
         </div>
 
-        <AppModal v-model="showModal" title="Program Curriculum">
-
-            <div class="mb-6">
-                <p class="text-sm text-gray-500 uppercase font-bold tracking-widest mb-2">
-                    About this Program
-                </p>
-                <p class="text-gray-700 leading-relaxed">
-                    {{ programData.description }}
-                </p>
-            </div>
-
-            <div class="space-y-4">
-                <p class="text-sm text-gray-500 uppercase font-bold tracking-widest">
-                    Enrolled Subjects
-                </p>
-
-                <div v-for="sub in programData.subjects" :key="sub.code"
-                    class="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-100">
-                    <div>
-                        <p class="font-bold text-gray-800">{{ sub.title }}</p>
-                        <p class="text-xs text-gray-500">
-                            {{ sub.code }} • {{ sub.credits }} Credits
-                        </p>
-                    </div>
-                    <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-[10px] font-bold">
-                        In Progress
-                    </span>
-                </div>
-            </div>
-
-            <!-- Footer Slot -->
-            <template #footer>
-                <button @click="showModal = false"
-                    class="bg-gray-800 text-white px-6 py-2 rounded-xl font-bold text-sm">
-                    Close
-                </button>
-            </template>
-
-        </AppModal>
     </main>
 
+    <!-- CURRICULUM MODAL -->
+
+    <div v-if="showModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+
+        <div class="bg-white w-full max-w-3xl rounded-[2rem] shadow-2xl p-8 relative">
+
+            <!-- CLOSE -->
+
+            <button @click="showModal = false" class="absolute top-5 right-5 text-slate-400 hover:text-black">
+
+                <i class="fa fa-times"></i>
+
+            </button>
+
+
+            <!-- HEADER -->
+
+            <h2 class="text-2xl font-black text-slate-800 mb-2">
+
+                {{ programData.name }}
+
+            </h2>
+
+            <p class="text-xs text-slate-400 mb-6">
+
+                Semester {{ programData.semester }}
+
+            </p>
+
+
+            <!-- PROGRAM DESCRIPTION -->
+
+            <div class="mb-6">
+
+                <h3 class="text-xs font-black uppercase text-slate-400 mb-2">
+
+                    Program Overview
+
+                </h3>
+
+                <p class="text-sm text-slate-600">
+
+                    {{ programData.description }}
+
+                </p>
+
+            </div>
+
+
+            <!-- SUBJECTS -->
+
+            <div>
+
+                <h3 class="text-xs font-black uppercase text-slate-400 mb-4">
+
+                    Curriculum Subjects
+
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div v-for="subject in programData.subjects" :key="subject.name"
+                        class="p-4 bg-slate-50 rounded-xl border border-slate-100 flex justify-between">
+
+                        <span class="font-bold text-slate-700 text-sm">
+
+                            {{ subject.name }}
+
+                        </span>
+
+                        <span class="text-xs text-indigo-500 font-bold">
+
+                            {{ subject.credits }} Credits
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div class="mt-8 flex justify-end">
+
+                <button @click="showModal = false"
+                    class="px-6 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">
+
+                    Close
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
 </template>
 
+
 <script setup>
-definePageMeta({
-  middleware: 'auth'
-})
-import { ref, onMounted } from 'vue'
-import ApexCharts from 'apexcharts'
-import AppModal from '~/components/ui/AppModal.vue'
+
+import { ref, computed } from 'vue'
+import walkingStudent from '~/assets/images/student-walking-nobg.gif'
+import CurrentProgram from '~/components/dashbaord/currentProgram.vue'
 import { useStudentDashboard } from '~/composable/userDashboard'
-import { useUserProfile } from '~/composable/useUserProfile'
-
+import Assignment from '~/components/dashbaord/assignment.vue'
+import UpcomingExams from '~/components/dashbaord/upcomingExams.vue'
+import TodayClass from '~/components/dashbaord/todayClass.vue'
+import StopWatch from '~/components/dashbaord/stopWatch.vue'
+import AcademicCalendar from '~/components/dashbaord/academicCalendar.vue'
+import PaymentHistory from '~/components/dashbaord/paymentHistory.vue'
 const { dashboardData, loading, error, loadDashboard } = useStudentDashboard()
-onMounted(async () => {
-    await loadDashboard()
-    console.log('Student Dashboard:', dashboardData.value)
-})
-
-const { profileData } = useUserProfile()
 const showModal = ref(false)
-const programData = computed(()=>{
-const studentInfo = dashboardData.value?.student_info
 
-return studentInfo ? {    
-    name: studentInfo.program,
-    semester: studentInfo.semester,
-    endDate: "June 24, 2026",
-    daysRemaining: 112,
-    description: "A comprehensive program focusing on the intersection of visual design, user experience research, and modern front-end engineering frameworks.",
-            subjects: dashboardData.value?.courses?.map(c => ({
+/* PROGRAM DATA */
+
+// const programData = ref({
+//     name: 'Computer Science',
+//     semester: 'Semester 3',
+//     endDate: 'June 24 2026'
+// })
+const programData = computed(() => {
+    const studentInfo = dashboardData.value?.student_info
+
+    return studentInfo ? {
+        name: studentInfo.program,
+        semester: studentInfo.semester,
+        endDate: "June 24, 2026",
+        daysRemaining: 112,
+        description: "A comprehensive program focusing on the intersection of visual design, user experience research, and modern front-end engineering frameworks.",
+        subjects: dashboardData.value?.courses?.map(c => ({
             code: c.code,
             title: c.name,
             credits: 1
-        })) || []} : {}
+        })) || []
+    } : {}
 })
 
-// classes
-const todayClasses = computed(() => {
-  if (!dashboardData.value?.schedule) return []
-  const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-  const today = dayNames[new Date().getDay()]
-  return dashboardData.value.schedule
-    .filter(s => s.dayOfWeek === today)
-    .map(s => ({
-        subject: s.courseName,
-        time: `${s.startTime} - ${s.endTime}`,
-        room: s.location,
-        color: 'border-indigo-500'
-    }))
-})
 
-const exams = [
-    { id: 1, title: 'Data Structures Mid-Term', date: 'March 06, 2026', daysLeft: 2 },
-    { id: 2, title: 'English Literature Proficiency', date: 'March 12, 2026', daysLeft: 8 },
-]
+/* TODAY CLASSES */
 
-// Assignments
-const assignments = computed(() => {
-  return dashboardData.value?.assignments?.map(a => ({
-    id: a.id,
-    name: a.title,
-    progress: 0,
-    due: a.date
-  })) || []
-})
+const todayClasses = ref([
+    {
+        subject: 'Mathematics',
+        time: '09:00 AM',
+        room: '204'
+    },
+    {
+        subject: 'Physics',
+        time: '11:00 AM',
+        room: '105'
+    },
+    {
+        subject: 'Computer Science',
+        time: '02:00 PM',
+        room: 'Lab 3'
+    }
+])
+
+
+/* UPCOMING EXAMS */
+
+const upcomingExams = ref([
+    {
+        subject: 'Mathematics',
+        date: '12 May'
+    },
+    {
+        subject: 'Physics',
+        date: '18 May'
+    },
+    {
+        subject: 'Computer Science',
+        date: '21 May'
+    }
+])
 
 const notices = [
     { id: 1, title: 'Library Hours Updated', desc: 'Open until 11:00 PM during exam week.', dotColor: 'bg-green-500' },
     { id: 2, title: 'New Sports Club Registration', desc: 'Sign up via the portal by Friday.', dotColor: 'bg-indigo-500' },
 ]
-onMounted(() => {
-    const options = {
-        series: [23, 35, 10, 20, 35, 23],
-        chart: {
-            type: 'donut',
-            height: 140
-        },
-        colors: [
-            '#5BB420',
-            '#67CB24',
-            '#72E128',
-            '#8EE753',
-            '#AAED7E',
-            '#C7F3A9'
-        ],
-        dataLabels: {
-            enabled: false
-        },
-        legend: {
-            show: false
-        },
-        stroke: {
-            width: 0
-        },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '65%',
-                    labels: {
-                        show: true,
-                        total: {
-                            show: true,
-                            label: 'Total',
-                            formatter: () => '231h'
-                        }
-                    }
-                }
-            }
-        }
+/* BOOKS */
+
+const recommendedBooks = ref([
+    {
+        title: 'Clean Code',
+        author: 'Robert C. Martin',
+        cover: 'https://m.media-amazon.com/images/I/41xShlnTZTL.jpg'
+    },
+    {
+        title: 'Atomic Habits',
+        author: 'James Clear',
+        cover: 'https://m.media-amazon.com/images/I/513Y5o-DYtL.jpg'
+    },
+    {
+        title: 'Deep Work',
+        author: 'Cal Newport',
+        cover: 'https://m.media-amazon.com/images/I/41f4oFz3u-L.jpg'
     }
+])
 
-    const chart = new ApexCharts(
-        document.querySelector("#leadsReportChart"),
-        options
-    )
 
-    chart.render()
-})
+const assignments = ref([
+    {
+        title: 'Algorithm Analysis Report',
+        subject: 'Computer Science',
+        deadline: 'Due May 15'
+    },
+    {
+        title: 'Physics Lab Report',
+        subject: 'Physics',
+        deadline: 'Due May 18'
+    },
+    {
+        title: 'Linear Algebra Worksheet',
+        subject: 'Mathematics',
+        deadline: 'Due May 20'
+    }
+])
+
 </script>
 
-<style>
-/* Exact Sneat Color Matches */
-body {
-    background-color: #f5f5f9;
-}
 
+<style scoped>
 .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
+    width: 5px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #d9dee3;
+    background: #e2e8f0;
     border-radius: 10px;
+}
+
+.transition-all {
+    transition: all .3s cubic-bezier(.4, 0, .2, 1);
 }
 </style>

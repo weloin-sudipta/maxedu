@@ -15,9 +15,9 @@
           <button @click="currentView = 'all'" :class="tabClass(currentView === 'all')">All Books</button>
           <button @click="currentView = 'requests'" :class="tabClass(currentView === 'requests')">Book Requests</button>
           <button @click="currentView = 'recommendations'" :class="tabClass(currentView === 'recommendations')">Recommendations</button>
-          <nuxt-link to="/library/tracking" :class="tabClass(false)">
+          <!-- <nuxt-link to="/library/tracking" :class="tabClass(false)">
             <i class="fa fa-chart-line mr-1"></i> Tracking
-          </nuxt-link>
+          </nuxt-link> -->
         </div>
       </header>
 
