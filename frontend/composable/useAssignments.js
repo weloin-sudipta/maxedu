@@ -14,6 +14,8 @@ export const useAssignments = () => {
         url: 'maxedu.api_folder.assignments.get_assignments',
       })
       const res = await resource.submit()
+      console.log(res);
+      
       assignments.value = res || []
       return res
     } catch (err) {

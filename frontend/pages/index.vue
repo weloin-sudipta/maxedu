@@ -82,7 +82,7 @@ onMounted(() => {
       currentComponent.value = StudentDashboard
     }
 
-  }, 3000)
+  })
 })
 </script>
 

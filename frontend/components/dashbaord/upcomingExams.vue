@@ -12,28 +12,31 @@
     </div>
 
     <div class="space-y-4">
-      <div v-for="(exam, index) in upcomingExams" :key="exam.subject" 
+      <div v-for="(exam, index) in upcomingExams" :key="exam.id || index" 
            class="relative flex group/ticket">
         
+        <!-- Date Box -->
         <div class="w-20 shrink-0 flex flex-col items-center justify-center p-3 rounded-l-3xl transition-colors"
              :class="index === 0 ? 'bg-rose-600 text-white' : 'bg-slate-50 text-slate-400 group-hover/ticket:bg-slate-100'">
           <span class="text-[9px] font-black uppercase tracking-tighter opacity-80">
-            {{ getMonth(exam.date) }}
+            {{ formatMonth(exam.date) }}
           </span>
           <span class="text-xl font-black leading-none my-1">
-            {{ getDay(exam.date) }}
+            {{ formatDay(exam.date) }}
           </span>
           <span class="text-[9px] font-black uppercase tracking-widest opacity-80">
-            2026
+            {{ formatYear(exam.date) }}
           </span>
         </div>
 
+        <!-- Divider -->
         <div class="relative w-[1px] border-l-2 border-dashed transition-colors"
              :class="index === 0 ? 'border-rose-400 bg-rose-600' : 'border-slate-200 bg-slate-50'">
           <div class="absolute -top-1 -left-[5px] w-2 h-2 rounded-full bg-white"></div>
           <div class="absolute -bottom-1 -left-[5px] w-2 h-2 rounded-full bg-white"></div>
         </div>
 
+        <!-- Exam Info -->
         <div class="flex-1 p-4 rounded-r-3xl border border-l-0 transition-all flex flex-col justify-center"
              :class="index === 0 ? 'bg-rose-50/50 border-rose-100' : 'bg-white border-slate-100 group-hover/ticket:border-slate-200'">
           
@@ -53,9 +56,6 @@
           </div>
         </div>
 
-        <!-- <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover/ticket:opacity-100 transition-all">
-          <i class="fa fa-external-link text-slate-300 text-xs hover:text-rose-500"></i>
-        </div> -->
       </div>
     </div>
 
@@ -68,15 +68,34 @@
 </template>
 
 <script setup>
-const props = defineProps(['upcomingExams']);
+const props = defineProps({
+  upcomingExams: {
+    type: Array,
+    default: () => []
+  }
+});
 
-// Mock helpers for date parsing
-const getMonth = (dateStr) => dateStr.split(' ')[0].substring(0, 3);
-const getDay = (dateStr) => dateStr.split(' ')[1].replace(',', '');
+// Safe date formatting helpers
+const formatMonth = (dateStr) => {
+  if (!dateStr) return '--'
+  const dateObj = new Date(dateStr)
+  return dateObj.toLocaleString('default', { month: 'short' })
+}
+
+const formatDay = (dateStr) => {
+  if (!dateStr) return '--'
+  const dateObj = new Date(dateStr)
+  return dateObj.getDate()
+}
+
+const formatYear = (dateStr) => {
+  if (!dateStr) return '--'
+  const dateObj = new Date(dateStr)
+  return dateObj.getFullYear()
+}
 </script>
 
 <style scoped>
-/* Added a subtle scale effect to the active ticket */
 .group\/ticket:active {
   transform: scale(0.98);
 }

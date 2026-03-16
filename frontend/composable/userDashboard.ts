@@ -14,6 +14,8 @@ export const useStudentDashboard = () => {
         try {
             const data = await call('maxedu.api.get_student_dashboard_data')
             dashboardData.value = data
+            console.log(data);
+            
             return data
         } catch (err) {
             error.value = err

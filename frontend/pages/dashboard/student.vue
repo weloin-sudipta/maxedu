@@ -2,7 +2,7 @@
     <main class="flex-1 overflow-y-auto p-6 lg:p-10 custom-scrollbar bg-[#f8fafc]">
 
         <!-- HERO -->
-        <div class="relative bg-white rounded-[2.5rem] p-8 lg:p-12 overflow-hidden shadow-2xl mb-10">
+        <div class="relative bg-white rounded-[2.5rem] p-8 lg:p-12 overflow-hidden shadow-md mb-10">
             <div class="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
 
                 <div class="max-w-xl text-center lg:text-left">
@@ -15,7 +15,7 @@
                         Welcome back, <br />
 
                         <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
-                            {{ profileData?.firstName || 'Scholar' }}!
+                            {{ dashboardData?.student_info?.name || 'Scholar' }}!
                         </span>
 
                     </h1>
@@ -52,7 +52,7 @@
             <div class="lg:col-span-4 space-y-8">
 
                 <!-- ATTENDANCE -->
-                <Attendance />
+                <Attendance :attendance="attendanceData" />
                 <StopWatch />
                 <BookRecommendetion :recommendedBooks="recommendedBooks" />
                 <CampusNotice :notices="notices" />
@@ -182,37 +182,40 @@ import Attendance from '~/components/dashbaord/attendance.vue'
 import BookRecommendetion from '~/components/dashbaord/bookRecommendetion.vue'
 import CampusNotice from '~/components/dashbaord/campusNotice.vue'
 import Event from '~/components/dashbaord/event.vue'
+import { useAssignments } from '~/composable/useAssignments'
 
 const { dashboardData, loading, error, loadDashboard } = useStudentDashboard()
+const { assignments, fetchAssignments}  = useAssignments()
 const showModal = ref(false)
 
-/* PROGRAM DATA */
 
-// const programData = ref({
-//     name: 'Computer Science',
-//     semester: 'Semester 3',
-//     endDate: 'June 24 2026'
-// })
+
+/* PROGRAM DATA */
 const programData = computed(() => {
     const studentInfo = dashboardData.value?.student_info
+    const courses = dashboardData.value?.courses || []
 
-    return studentInfo ? {
-        name: studentInfo.program,
-        semester: studentInfo.semester,
+    if (!studentInfo) return {}
+
+    return {
+        name: studentInfo.program || 'N/A',
+        semester: studentInfo.semester || 'N/A',
         endDate: "June 24, 2026",
         daysRemaining: 112,
-        description: "A comprehensive program focusing on the intersection of visual design, user experience research, and modern front-end engineering frameworks.",
-        subjects: dashboardData.value?.courses?.map(c => ({
-            code: c.code,
-            title: c.name,
-            credits: 1
-        })) || []
-    } : {}
+        description: `A comprehensive program for ${studentInfo.program || 'your studies'}, focusing on your academic growth.`,
+        subjects: courses.map(c => ({
+            name: c.name || c.code || 'Unnamed Subject',
+            code: c.code || c.id || '',
+            credits: 1,
+            teacher: c.teacher || 'TBD',
+            grade: c.grade || 'N/A',
+            next_class: c.next_class || null
+        }))
+    }
 })
 
 
 /* TODAY CLASSES */
-
 const todayClasses = ref([
     {
         subject: 'Mathematics',
@@ -233,34 +236,30 @@ const todayClasses = ref([
 
 
 /* UPCOMING EXAMS */
+const upcomingExams = computed(() => {
+  const today = new Date()
+  const upcommingExamination = dashboardData.value?.assignments || []
 
-const upcomingExams = ref([
-    {
-        subject: 'Mathematics',
-        date: '12 May'
-    },
-    {
-        subject: 'Physics',
-        date: '18 May'
-    },
-    {
-        subject: 'Computer Science',
-        date: '21 May'
-    }
-])
+  return upcommingExamination
+    .map(a => ({
+      id: a.id,
+      subject: a.title,       
+      date: a.date,             
+      description: a.description,
+      day: a.day,
+      month: a.month
+    }))
+    .filter(a => new Date(a.date) >= today)
+    .sort((a, b) => new Date(a.date) - new Date(b.date)) 
+})
 
 const notices = [
     { id: 1, title: 'Library Hours Updated', desc: 'Open until 11:00 PM during exam week.', dotColor: 'bg-green-500' },
     { id: 2, title: 'New Sports Club Registration', desc: 'Sign up via the portal by Friday.', dotColor: 'bg-indigo-500' },
 ]
-/* BOOKS */
 
+/* BOOKS */
 const recommendedBooks = ref([
-    {
-        title: 'Clean Code',
-        author: 'Robert C. Martin',
-        cover: 'https://m.media-amazon.com/images/I/41xShlnTZTL.jpg'
-    },
     {
         title: 'Atomic Habits',
         author: 'James Clear',
@@ -274,24 +273,28 @@ const recommendedBooks = ref([
 ])
 
 
-const assignments = ref([
-    {
-        title: 'Algorithm Analysis Report',
-        subject: 'Computer Science',
-        deadline: 'Due May 15'
-    },
-    {
-        title: 'Physics Lab Report',
-        subject: 'Physics',
-        deadline: 'Due May 18'
-    },
-    {
-        title: 'Linear Algebra Worksheet',
-        subject: 'Mathematics',
-        deadline: 'Due May 20'
-    }
-])
+//attandance data
+const attendanceData = computed(() => {
+  const att = dashboardData.value?.attendance
+  if (!att) return {
+    present_days: 0,
+    absent_days: 0,
+    leave_days: 0,
+    total_days: 0
+  }
 
+  return {
+    present_days: att.present_days,
+    absent_days: att.absent_days,
+    leave_days: att.leave_days,
+    total_days: att.total_days
+  }
+})
+
+onMounted(()=>{
+    loadDashboard(),
+    fetchAssignments()
+})
 </script>
 
 

@@ -4,16 +4,13 @@ from frappe.utils import getdate, today
 
 def get_student_from_user():
     user = frappe.session.user
-    students = frappe.get_all("Student", filters={"user": user}, fields=["name"], limit=1)
-    if not students:
-        students = frappe.get_all(
-            "Student",
-            filters={"student_email_id": user},
-            fields=["name"],
-            limit=1,
-        )
-    return students[0].name if students else None
 
+    student = frappe.db.get_value(
+        "Student",
+        {"student_email_id": user},
+        "name"
+    )
+    return student
 
 @frappe.whitelist()
 def get_assignments():
