@@ -1,0 +1,25 @@
+{
+ "doctype": "DocType",
+ "name": "Book ISBN",
+ "module": "Maxedu",
+ "custom": 0,
+ "istable": 0,
+ "autoname": "field:isbn",
+ "fields": [
+  {
+   "fieldname": "isbn",
+   "fieldtype": "Data",
+   "label": "ISBN",
+   "reqd": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  }
+ ]
+}

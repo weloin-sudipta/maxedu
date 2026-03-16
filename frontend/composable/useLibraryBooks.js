@@ -1,5 +1,6 @@
 import { ref, onMounted } from "vue"
 import { createResource } from "./useFrappeFetch"
+import { useBookRequest } from "./useBookRequest"
 
 export const useBooks = () => {
     const data = ref([])
@@ -8,6 +9,9 @@ export const useBooks = () => {
     const recommendations = ref([])
     const loading = ref(false)
     const error = ref(null)
+    
+    // Integrate book request composable
+    const bookRequest = useBookRequest()
 
     const fetchAllBooks = async()=>{
         loading.value = true,
@@ -85,5 +89,23 @@ export const useBooks = () => {
         }
     }
 
-    return { data, loading, error, fetchData, requestedBook, fetchRequestedBook, allBooks, fetchAllBooks, recommendations, fetchRecommendations }
+    return { 
+        data, 
+        loading, 
+        error, 
+        fetchData, 
+        requestedBook, 
+        fetchRequestedBook, 
+        allBooks, 
+        fetchAllBooks, 
+        recommendations, 
+        fetchRecommendations,
+        // Book request composable functions
+        bookRequest,
+        isBookRequested: bookRequest.isBookRequested,
+        getButtonText: bookRequest.getButtonText,
+        toggleBookRequest: bookRequest.toggleBookRequest,
+        requestBook: bookRequest.requestBook,
+        cancelRequest: bookRequest.cancelRequest,
+    }
 }
