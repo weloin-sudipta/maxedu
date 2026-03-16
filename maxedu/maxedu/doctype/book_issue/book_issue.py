@@ -79,3 +79,18 @@ class BookIssue(Document):
                 title="Reservation Pending",
                 indicator="blue"
             )
+
+@frappe.whitelist()
+def get_book_isbns(book):
+    # Find the Physical copy inventory for this book
+    inventory = frappe.db.sql("SELECT name FROM `tabLibrary Book Inventory` WHERE book = %s AND copy_type = %s", (book, "Physical"), as_dict=True)
+    if not inventory:
+        return []
+
+    # Get all ISBNs tagged in that inventory's child table
+    isbns = frappe.get_all(
+        "Library Book ISBN",
+        filters={"parent": inventory[0].name, "parenttype": "Library Book Inventory"},
+        pluck="book_isbn"
+    )
+    return isbns

@@ -79,7 +79,7 @@
         },
         {
             "fieldname": "book_isbn",
-            "fieldtype": "Data",
+            "fieldtype": "Autocomplete",
             "label": "Book ISBN",
             "reqd": 1,
             "unique": 1

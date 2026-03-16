@@ -14,10 +14,28 @@ frappe.ui.form.on("Book Issue", {
         // });
     },
 
-    // book: function(frm) {
-    //     // Clear ISBN when book changes
-    //     frm.set_value("book_isbn", "");
-    // },
+    book: function (frm) {
+        if (frm.doc.book) {
+            frappe.call({
+                method: "maxedu.maxedu.doctype.book_issue.book_issue.get_book_isbns",
+                args: { book: frm.doc.book },
+                callback: function (r) {
+                    if (r.message && r.message.length > 0) {
+                        frm.set_df_property("book_isbn", "options", r.message);
+                    } else {
+                        frm.set_df_property("book_isbn", "options", []);
+                        frappe.msgprint(__("No physical copies with ISBNs available for this book."));
+                    }
+                    if (!r.message || !r.message.includes(frm.doc.book_isbn)) {
+                        frm.set_value("book_isbn", ""); // Clear if invalid
+                    }
+                }
+            });
+        } else {
+            frm.set_df_property("book_isbn", "options", []);
+            frm.set_value("book_isbn", "");
+        }
+    },
 
     book_request: function (frm) {
         // Only run if a book request is selected
@@ -37,11 +55,18 @@ frappe.ui.form.on("Book Issue", {
                 frm.set_value("issue_date", doc.request_date);
             }
 
+            // Trigger book fetch to populate ISBNs
+            if (frm.doc.book) {
+                frm.trigger("book");
+            }
             // Set Book ISBN if already selected in request
-            // if (doc.book_isbn) {
-            //     // Only set if it exists in inventory for this book
-            //     frm.set_value("book_isbn", doc.book_isbn);
-            // }
+            if (doc.book_isbn) {
+                // The options will be set by the book trigger asynchronously,
+                // so we might need a slight delay or rely on the user to select
+                setTimeout(() => {
+                    frm.set_value("book_isbn", doc.book_isbn);
+                }, 500);
+            }
 
             // Optionally, set due date based on borrow period
             if (doc.borrow_period_days) {
