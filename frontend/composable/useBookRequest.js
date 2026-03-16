@@ -45,7 +45,7 @@ export const useBookRequest = () => {
     }
 
     // ─── Cancel a book request ─────────────────────────────────────────────────
-    const cancelRequest = async (bookId, requestId) => {
+    const cancelRequest = async (bookId) => {
         loading.value = true
         error.value = null
         successMessage.value = null
@@ -56,7 +56,7 @@ export const useBookRequest = () => {
             })
 
             const res = await resource.submit({
-                request_id: requestId
+                book_id: bookId   // matches the Python param name
             })
 
             // Remove from pending set immediately so button flips back
@@ -82,7 +82,7 @@ export const useBookRequest = () => {
         return requestedBooks.value.has(bookId)
     }
 
-    const getButtonText   = (bookId) => isBookRequested(bookId) ? "Cancel Request" : "Request Book"
+    const getButtonText = (bookId) => isBookRequested(bookId) ? "Cancel Request" : "Request Book"
     const getButtonStatus = (bookId) => isBookRequested(bookId) ? 'cancel' : 'request'
 
     const toggleBookRequest = async (bookData) => {

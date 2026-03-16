@@ -102,7 +102,7 @@ def request_book(book, request_type='Issue'):
             {
                 'member': library_member,
                 'book': book,
-                'status': ['!=', 'Cancelled']
+                'status': ['!=', 'Cancel']
             },
             'name'
         )
@@ -136,44 +136,59 @@ def request_book(book, request_type='Issue'):
         frappe.log_error(frappe.get_traceback(), 'request_book')
         frappe.throw(str(e))
 
-
 @frappe.whitelist()
-def cancel_request(request_id):
+def cancel_request(book_id):
     """Cancel a book request for the logged-in user"""
     try:
-        user = frappe.session.user
-        
-        # Get Library Member for the current user
-        library_member = frappe.db.get_value('Library Member', {'email': user}, 'name')
-        
-        if not library_member:
-            frappe.throw('You are not registered as a Library Member')
-        
-        # Verify ownership and get the request
-        book_request = frappe.get_doc('Book Request', request_id)
-        
-        if book_request.member != library_member:
-            frappe.throw('You can only cancel your own book requests')
-        
-        if book_request.status == 'Cancelled':
-            frappe.throw('This request is already cancelled')
-        
-        # Update status to Cancelled
-        book_request.status = 'Cancelled'
-        book_request.save(ignore_permissions=False)
+        BookRequest    = DocType("Book Request")
+        LibraryMember  = DocType("Library Member")
+
+        # ── 1. Find the pending request matching this book + logged-in user ───
+        result = (
+            frappe.qb.from_(BookRequest)
+            .join(LibraryMember)
+            .on(BookRequest.member == LibraryMember.name)
+            .select(
+                BookRequest.name,
+                BookRequest.status,
+            )
+            .where(
+                (LibraryMember.email == frappe.session.user) &
+                (BookRequest.book   == book_id) &
+                (BookRequest.status == "Pending")
+            )
+            .limit(1)
+        ).run(as_dict=True)
+
+        if not result:
+            frappe.throw("No pending request found for this book")
+
+        request_name = result[0]["name"]
+
+        # ── 2. Update status to Cancelled ─────────────────────────────────────
+        (
+            frappe.qb.update(BookRequest)
+            .set(BookRequest.status,      "Cancel")
+            .set(BookRequest.modified,    frappe.utils.now())
+            .set(BookRequest.modified_by, frappe.session.user)
+            .where(BookRequest.name == request_name)
+        ).run()
+
         frappe.db.commit()
-        
+
         return {
-            'name': book_request.name,
-            'status': book_request.status
+            "name":   request_name,
+            "status": "Cancelled",
         }
+
     except frappe.ValidationError as e:
-        frappe.log_error(frappe.get_traceback(), 'cancel_request - Validation Error')
+        frappe.log_error(frappe.get_traceback(), "cancel_request - Validation Error")
         raise
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), 'cancel_request')
+        frappe.log_error(frappe.get_traceback(), "cancel_request")
         frappe.throw(str(e))
         
+                    
 @frappe.whitelist()
 def all_borrowed_books():
     """
