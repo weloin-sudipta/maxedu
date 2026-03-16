@@ -996,7 +996,7 @@ def get_student_dashboard_data():
             frappe.log_error(f"Error fetching GPA in dashboard: {str(e)}")
         
         # Assignments data
-        assignments_data = []
+        assessment_data = []
         try:
             if enrollment:
                 from frappe.utils import getdate, today, add_days
@@ -1028,7 +1028,7 @@ def get_student_dashboard_data():
                         if plan.room:
                             description += f" • {plan.room}"
                         
-                        assignments_data.append({
+                        assessment_data.append({
                             "id": plan.name,
                             "day": schedule_date.strftime("%d"),
                             "month": schedule_date.strftime("%b").upper(),
@@ -1047,7 +1047,7 @@ def get_student_dashboard_data():
             "fees": fees_data,
             "attendance": attendance_data,
             "gpa": gpa_data,
-            "assignments": assignments_data
+            "assessments": assessment_data
         }
         
     except Exception as e:

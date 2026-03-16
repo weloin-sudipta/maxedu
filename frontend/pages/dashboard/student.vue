@@ -238,7 +238,7 @@ const todayClasses = ref([
 /* UPCOMING EXAMS */
 const upcomingExams = computed(() => {
   const today = new Date()
-  const upcommingExamination = dashboardData.value?.assignments || []
+  const upcommingExamination = dashboardData.value?.assessments || []
 
   return upcommingExamination
     .map(a => ({

@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6 animate-in fade-in duration-500">
-    
+
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-8 rounded-[2.5rem] border border-slate-200/60 shadow-sm">
       <div>
         <h2 class="text-2xl font-black text-slate-800 tracking-tight">School Events & Calendar</h2>
@@ -25,48 +25,107 @@
     <div v-else-if="errorMessage" class="bg-red-50 rounded-[2.5rem] p-8 border border-red-100 text-center">
       <i class="fa fa-exclamation-triangle text-red-400 text-2xl mb-3"></i>
       <p class="text-sm font-bold text-red-600">{{ errorMessage }}</p>
-      <button @click="loadEvents" class="mt-4 px-6 py-2 bg-red-100 text-red-700 rounded-xl text-xs font-bold hover:bg-red-200 transition-colors">Retry</button>
+      <button @click="loadEvents" class="mt-4 px-6 py-2 bg-red-100 text-red-700 rounded-xl text-xs font-bold hover:bg-red-200 transition-colors">
+        Retry
+      </button>
     </div>
 
     <template v-else>
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-8 space-y-6">
+
+          <!-- Filter Tabs -->
           <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-            <button 
-              v-for="filter in dynamicFilters" :key="filter"
+            <button
+              v-for="filter in dynamicFilters"
+              :key="filter"
               @click="activeFilter = filter"
               :class="[
-                activeFilter === filter ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-white text-slate-500 border-slate-200',
-                'px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all whitespace-nowrap'
+                activeFilter === filter
+                  ? isHistoryFilter(filter)
+                    ? 'bg-slate-800 text-white shadow-lg shadow-slate-200'
+                    : 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
+                  : 'bg-white text-slate-500 border-slate-200',
+                'px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all whitespace-nowrap flex items-center gap-2'
               ]"
             >
+              <i v-if="filter === 'History'" class="fa fa-clock-o"></i>
               {{ filter }}
             </button>
           </div>
 
-          <!-- Empty State -->
-          <div v-if="filteredEvents.length === 0" class="bg-white rounded-[2.5rem] p-12 border border-slate-200/60 shadow-sm text-center">
-            <i class="fa fa-calendar-check-o text-slate-300 text-4xl mb-4"></i>
-            <p class="text-sm font-bold text-slate-500">No events found</p>
-            <p class="text-xs text-slate-400 mt-1">{{ activeFilter === 'All Events' ? 'There are no events scheduled yet.' : `No events match the "${activeFilter}" filter.` }}</p>
+          <!-- History Banner -->
+          <div v-if="activeFilter === 'History'" class="bg-slate-800 rounded-[2rem] px-6 py-4 flex items-center gap-4">
+            <div class="w-8 h-8 bg-slate-700 rounded-xl flex items-center justify-center shrink-0">
+              <i class="fa fa-history text-slate-300 text-sm"></i>
+            </div>
+            <div>
+              <p class="text-xs font-black text-white">Past Events</p>
+              <p class="text-[10px] text-slate-400 font-medium">Showing events that have already taken place, newest first.</p>
+            </div>
           </div>
 
-          <div v-for="event in filteredEvents" :key="event.id" 
-               class="bg-white rounded-[2.5rem] p-6 border border-slate-200/60 shadow-sm flex flex-col md:flex-row gap-6 hover:shadow-md transition-all group">
-            <div class="flex flex-col items-center justify-center bg-slate-50 rounded-3xl w-full md:w-24 h-24 border border-slate-100 shrink-0">
-              <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest">{{ event.month }}</span>
-              <span class="text-3xl font-black text-slate-800">{{ event.day }}</span>
+          <!-- Empty State -->
+          <div v-if="filteredEvents.length === 0" class="bg-white rounded-[2.5rem] p-12 border border-slate-200/60 shadow-sm text-center">
+            <i :class="[
+              'text-slate-300 text-4xl mb-4',
+              activeFilter === 'History' ? 'fa fa-history' : 'fa fa-calendar-check-o'
+            ]"></i>
+            <p class="text-sm font-bold text-slate-500">No events found</p>
+            <p class="text-xs text-slate-400 mt-1">{{ emptyMessage }}</p>
+          </div>
+
+          <!-- Event Cards -->
+          <div
+            v-for="event in filteredEvents"
+            :key="event.id"
+            :class="[
+              'bg-white rounded-[2.5rem] p-6 border shadow-sm flex flex-col md:flex-row gap-6 hover:shadow-md transition-all group',
+              event.status === 'Past'
+                ? 'border-slate-100 opacity-75 hover:opacity-100'
+                : 'border-slate-200/60'
+            ]"
+          >
+            <!-- Date Box -->
+            <div :class="[
+              'flex flex-col items-center justify-center rounded-3xl w-full md:w-24 h-24 border shrink-0',
+              event.status === 'Past'
+                ? 'bg-slate-100 border-slate-200'
+                : 'bg-slate-50 border-slate-100'
+            ]">
+              <span :class="[
+                'text-[10px] font-black uppercase tracking-widest',
+                event.status === 'Past' ? 'text-slate-400' : 'text-indigo-500'
+              ]">{{ event.month }}</span>
+              <span :class="[
+                'text-3xl font-black',
+                event.status === 'Past' ? 'text-slate-400' : 'text-slate-800'
+              ]">{{ event.day }}</span>
             </div>
 
             <div class="flex-1">
               <div class="flex justify-between items-start mb-2">
                 <div class="flex flex-wrap gap-1">
-                  <span v-for="tag in event.tags" :key="tag"
-                    :class="['px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter border', getCategoryStyle(tag)]">
+                  <!-- Past badge -->
+                  <span v-if="event.status === 'Past'"
+                    class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter border bg-slate-100 text-slate-400 border-slate-200">
+                    Past
+                  </span>
+                  <span
+                    v-for="tag in event.tags"
+                    :key="tag"
+                    :class="[
+                      'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter border',
+                      event.status === 'Past' ? 'opacity-50' : '',
+                      getCategoryStyle(tag)
+                    ]"
+                  >
                     {{ tag }}
                   </span>
-                  <span v-if="event.tags.length === 0"
-                    :class="['px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter border', categoryStyles.General]">
+                  <span
+                    v-if="event.tags.length === 0 && event.status !== 'Past'"
+                    :class="['px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter border', categoryStyles.General]"
+                  >
                     General
                   </span>
                 </div>
@@ -74,9 +133,19 @@
                   <i class="fa fa-clock-o mr-1"></i> {{ event.time }}
                 </span>
               </div>
-              <h3 class="text-lg font-black text-slate-800 group-hover:text-indigo-600 transition-colors">{{ event.title }}</h3>
-              <p v-if="event.description" class="text-xs font-medium text-slate-500 mt-2 leading-relaxed line-clamp-2">{{ event.description }}</p>
-              
+
+              <h3 :class="[
+                'text-lg font-black transition-colors',
+                event.status === 'Past'
+                  ? 'text-slate-500 group-hover:text-slate-700'
+                  : 'text-slate-800 group-hover:text-indigo-600'
+              ]">
+                {{ event.title }}
+              </h3>
+              <p v-if="event.description" class="text-xs font-medium text-slate-500 mt-2 leading-relaxed line-clamp-2">
+                {{ event.description }}
+              </p>
+
               <div class="flex items-center gap-4 mt-4">
                 <div v-if="event.location" class="flex items-center gap-1 text-[10px] font-bold text-slate-400">
                   <i class="fa fa-map-marker text-indigo-400"></i> {{ event.location }}
@@ -86,40 +155,43 @@
                 </div>
               </div>
             </div>
-
-            <!-- <div class="flex md:flex-col justify-end gap-2 shrink-0">
-              <button class="btn-action-gray"><i class="fa fa-share-alt"></i></button>
-              <button class="btn-action-indigo">View</button>
-            </div> -->
           </div>
+
         </div>
 
+        <!-- Sidebar -->
         <div class="lg:col-span-4 space-y-6">
-          <!-- Upcoming Deadlines -->
+
+          <!-- Upcoming Events Panel -->
           <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-xl">
-            <h3 class="text-xs font-black uppercase tracking-widest opacity-40 mb-6">Upcoming Events</h3>
+            <h3 class="text-xs font-black uppercase tracking-widest opacity-40 mb-6">Next 7 Days</h3>
             <div v-if="upcomingDeadlines.length > 0" class="space-y-6">
               <div v-for="deadline in upcomingDeadlines" :key="deadline.id" class="flex gap-4">
-                <div class="w-1 h-10 bg-indigo-500 rounded-full"></div>
+                <div class="w-1 h-10 bg-indigo-500 rounded-full shrink-0"></div>
                 <div>
                   <p class="text-xs font-bold">{{ deadline.title }}</p>
                   <p class="text-[10px] opacity-50 font-medium">{{ deadline.date }}</p>
                 </div>
               </div>
             </div>
-            <div v-else class="text-xs opacity-40 font-medium">No upcoming events in the next 7 days</div>
+            <div v-else class="text-xs opacity-40 font-medium">No events in the next 7 days</div>
           </div>
 
           <!-- Activity Tags -->
           <div class="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-sm">
             <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-6">Activity Tags</h3>
             <div v-if="eventTags.length > 0" class="flex flex-wrap gap-2">
-              <span v-for="tag in eventTags" :key="tag" 
-                    @click="activeFilter = tag"
-                    :class="[
-                      activeFilter === tag ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 'bg-slate-50 text-slate-500 border-slate-100',
-                      'px-3 py-1 text-[10px] font-bold rounded-lg border cursor-pointer hover:bg-indigo-50 hover:text-indigo-600 transition-colors'
-                    ]">
+              <span
+                v-for="tag in eventTags"
+                :key="tag"
+                @click="activeFilter = tag"
+                :class="[
+                  activeFilter === tag
+                    ? 'bg-indigo-50 text-indigo-600 border-indigo-100'
+                    : 'bg-slate-50 text-slate-500 border-slate-100',
+                  'px-3 py-1 text-[10px] font-bold rounded-lg border cursor-pointer hover:bg-indigo-50 hover:text-indigo-600 transition-colors'
+                ]"
+              >
                 #{{ tag }}
               </span>
             </div>
@@ -131,8 +203,8 @@
 
     <!-- Calendar Modal -->
     <div v-if="showCalendarModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm shadow-2xl" @click="showCalendarModal = false"></div>
-      
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showCalendarModal = false"></div>
+
       <div class="relative bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-modal">
         <div class="p-8 border-b border-slate-100 flex justify-between items-center">
           <div class="flex items-center gap-4">
@@ -154,21 +226,23 @@
 
         <div class="p-8">
           <div class="grid grid-cols-7 gap-2 mb-4">
-            <div v-for="(day, idx) in ['S', 'M', 'T', 'W', 'T', 'F', 'S']" :key="'day-' + idx" class="text-center text-[10px] font-black text-slate-300 uppercase">
+            <div v-for="(day, idx) in ['S','M','T','W','T','F','S']" :key="'day-'+idx"
+                 class="text-center text-[10px] font-black text-slate-300 uppercase">
               {{ day }}
             </div>
           </div>
-          
           <div class="grid grid-cols-7 gap-2">
             <div v-for="i in firstDayOfMonth" :key="'empty'+i" class="h-10"></div>
-            
-            <div v-for="date in daysInMonth" :key="date" 
-                 :class="[
-                   isEventDateForCalendar(date) ? 'bg-indigo-50 text-indigo-600 border-indigo-100 shadow-sm' : 
-                   isToday(date) ? 'bg-slate-900 text-white' :
-                   'text-slate-400 hover:bg-slate-50',
-                   'h-10 rounded-xl flex flex-col items-center justify-center text-xs font-bold border border-transparent transition-all cursor-pointer relative'
-                 ]">
+            <div
+              v-for="date in daysInMonth"
+              :key="date"
+              :class="[
+                isEventDateForCalendar(date) ? 'bg-indigo-50 text-indigo-600 border-indigo-100 shadow-sm' :
+                isToday(date) ? 'bg-slate-900 text-white' :
+                'text-slate-400 hover:bg-slate-50',
+                'h-10 rounded-xl flex flex-col items-center justify-center text-xs font-bold border border-transparent transition-all cursor-pointer relative'
+              ]"
+            >
               {{ date }}
               <div v-if="isEventDateForCalendar(date)" class="absolute bottom-1.5 w-1 h-1 bg-indigo-500 rounded-full"></div>
             </div>
@@ -200,8 +274,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useEvents } from '~/composable/useEvents';
+import { ref, computed, onMounted } from 'vue'
+import { useEvents } from '~/composable/useEvents'
 
 const {
   events,
@@ -216,39 +290,50 @@ const {
   upcomingDeadlines,
   todaysEvents,
   isEventDate,
-} = useEvents();
+} = useEvents()
 
-const showCalendarModal = ref(false);
-const activeFilter = ref('All Events');
-const calendarDate = ref(new Date());
+const showCalendarModal = ref(false)
+const activeFilter = ref('Upcoming') // default
+const calendarDate = ref(new Date())
 
-// Use composable's filter helper
-const filteredEvents = getFilteredEvents(activeFilter);
+const filteredEvents = getFilteredEvents(activeFilter)
+
+const isHistoryFilter = (f) => f === 'History'
+
+const emptyMessage = computed(() => {
+  const msgs = {
+    Upcoming: 'No upcoming events scheduled.',
+    Ongoing: 'No events are happening today.',
+    History: 'No past events found.',
+    'All Events': 'No current or upcoming events scheduled.',
+  }
+  return msgs[activeFilter.value] || `No events match the "${activeFilter.value}" filter.`
+})
 
 // Calendar helpers
-const currentMonthName = computed(() => calendarDate.value.toLocaleString('default', { month: 'long' }));
-const currentYear = computed(() => calendarDate.value.getFullYear());
-const daysInMonth = computed(() => new Date(calendarDate.value.getFullYear(), calendarDate.value.getMonth() + 1, 0).getDate());
-const firstDayOfMonth = computed(() => new Date(calendarDate.value.getFullYear(), calendarDate.value.getMonth(), 1).getDay());
+const currentMonthName = computed(() => calendarDate.value.toLocaleString('default', { month: 'long' }))
+const currentYear = computed(() => calendarDate.value.getFullYear())
+const daysInMonth = computed(() => new Date(calendarDate.value.getFullYear(), calendarDate.value.getMonth() + 1, 0).getDate())
+const firstDayOfMonth = computed(() => new Date(calendarDate.value.getFullYear(), calendarDate.value.getMonth(), 1).getDay())
 
 const changeMonth = (delta) => {
-  const d = new Date(calendarDate.value);
-  d.setMonth(d.getMonth() + delta);
-  calendarDate.value = d;
-};
+  const d = new Date(calendarDate.value)
+  d.setMonth(d.getMonth() + delta)
+  calendarDate.value = d
+}
 
-const isEventDateForCalendar = (date) => isEventDate(date, calendarDate);
+const isEventDateForCalendar = (date) => isEventDate(date, calendarDate)
 
 const isToday = (date) => {
-  const today = new Date();
+  const today = new Date()
   return calendarDate.value.getFullYear() === today.getFullYear()
     && calendarDate.value.getMonth() === today.getMonth()
-    && date === today.getDate();
-};
+    && date === today.getDate()
+}
 
 onMounted(() => {
-  loadEvents();
-});
+  loadEvents()
+})
 </script>
 
 <style scoped>
@@ -259,8 +344,8 @@ onMounted(() => {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
 @keyframes modalEntry {
-    from { opacity: 0; transform: scale(0.9) translateY(20px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 .animate-modal { animation: modalEntry 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
 </style>

@@ -18,9 +18,7 @@ export const useEvents = () => {
     General: 'bg-slate-50 text-slate-600 border-slate-100'
   }
 
-  const getCategoryStyle = (tag) => {
-    return categoryStyles[tag] || categoryStyles.General
-  }
+  const getCategoryStyle = (tag) => categoryStyles[tag] || categoryStyles.General
 
   const getEventStatus = (dateStr) => {
     if (!dateStr) return 'General'
@@ -76,8 +74,6 @@ export const useEvents = () => {
           eventTags.value = data.tags
         }
       } else if (data && data.success === false) {
-        // API returned success:false, but it's not a network error
-        // If message is "No student record found", show events as empty (not an error)
         if (data.message === 'No student record found') {
           events.value = []
           eventTags.value = []
@@ -85,7 +81,6 @@ export const useEvents = () => {
           errorMessage.value = data.message || 'Failed to load events'
         }
       } else {
-        // If data is an array directly (legacy format)
         if (Array.isArray(data)) {
           events.value = formatEventData(data)
         } else {
@@ -100,9 +95,9 @@ export const useEvents = () => {
     }
   }
 
-  // Dynamic filters from tags
+  // Dynamic filters — Upcoming first, History last
   const dynamicFilters = computed(() => {
-    const base = ['All Events', 'Upcoming', 'Ongoing']
+    const base = ['Upcoming', 'Ongoing', 'All Events', 'History']
     const tagFilters = eventTags.value.filter(t => !base.includes(t))
     return [...base, ...tagFilters]
   })
@@ -110,17 +105,43 @@ export const useEvents = () => {
   // Filtered events by active filter
   const getFilteredEvents = (activeFilter) => {
     return computed(() => {
-      if (activeFilter.value === 'All Events') return events.value
-      if (activeFilter.value === 'Upcoming' || activeFilter.value === 'Ongoing') {
-        return events.value.filter(e => e.status === activeFilter.value)
+      const f = activeFilter.value
+
+      // History — only past events, newest first
+      if (f === 'History') {
+        return [...events.value]
+          .filter(e => e.status === 'Past')
+          .sort((a, b) => new Date(b.fullDate) - new Date(a.fullDate))
       }
+
+      // All Events — today (Ongoing) + future (Upcoming) only, sorted ascending
+      if (f === 'All Events') {
+        return [...events.value]
+          .filter(e => e.status === 'Upcoming' || e.status === 'Ongoing')
+          .sort((a, b) => new Date(a.fullDate) - new Date(b.fullDate))
+      }
+
+      // Upcoming — future only, ascending
+      if (f === 'Upcoming') {
+        return [...events.value]
+          .filter(e => e.status === 'Upcoming')
+          .sort((a, b) => new Date(a.fullDate) - new Date(b.fullDate))
+      }
+
+      // Ongoing — today only
+      if (f === 'Ongoing') {
+        return events.value.filter(e => e.status === 'Ongoing')
+      }
+
+      // Tag filter — exclude past
       return events.value.filter(e =>
-        e.tags.some(tag => tag.toLowerCase() === activeFilter.value.toLowerCase())
+        e.status !== 'Past' &&
+        e.tags.some(tag => tag.toLowerCase() === f.toLowerCase())
       )
     })
   }
 
-  // Upcoming deadlines (events in the next 7 days)
+  // Sidebar: next 7 days
   const upcomingDeadlines = computed(() => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -134,6 +155,7 @@ export const useEvents = () => {
         d.setHours(0, 0, 0, 0)
         return d >= today && d <= weekLater
       })
+      .sort((a, b) => new Date(a.fullDate) - new Date(b.fullDate))
       .slice(0, 5)
       .map(e => ({
         id: e.id,
@@ -158,12 +180,11 @@ export const useEvents = () => {
 
   // Today's events
   const todaysEvents = computed(() => {
-    const today = new Date()
-    const todayStr = today.toISOString().split('T')[0]
+    const todayStr = new Date().toISOString().split('T')[0]
     return events.value.filter(e => e.fullDate === todayStr)
   })
 
-  // Calendar helpers
+  // Calendar dot checker
   const isEventDate = (date, calendarDate) => {
     const year = calendarDate.value.getFullYear()
     const month = calendarDate.value.getMonth()
