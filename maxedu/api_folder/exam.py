@@ -86,3 +86,39 @@ def get_exam_date_range(assessment_group):
         "exam_start_date": start_date,
         "exam_end_date": end_date
     }
+
+# @frappe.whitelist()
+# def get_admit_data(exam_type=None):
+#     all_exams = get_exams() 
+
+#     if exam_type:
+#         # Filter only exams that match the exam_type
+#         filtered = [e for e in all_exams if e.get("exam_type") == exam_type]
+#         return filtered
+
+#     return all_exams
+
+
+@frappe.whitelist()
+def get_admit_data(exam_type=None):
+    # Get Student ID linked to User
+    student_id = frappe.db.get_value("Student", {"student_email_id": frappe.session.user}, "name")
+    
+    if not student_id:
+        frappe.throw("Student record not found for the current user.")
+    
+    student_doc = frappe.get_doc("Student", student_id)
+
+    exams = get_exams() 
+    if exam_type:
+        exams = [e for e in exams if e.get("exam_type") == exam_type]
+
+    if not exams:
+        frappe.throw(f"No scheduled exams found for {exam_type or 'all subjects'}.")
+
+    return {
+            "student": student_doc,
+            "exams": exams,
+            "exam_type": exam_type,
+            "generated_on": frappe.utils.formatdate(frappe.utils.nowdate())
+        }

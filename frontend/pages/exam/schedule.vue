@@ -36,16 +36,18 @@
                 </p>
               </div>
 
-            </div>
-
-            <div class="flex items-center gap-4">
-
-              <button
+              <div>
+                <button
                 @click.stop="downloadHallTicket(type)"
                 class="hidden md:flex px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-md items-center gap-2"
               >
                 <i class="fa fa-download"></i> Hall Ticket
               </button>
+              </div>
+
+            </div>
+
+            <div class="flex items-center gap-4">
 
               <div
                 class="text-slate-300 transition-transform duration-300"
@@ -133,8 +135,10 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import HeroHeader from "~/components/ui/HeroHeader.vue";
+import { useAdmitCard } from "~/composable/useAdmitCard";
 import { useExams } from "~/composable/useExaminations";
 
+const { fetchAdmit, loading, error, data } = useAdmitCard();
 const config = useRuntimeConfig();
 
 useSeoMeta({
@@ -176,8 +180,14 @@ const toggleGroup = (type) => {
 };
 
 /* DOWNLOAD HALL TICKET */
-const downloadHallTicket = (type) => {
-  console.log(`Downloading hall ticket for ${type}`);
+const downloadHallTicket = async (type) => {
+    console.log(`Initiating download for: ${type}`);
+    await fetchAdmit(type);
+    
+    if (error.value) {
+        // You could use a Frappe toast here
+        console.error("Download failed:", error.value);
+    }
 };
 
 /* FORMAT TIME */

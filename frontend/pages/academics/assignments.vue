@@ -97,6 +97,10 @@ import { ref, computed, onMounted } from 'vue';
 import HeroHeader from '~/components/ui/HeroHeader.vue'
 import { useAssignments } from '~/composable/useAssignments'
 
+import {useAdmitCard} from '~/composable/useAdmitCard'
+
+const {fetchAdmit} = useAdmitCard()
+
 const config = useRuntimeConfig()
 useSeoMeta({
     title: `Assignments - ${config.public.appName}`,
@@ -107,7 +111,8 @@ const { assignments, loading, fetchAssignments, submitAssignment } = useAssignme
 const activeTab = ref('Active');
 
 onMounted(() => {
-  fetchAssignments()
+  fetchAssignments(),
+  fetchAdmit()
 })
 
 const filteredAssignments = computed(() => {
