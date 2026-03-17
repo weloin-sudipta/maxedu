@@ -89,29 +89,120 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useBooks } from '~/composable/useLibraryBooks';
+import { ref } from "vue";
 
-const { recommendations, loading, fetchRecommendations } = useBooks();
-const userProgram = ref('');
+const loading = ref(false);
 
-onMounted(() => {
-  // Fetch recommendations from API
-  fetchRecommendations();
-  
-  // Get user program from localStorage or profile (optional)
-  const userProfile = localStorage.getItem('userProfile');
-  if (userProfile) {
-    try {
-      const profile = JSON.parse(userProfile);
-      userProgram.value = profile.program || 'Your Program';
-    } catch (e) {
-      userProgram.value = 'Your Program';
-    }
-  } else {
-    userProgram.value = 'Your Program';
+const recommendations = ref([
+  {
+    title: "Recommended for BCA",
+    subtitle: "Based on your program",
+    badge: "Program",
+    icon: "fa fa-graduation-cap",
+    books: [
+      {
+        id: 1,
+        title: "Introduction to Algorithms",
+        author: "Thomas H. Cormen",
+        category: "Computer Science",
+        score: 9.2
+      },
+      {
+        id: 2,
+        title: "Clean Code",
+        author: "Robert C. Martin",
+        category: "Programming",
+        score: 9.5
+      },
+      {
+        id: 3,
+        title: "Database System Concepts",
+        author: "Abraham Silberschatz",
+        category: "Database",
+        score: 8.9
+      },
+      {
+        id: 4,
+        title: "Computer Networks",
+        author: "Andrew S. Tanenbaum",
+        category: "Networking",
+        score: 9.1
+      }
+    ]
+  },
+  {
+    title: "Popular Books",
+    subtitle: "Most borrowed in library",
+    badge: "Trending",
+    icon: "fa fa-fire",
+    books: [
+      {
+        id: 5,
+        title: "The Pragmatic Programmer",
+        author: "Andrew Hunt",
+        category: "Programming",
+        score: 9.4
+      },
+      {
+        id: 6,
+        title: "Artificial Intelligence",
+        author: "Stuart Russell",
+        category: "AI",
+        score: 9.0
+      },
+      {
+        id: 7,
+        title: "Operating System Concepts",
+        author: "Abraham Silberschatz",
+        category: "OS",
+        score: 8.8
+      },
+      {
+        id: 8,
+        title: "Python Crash Course",
+        author: "Eric Matthes",
+        category: "Python",
+        score: 9.3
+      }
+    ]
+  },
+  {
+    title: "Highly Rated",
+    subtitle: "Top rated by students",
+    badge: "Top Rated",
+    icon: "fa fa-star",
+    books: [
+      {
+        id: 9,
+        title: "Deep Learning",
+        author: "Ian Goodfellow",
+        category: "AI",
+        score: 9.7
+      },
+      {
+        id: 10,
+        title: "Design Patterns",
+        author: "Erich Gamma",
+        category: "Software Design",
+        score: 9.6
+      },
+      {
+        id: 11,
+        title: "You Don't Know JS",
+        author: "Kyle Simpson",
+        category: "JavaScript",
+        score: 9.2
+      },
+      {
+        id: 12,
+        title: "Modern Operating Systems",
+        author: "Andrew Tanenbaum",
+        category: "OS",
+        score: 9.1
+      }
+    ]
   }
-});
+]);
 </script>
 
 <style scoped>

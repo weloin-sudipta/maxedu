@@ -9,9 +9,9 @@
           </p>
         </div>
         <div class="flex items-center gap-1">
-          <NuxtLink to="/library/tracking" class="h-12 w-12 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-indigo-600 cursor-pointer hover:bg-indigo-50 transition-all">
+          <!-- <NuxtLink to="/library/tracking" class="h-12 w-12 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-indigo-600 cursor-pointer hover:bg-indigo-50 transition-all">
             <i class="fa-solid fa-chart-line"></i>
-          </NuxtLink>
+          </NuxtLink> -->
 
           <div
             class="h-12 w-12 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-indigo-600 cursor-pointer hover:bg-indigo-50 transition-all">
@@ -91,12 +91,40 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
-import { useBooks } from '~/composable/useLibraryBooks';
+import { ref } from 'vue';
 
-const { requestedBook, loading, fetchRequestedBook } = useBooks();
+// ─── Static Request Data ─────────────────────────────────────────────────────
+const requestedBook = ref([
+  {
+    name: 'req1',
+    book: 'B101',
+    book_title: 'Atomic Habits',
+    request_date: '2026-03-01',
+    status: 'Pending',
+    remarks: 'Need for personal development'
+  },
+  {
+    name: 'req2',
+    book: 'B102',
+    book_title: 'Deep Work',
+    request_date: '2026-02-20',
+    status: 'Issued',
+    remarks: 'For productivity improvement'
+  },
+  {
+    name: 'req3',
+    book: 'B103',
+    book_title: 'The Alchemist',
+    request_date: '2026-01-15',
+    status: 'Returned',
+    remarks: ''
+  }
+]);
 
-// 1. Updated Steps to match the new API Statuses: Pending → Approved → Issued → Returned
+// ─── Loading State ───────────────────────────────────────────────────────────
+const loading = ref(false);
+
+// ─── Steps ───────────────────────────────────────────────────────────────────
 const steps = [
   { key: 'Pending', label: 'Pending', icon: 'fa fa-hourglass-start' },
   { key: 'Approved', label: 'Approved', icon: 'fa fa-check-circle' },
@@ -104,7 +132,7 @@ const steps = [
   { key: 'Returned', label: 'Returned', icon: 'fa fa-archive' }
 ];
 
-// 2. Map Status to Progress Bar Percentage
+// ─── Progress Bar Logic ──────────────────────────────────────────────────────
 const getProgressWidth = (status) => {
   const mapping = {
     'Pending': '0%',
@@ -117,13 +145,13 @@ const getProgressWidth = (status) => {
   return mapping[status] || '0%';
 };
 
-// 3. Logic to determine if a circle is "filled"
+// ─── Step Highlight Logic ────────────────────────────────────────────────────
 const isStepReached = (currentStatus, stepKey) => {
   const order = ['Pending', 'Approved', 'Issued', 'Returned'];
   return order.indexOf(currentStatus) >= order.indexOf(stepKey);
 };
 
-// 4. Status Themes matching your portal UI (updated with new statuses)
+// ─── Status Theme ────────────────────────────────────────────────────────────
 const statusTheme = (status) => {
   const themes = {
     'Pending': { bg: 'bg-amber-50 text-amber-600 border-amber-100' },
@@ -136,7 +164,7 @@ const statusTheme = (status) => {
   return themes[status] || { bg: 'bg-slate-50 text-slate-500 border-slate-100' };
 };
 
-// 5. Helper to format dates
+// ─── Date Formatter ──────────────────────────────────────────────────────────
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
   return new Date(dateStr).toLocaleDateString('en-US', {
@@ -145,10 +173,6 @@ const formatDate = (dateStr) => {
     year: 'numeric'
   });
 };
-
-onMounted(() => {
-  fetchRequestedBook();
-});
 </script>
 
 <style scoped>

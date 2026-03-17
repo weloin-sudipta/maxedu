@@ -199,80 +199,121 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
-import { createResource } from '~/composable/useFrappeFetch';
+import { ref, computed, watch } from 'vue';
 
 const searchQuery = ref('');
 const itemsPerPage = ref(5);
 const currentPage = ref(1);
 const loading = ref(false);
-const borrowedBooks = ref([]);
 const renewingBook = ref(null);
 
-// Fetch user's borrowed books on mount
-onMounted(async () => {
-    await fetchBorrowedBooks();
-});
+/* ---------------- STATIC BOOK DATA ---------------- */
 
-const fetchBorrowedBooks = async () => {
-    loading.value = true;
-    try {
-        const resource = createResource({
-            url: 'maxedu.api_folder.library.get_user_borrowed_books',
-        });
-        const res = await resource.fetch();
-        borrowedBooks.value = res.books || [];
-    } catch (err) {
-        console.error("Failed to load borrowed books:", err);
-    } finally {
-        loading.value = false;
+const borrowedBooks = ref([
+  {
+    name: "ISSUE-001",
+    book_title: "Clean Code",
+    book_isbn: "9780132350884",
+    issue_date: "2026-03-01",
+    due_date: "2026-03-20",
+    days_left: 3,
+    days_overdue: 0,
+    is_overdue: false,
+    renewal_count: 1,
+    has_reservation: false
+  },
+  {
+    name: "ISSUE-002",
+    book_title: "Introduction to Algorithms",
+    book_isbn: "9780262033848",
+    issue_date: "2026-02-20",
+    due_date: "2026-03-10",
+    days_left: 0,
+    days_overdue: 7,
+    is_overdue: true,
+    renewal_count: 0,
+    has_reservation: false
+  },
+  {
+    name: "ISSUE-003",
+    book_title: "Computer Networks",
+    book_isbn: "9780132126953",
+    issue_date: "2026-03-05",
+    due_date: "2026-03-28",
+    days_left: 10,
+    days_overdue: 0,
+    is_overdue: false,
+    renewal_count: 2,
+    has_reservation: true
+  },
+  {
+    name: "ISSUE-004",
+    book_title: "Python Crash Course",
+    book_isbn: "9781593279288",
+    issue_date: "2026-03-07",
+    due_date: "2026-03-25",
+    days_left: 8,
+    days_overdue: 0,
+    is_overdue: false,
+    renewal_count: 0,
+    has_reservation: false
+  }
+]);
+
+/* ---------------- RENEW BOOK (LOCAL DEMO) ---------------- */
+
+const renewBook = (bookIssueName) => {
+  renewingBook.value = bookIssueName;
+
+  setTimeout(() => {
+    const book = borrowedBooks.value.find(b => b.name === bookIssueName);
+
+    if (book && !book.has_reservation) {
+      book.renewal_count += 1;
+      book.days_left += 7;
     }
+
+    renewingBook.value = null;
+  }, 800);
 };
 
-const renewBook = async (bookIssueName) => {
-    renewingBook.value = bookIssueName;
-    try {
-        const resource = createResource({
-            url: 'maxedu.api_folder.library.request_renewal',
-            args: { book_issue_name: bookIssueName }
-        });
-        const res = await resource.fetch();
-        if (res.success) {
-            // Refresh the list
-            await fetchBorrowedBooks();
-            frappe.show_alert({message: res.message, indicator: 'green'});
-        }
-    } catch (err) {
-        frappe.show_alert({message: err.message || "Renewal failed", indicator: 'red'});
-    } finally {
-        renewingBook.value = null;
-    }
-};
+/* ---------------- FILTER ---------------- */
 
-// Filter by search query (title or ISBN)
 const filteredBooks = computed(() => {
-    return borrowedBooks.value.filter(b =>
-        (b.book_title || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        (b.book_isbn || '').toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
+  return borrowedBooks.value.filter(b =>
+    (b.book_title || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    (b.book_isbn || '').toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
 });
 
-// Pagination
-const totalPages = computed(() => Math.ceil(filteredBooks.value.length / itemsPerPage.value) || 0);
+/* ---------------- PAGINATION ---------------- */
+
+const totalPages = computed(() =>
+  Math.ceil(filteredBooks.value.length / itemsPerPage.value) || 0
+);
+
 const paginatedBooks = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage.value;
-    return filteredBooks.value.slice(start, start + itemsPerPage.value);
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  return filteredBooks.value.slice(start, start + itemsPerPage.value);
 });
 
-// Reset page when search or itemsPerPage changes
+/* ---------------- WATCHERS ---------------- */
+
 watch(searchQuery, () => currentPage.value = 1);
 watch(itemsPerPage, () => currentPage.value = 1);
 
-// Format date helper
+/* ---------------- DATE FORMAT ---------------- */
+
 const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  if (!dateStr) return '';
+
+  const date = new Date(dateStr);
+
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
 };
 </script>
 

@@ -5,7 +5,9 @@
       <!-- Header -->
       <header class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60 p-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <div>
-          <h1 class="text-3xl font-black tracking-tight text-slate-800">Library Management</h1>
+          <NuxtLink to="/library/dashboard">
+            <h1 class="text-3xl font-black tracking-tight text-slate-800">Library Management</h1>
+          </NuxtLink>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Physical Book Tracking System</p>
         </div>
 
@@ -13,7 +15,7 @@
         <div class="flex p-1.5 bg-slate-100 rounded-2xl overflow-x-auto">
           <button @click="currentView = 'issued'" :class="tabClass(currentView === 'issued')">Issued Books</button>
           <button @click="currentView = 'all'" :class="tabClass(currentView === 'all')">All Books</button>
-          <button @click="currentView = 'requests'" :class="tabClass(currentView === 'requests')">Book Requests</button>
+          <button @click="currentView = 'tracking'" :class="tabClass(currentView === 'tracking')">Tracking</button>
           <button @click="currentView = 'recommendations'" :class="tabClass(currentView === 'recommendations')">Recommendations</button>
           <!-- <nuxt-link to="/library/tracking" :class="tabClass(false)">
             <i class="fa fa-chart-line mr-1"></i> Tracking
@@ -27,7 +29,7 @@
           :is="
             currentView === 'issued' ? IssuedBooks 
             : currentView === 'all' ? AllBooks 
-            : currentView === 'requests' ? BookRequests 
+            : currentView === 'tracking' ? RequestTracking 
             : Recommendations
           " 
         />
@@ -39,10 +41,10 @@
 
 <script setup>
 import { ref } from 'vue';
-import IssuedBooks from './issuedBooks.vue'
-import AllBooks from './allBooks.vue'
-import BookRequests from './BookRequests.vue'
-import Recommendations from './recommendations.vue'
+import IssuedBooks from './tabs/issuedBooks.vue'
+import AllBooks from './tabs/allBooks.vue'
+import RequestTracking from './tabs/requestTracking.vue'
+import Recommendations from './tabs/recommendations.vue'
 
 const currentView = ref('issued');
 

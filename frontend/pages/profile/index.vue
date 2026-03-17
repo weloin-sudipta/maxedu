@@ -263,7 +263,6 @@ import attendanceTab from './tabs/attendanceTab.vue'
 import { useProfile, updateProfile } from '~/composable/useProfile'
 import { useAttendanceSummary } from '~/composable/useAttendance'
 
-const config = useRuntimeConfig()
 useSeoMeta({
     title: config.public.appName + "| Academics - Profile"
 })
