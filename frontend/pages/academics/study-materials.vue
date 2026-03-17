@@ -135,11 +135,11 @@ const getFileUrl = (filePath, isDownload = false) => {
 
   // ✅ Always use API for download
   if (isDownload) {
-    return `${config.public.backendUrl}/api/method/frappe.utils.file_manager.download_file?file_url=${encodeURIComponent(filePath)}`
+    return `${config.public.apiBaseUrl}/api/method/frappe.utils.file_manager.download_file?file_url=${encodeURIComponent(filePath)}`
   }
 
   // Preview (normal)
-  return `${config.public.backendUrl}${filePath}`
+  return `${config.public.apiBaseUrl}${filePath}`
 }
 
 
