@@ -19,7 +19,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      appName: ''
+      appName: '',
+      backendUrl: `http://localhost:${webserver_port}`
     }
   },
   nitro: {
@@ -50,4 +51,3 @@ export default defineNuxtConfig({
   },
 })
 
- 

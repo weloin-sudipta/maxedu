@@ -25,7 +25,8 @@
         <div v-for="file in filteredFiles" :key="file.name"
           class="group bg-white rounded-[2rem] p-5 border border-slate-200/60 shadow-sm hover:border-indigo-300 transition-all flex flex-col md:flex-row items-center gap-6">
 
-          <div :class="['w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shrink-0', getFileBgColor(file.file_type)]">
+          <div
+            :class="['w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shrink-0', getFileBgColor(file.file_type)]">
             <i :class="['fa text-white', getFileIcon(file.file_type)]"></i>
           </div>
 
@@ -37,8 +38,10 @@
                   file.file_type || 'FILE' }}</span>
             </div>
             <div class="flex flex-wrap justify-center md:justify-start gap-4">
-              <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">{{ file.course_name || file.course }}</span>
-              <span v-if="file.topic_name" class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{{ file.topic_name }}</span>
+              <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">{{ file.course_name ||
+                file.course }}</span>
+              <span v-if="file.topic_name" class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{{
+                file.topic_name }}</span>
               <span v-if="file.file_size" class="text-[10px] font-bold text-slate-300 uppercase tracking-widest"><i
                   class="fa fa-database mr-1"></i> {{ file.file_size }}</span>
               <span v-if="file.upload_date" class="text-[10px] font-bold text-slate-300 uppercase tracking-widest"><i
@@ -47,11 +50,14 @@
           </div>
 
           <div class="flex items-center gap-3 shrink-0">
-            <a v-if="file.file" :href="file.file" target="_blank"
+            <!-- Preview -->
+            <a v-if="file.file" :href="getFileUrl(file.file)" target="_blank"
               class="w-12 h-12 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-900 hover:text-white transition-all shadow-sm">
               <i class="fa fa-eye"></i>
             </a>
-            <a v-if="file.file" :href="file.file" download
+
+            <!-- Download -->
+            <a v-if="file.file" :href="getFileUrl(file.file, true)"
               class="px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">
               <i class="fa fa-download mr-2"></i> Download
             </a>
@@ -61,7 +67,8 @@
         <div v-if="filteredFiles.length === 0"
           class="bg-white rounded-[2.5rem] p-20 border border-dashed border-slate-200 text-center">
           <i class="fa fa-folder-open-o text-slate-100 text-6xl mb-4"></i>
-          <p class="text-sm font-black text-slate-400 uppercase tracking-widest">No documents found in this category.</p>
+          <p class="text-sm font-black text-slate-400 uppercase tracking-widest">No documents found in this category.
+          </p>
         </div>
       </div>
 
@@ -76,7 +83,7 @@ import { useStudyMaterials } from '~/composable/useStudyMaterials'
 
 const config = useRuntimeConfig()
 useSeoMeta({
-    title: `Study Materials - ${config.public.appName}`,
+  title: `Study Materials - ${config.public.appName}`,
 })
 
 const { materials, loading, fetchMaterials } = useStudyMaterials()
@@ -120,6 +127,22 @@ const formatDate = (dateStr) => {
   const d = new Date(dateStr)
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
+
+const getFileUrl = (filePath, isDownload = false) => {
+  if (!filePath) return ''
+
+  if (filePath.startsWith('http')) return filePath
+
+  // ✅ Always use API for download
+  if (isDownload) {
+    return `${config.public.backendUrl}/api/method/frappe.utils.file_manager.download_file?file_url=${encodeURIComponent(filePath)}`
+  }
+
+  // Preview (normal)
+  return `${config.public.backendUrl}${filePath}`
+}
+
+
 </script>
 
 <style scoped>
