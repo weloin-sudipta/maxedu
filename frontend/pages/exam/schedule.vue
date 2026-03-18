@@ -38,24 +38,24 @@
 
               <div>
                 <button
-                @click.stop="downloadHallTicket(type)"
-                class="hidden md:flex px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-md items-center gap-2"
-              >
-                <i class="fa fa-download"></i> Hall Ticket
-              </button>
+                  @click.stop="downloadHallTicket(type)"
+                  :disabled="pdfLoading"
+                  class="hidden md:flex px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-md items-center gap-2 disabled:opacity-60 disabled:cursor-wait"
+                >
+                  <i :class="pdfLoading ? 'fa fa-spinner fa-spin' : 'fa fa-download'"></i>
+                  {{ pdfLoading ? 'Generating…' : 'Hall Ticket' }}
+                </button>
               </div>
 
             </div>
 
             <div class="flex items-center gap-4">
-
               <div
                 class="text-slate-300 transition-transform duration-300"
                 :class="{ 'rotate-180': expandedGroups.includes(type) }"
               >
                 <i class="fa fa-chevron-down"></i>
               </div>
-
             </div>
 
           </div>
@@ -130,15 +130,73 @@
 
     </div>
   </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PDF PREVIEW MODAL
+  ════════════════════════════════════════════════════════ -->
+  <teleport to="body">
+    <transition name="modal-fade">
+      <div
+        v-if="pdfModal.show"
+        class="pdf-overlay"
+        @click.self="closePdfModal"
+      >
+        <div class="pdf-panel">
+
+          <!-- Modal header -->
+          <div class="pdf-panel-header">
+            <div class="pdf-panel-title">
+              <i class="fa fa-file-pdf-o mr-2 text-rose-400"></i>
+              <span>Hall Ticket</span>
+              <span class="pdf-panel-subtitle">{{ pdfModal.examType }}</span>
+            </div>
+
+            <div class="pdf-panel-actions">
+              <!-- Download button -->
+              <a
+                :href="pdfModal.blobUrl"
+                :download="`HallTicket_${pdfModal.examType?.replace(/\s+/g,'_')}.pdf`"
+                class="pdf-btn pdf-btn-download"
+                title="Download PDF"
+              >
+                <i class="fa fa-download mr-1"></i> Download
+              </a>
+
+              <!-- Close button -->
+              <button
+                @click="closePdfModal"
+                class="pdf-btn pdf-btn-close"
+                title="Close"
+              >
+                <i class="fa fa-times"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Embedded PDF viewer — uses blob URL to bypass X-Frame-Options -->
+          <div class="pdf-viewer-wrap">
+            <iframe
+              v-if="pdfModal.blobUrl"
+              :src="pdfModal.blobUrl"
+              class="pdf-iframe"
+              type="application/pdf"
+              title="Hall Ticket Preview"
+            ></iframe>
+          </div>
+
+        </div>
+      </div>
+    </transition>
+  </teleport>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import HeroHeader from "~/components/ui/HeroHeader.vue";
-import { useAdmitCard } from "~/composable/useAdmitCard";
 import { useExams } from "~/composable/useExaminations";
+import { usePdf } from "~/composable/usePdf";
 
-const { fetchAdmit, loading, error, data } = useAdmitCard();
+const { generateAdmitCard, loading: pdfLoading, error: pdfError } = usePdf();
 const config = useRuntimeConfig();
 
 useSeoMeta({
@@ -148,6 +206,17 @@ useSeoMeta({
 const studentYear = ref("2025-26");
 const confirmedExams = ref([]);
 const expandedGroups = ref([]);
+
+/* PDF modal state */
+const pdfModal = ref({ show: false, fileUrl: "", blobUrl: "", examType: "" });
+
+const closePdfModal = () => {
+  // Revoke the blob URL to free memory
+  if (pdfModal.value.blobUrl) {
+    URL.revokeObjectURL(pdfModal.value.blobUrl);
+  }
+  pdfModal.value = { show: false, fileUrl: "", blobUrl: "", examType: "" };
+};
 
 /* GROUP EXAMS BY TYPE */
 const groupedExams = computed(() => {
@@ -179,15 +248,43 @@ const toggleGroup = (type) => {
   }
 };
 
-/* DOWNLOAD HALL TICKET */
+/* DOWNLOAD HALL TICKET — show inline modal, auto-download silently */
 const downloadHallTicket = async (type) => {
-    console.log(`Initiating download for: ${type}`);
-    await fetchAdmit(type);
-    
-    if (error.value) {
-        // You could use a Frappe toast here
-        console.error("Download failed:", error.value);
-    }
+  const result = await generateAdmitCard(type);
+
+  if (!result?.file_url) {
+    if (pdfError.value) alert(`Failed to generate Hall Ticket: ${pdfError.value}`);
+    return;
+  }
+
+  const fileUrl = result.file_url; // e.g. /files/admit_card_xxx.pdf
+
+  // Fetch the PDF binary through our dev proxy (/files → Frappe).
+  // Blob URLs bypass X-Frame-Options: deny — Frappe blocks direct iframes.
+  let blobUrl = "";
+  try {
+    const resp = await fetch(fileUrl, { credentials: "include" });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const blob = await resp.blob();
+    blobUrl = URL.createObjectURL(blob);
+  } catch (e) {
+    console.error("[PDF] Blob fetch failed:", e);
+    // Fallback: at least open in new tab
+    window.open(fileUrl, "_blank", "noopener");
+    return;
+  }
+
+  // 1️⃣  Show embedded viewer (blob URL has no X-Frame-Options restriction)
+  pdfModal.value = { show: true, fileUrl, blobUrl, examType: type };
+
+  // 2️⃣  Auto-download silently — no new tab
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = `HallTicket_${type.replace(/\s+/g, "_")}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  // Do NOT revoke blobUrl here — the iframe still needs it (revoked on modal close)
 };
 
 /* FORMAT TIME */
@@ -257,6 +354,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* ── Exam list transitions ─────────────────────────────── */
 .expand-enter-active,
 .expand-leave-active {
   transition: all 0.3s ease-in-out;
@@ -275,13 +373,137 @@ onMounted(async () => {
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── PDF Modal overlay ─────────────────────────────────── */
+.pdf-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Modal panel */
+.pdf-panel {
+  background: #0f172a;
+  border-radius: 20px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 860px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Panel top bar */
+.pdf-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+
+.pdf-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.pdf-panel-subtitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  padding: 2px 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  margin-left: 4px;
+}
+
+.pdf-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.pdf-btn-download {
+  background: linear-gradient(135deg, #1d4ed8, #4338ca);
+  color: white;
+}
+.pdf-btn-download:hover {
+  background: linear-gradient(135deg, #1e40af, #3730a3);
+  transform: translateY(-1px);
+}
+
+.pdf-btn-close {
+  background: rgba(255,255,255,0.06);
+  color: #94a3b8;
+  font-size: 14px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  justify-content: center;
+}
+.pdf-btn-close:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* iframe fills the rest */
+.pdf-viewer-wrap {
+  flex: 1;
+  background: #1e293b;
+  overflow: hidden;
+}
+
+.pdf-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* ── Modal open/close animation ───────────────────────── */
+.modal-fade-enter-active {
+  animation: modalIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.modal-fade-leave-active {
+  animation: modalOut 0.2s ease forwards;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.94) translateY(16px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes modalOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.96) translateY(8px); }
 }
 </style>
