@@ -3,6 +3,7 @@ import frappe
 def after_install():
     setup_custom_doctypes()
     create_student_custom_fields()
+    create_roles()
 
 def setup_custom_doctypes():
     frappe.reload_doc("maxedu", "doctype", "student_assignment")
@@ -52,3 +53,14 @@ def create_student_custom_fields():
             custom_field.insert(ignore_permissions=True)
 
     frappe.db.commit()
+    
+def create_roles():
+    roles = ["Librarian"]
+
+    for role_name in roles:
+        if not frappe.db.exists("Role", role_name):
+            role = frappe.new_doc("Role")
+            role.role_name = role_name
+            role.insert(ignore_permissions=True)
+
+    frappe.db.commit()    

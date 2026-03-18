@@ -1,0 +1,96 @@
+{
+    "doctype": "DocType",
+    "name": "Book Inventory",
+    "module": "Library Management",
+    "title_field": "book",
+    "fields": [
+        {
+            "fieldname": "basic_section",
+            "fieldtype": "Section Break",
+            "label": "Basic Info"
+        },
+        {
+            "fieldname": "book",
+            "fieldtype": "Link",
+            "label": "Book",
+            "options": "Book Copy",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "shelf",
+            "fieldtype": "Link",
+            "label": "Shelf",
+            "options": "Library Shelf"
+        },
+        {
+            "fieldname": "col_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "managed_by",
+            "fieldtype": "Link",
+            "options": "User",
+            "label": "Managed By"
+        },
+        {
+            "fieldname": "inventory_section",
+            "fieldtype": "Section Break",
+            "label": "Inventory Details"
+        },
+        {
+            "fieldname": "total_copies",
+            "fieldtype": "Int",
+            "in_list_view": 1,
+            "label": "Total Copies"
+        },
+        {
+            "fieldname": "available_copies",
+            "fieldtype": "Int",
+            "in_list_view": 1,
+            "label": "Available Copies"
+        },
+        {
+            "fieldname": "col_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "min_threshold",
+            "fieldtype": "Int",
+            "label": "Minimum Threshold"
+        },
+        {
+            "fieldname": "tracking_section",
+            "fieldtype": "Section Break",
+            "label": "Tracking"
+        },
+        {
+            "fieldname": "last_updated",
+            "fieldtype": "Datetime",
+            "label": "Last Updated"
+        }
+    ],
+    "permissions": [
+        {
+            "role": "System Manager",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1
+        },
+        {
+            "role": "Librarian",
+            "read": 1,
+            "write": 1,
+            "create": 1
+        },
+        {
+            "role": "Student",
+            "read": 1
+        },
+        {
+            "role": "Instructor",
+            "read": 1
+        }
+    ]
+}

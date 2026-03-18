@@ -1,0 +1,36 @@
+{
+ "doctype": "DocType",
+ "name": "Library Shelf",
+ "module": "Library Management",
+ "autoname": "field:shelf_name",
+ "fields": [
+  {
+   "fieldname": "shelf_name",
+   "fieldtype": "Data",
+   "label": "Shelf Name",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Librarian",
+   "read": 1,
+   "write": 1,
+   "create": 1
+  },
+  {
+   "role": "Student",
+   "read": 1
+  }
+ ],
+ "title_field": "shelf_name"
+}

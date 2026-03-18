@@ -1,0 +1,31 @@
+{
+  "doctype": "DocType",
+  "name": "Book Copy Inventory",
+  "module": "Library Management",
+  "istable": 1,
+  "fields": [
+    {
+      "fieldname": "book_copy",
+      "fieldtype": "Link",
+      "label": "Book Copy",
+      "options": "Book Copy",
+      "reqd": 1,
+      "in_list_view": 1
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    },
+    {
+      "role": "Librarian",
+      "read": 1,
+      "write": 1,
+      "create": 1
+    }
+  ]
+}
