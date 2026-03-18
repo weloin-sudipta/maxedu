@@ -192,6 +192,7 @@ const navItems = reactive([
   { name: 'Library', icon: 'fa fa-book', route: '/library' },
   { name: 'Faculty', icon: 'fa-solid fa-book-open-reader', route: '/facoulty' },
   { name: 'Profile', icon: 'fa fa-address-card', route: '/profile' },
+  { name: 'leave', icon: 'fa fa-address-card', route: '/leaveTracker' },
 ])
 
 const isActive = (item) => {
