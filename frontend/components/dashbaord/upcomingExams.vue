@@ -50,9 +50,9 @@
               </p>
             </div>
             
-            <span v-if="index === 0" class="text-[8px] font-black bg-rose-500 text-white px-2 py-0.5 rounded uppercase tracking-tighter animate-pulse">
+            <!-- <span v-if="index === 0" class="text-[8px] font-black bg-rose-500 text-white px-2 py-0.5 rounded uppercase tracking-tighter animate-pulse">
               In {{ exam.daysLeft || '2' }} Days
-            </span>
+            </span> -->
           </div>
         </div>
 
