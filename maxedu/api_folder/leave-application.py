@@ -109,3 +109,62 @@ def get_my_applications():
             "status":  "error",
             "message": str(e),
         }
+
+@frappe.whitelist()
+def get_all_workflow():
+    user = frappe.session.user
+
+    # Get student linked to current user
+    student = frappe.get_list("Student", filters={"user": user}, fields=["name"])
+    if not student:
+        return []
+    student_id = student[0].name
+
+    # Get active workflows
+    workflows = frappe.get_all(
+        "Workflow",
+        filters={"is_active": 1},
+        fields=["name", "document_type", "workflow_state_field"]
+    )
+
+    result = []
+
+    for wf in workflows:
+        document_type = wf.get("document_type")
+        workflow_name = wf.get("name")
+        docs = []
+
+        if document_type:
+            docs = frappe.get_all(
+                document_type,
+                filters={"student": student_id},
+                fields=["*"],
+                order_by="creation desc"
+            )
+
+        # Fetch all workflow states for this workflow
+        workflow_states = frappe.get_all(
+            "Workflow Document State",
+            filters={"parent": workflow_name},
+            fields=["state", "doc_status", "allow_edit", "is_optional_state"],
+            order_by="idx asc"
+        )
+
+        # Optionally fetch transitions too
+        workflow_transitions = frappe.get_all(
+            "Workflow Transition",
+            filters={"parent": workflow_name},
+            fields=["state", "action", "next_state", "allowed", "condition"],
+            order_by="idx asc"
+        )
+
+        result.append({
+            "workflow_name": workflow_name,
+            "document_type": document_type,
+            "workflow_state_field": wf.get("workflow_state_field"),
+            "states": workflow_states,
+            "transitions": workflow_transitions,
+            "documents": docs
+        })
+
+    return result
