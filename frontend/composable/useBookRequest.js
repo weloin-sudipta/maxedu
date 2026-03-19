@@ -1,9 +1,12 @@
 import { ref } from "vue"
 import { createResource, call } from "./useFrappeFetch"
+import { useToast } from "./useToast"
 
 export const useBookRequest = () => {
+    const { addToast } = useToast();
     const requestedBooks = ref(new Set())   // Only books with PENDING requests
     const bookRequestMap = ref({})          // book ID → request doc name
+    const requeststatus = ref({})           // book ID → real request status locally tracked for UI
     const loading = ref(false)
     const error = ref(null)
     const successMessage = ref(null)
@@ -16,60 +19,103 @@ export const useBookRequest = () => {
 
         try {
             const resource = createResource({
-                url: 'maxedu.api_folder.books.request_book',
+                url: 'maxedu.library_management.api.request_book',
             })
 
             const res = await resource.submit({
                 book: bookData.name || bookData.id,
-                request_type: bookData.requestType || 'Issue'
+                library: bookData.library
             })
+
+            if (resource.error.value) {
+                throw resource.error.value;
+            }
 
             const bookId = bookData.name || bookData.id
 
             // Mark as pending locally so the button flips immediately
             requestedBooks.value.add(bookId)
-            if (res && res.name) {
-                bookRequestMap.value[bookId] = res.name
+            if (res && (res.request_id || res.name)) {
+                bookRequestMap.value[bookId] = res.request_id || res.name
             }
+            requeststatus.value[bookId] = "Pending"
 
             successMessage.value = `Book "${bookData.title}" requested successfully!`
+            addToast(`Book "${bookData.title}" requested successfully!`, "success");
             console.log("Book request created:", res)
 
             return res
         } catch (err) {
             console.error("Failed to request book:", err)
-            error.value = err.message || "Failed to request book"
+
+            let errMsg = "Failed to request book.";
+            if (err.data && err.data._server_messages) {
+                try {
+                    const messages = JSON.parse(err.data._server_messages);
+                    errMsg = JSON.parse(messages[0]).message;
+                } catch (e) { }
+            } else if (err.data && err.data.exc_type) {
+                errMsg = err.data.exc_type;
+            } else if (err.message) {
+                errMsg = err.message;
+            }
+
+            error.value = errMsg;
+            addToast(errMsg, "error");
         } finally {
             loading.value = false
         }
     }
 
     // ─── Cancel a book request ─────────────────────────────────────────────────
-    const cancelRequest = async (bookId) => {
+    const cancelRequest = async (bookId, explicitRequestName = null) => {
         loading.value = true
         error.value = null
         successMessage.value = null
 
         try {
+            const request_name = explicitRequestName || bookRequestMap.value[bookId];
+            if (!request_name) {
+                throw new Error("Could not find the original request ID to cancel.");
+            }
+
             const resource = createResource({
-                url: 'maxedu.api_folder.books.cancel_request',
+                url: 'maxedu.library_management.api.cancel_request',
             })
 
             const res = await resource.submit({
-                book_id: bookId   // matches the Python param name
+                request_name: request_name
             })
+
+            if (resource.error.value) {
+                throw resource.error.value;
+            }
 
             // Remove from pending set immediately so button flips back
             requestedBooks.value.delete(bookId)
             delete bookRequestMap.value[bookId]
+            delete requeststatus.value[bookId]
 
             successMessage.value = "Book request cancelled successfully!"
+            addToast("Book request cancelled successfully!", "success");
             console.log("Book request cancelled:", res)
 
             return res
         } catch (err) {
             console.error("Failed to cancel request:", err)
-            error.value = err.message || "Failed to cancel request"
+
+            let errMsg = "Failed to cancel request.";
+            if (err.data && err.data._server_messages) {
+                try {
+                    const messages = JSON.parse(err.data._server_messages);
+                    errMsg = JSON.parse(messages[0]).message;
+                } catch (e) { }
+            } else if (err.message) {
+                errMsg = err.message;
+            }
+
+            error.value = errMsg;
+            addToast(errMsg, "error");
         } finally {
             loading.value = false
         }
@@ -103,25 +149,32 @@ export const useBookRequest = () => {
 
         try {
             const resource = createResource({
-                url: 'maxedu.api_folder.books.get_all_pending_requests',
+                url: 'maxedu.library_management.api.get_my_requests',
             })
 
             const res = await resource.fetch()
 
-            // API now returns:
-            // { request_book: ["BOOK-001", ...], requests: [{ name, book, ... }] }
-            if (res && Array.isArray(res.request_book)) {
+            if (res && Array.isArray(res)) {
+                // Deduplicate to only keep the latest request per book ID
+                const latestRequests = [];
+                const seenBooks = new Set();
+                res.forEach(req => {
+                    if (!seenBooks.has(req.book)) {
+                        seenBooks.add(req.book);
+                        latestRequests.push(req);
+                    }
+                });
 
-                // Rebuild the pending set
-                requestedBooks.value = new Set(res.request_book)
+                // Keep track of pending requests for responsive UI buttons
+                const pendingRequests = latestRequests.filter(r => r.status === "Pending" || r.status === "Approved");
+                requestedBooks.value = new Set(pendingRequests.map(r => r.book))
 
-                // Build bookRequestMap from the same response — no second call needed
                 bookRequestMap.value = {}
-                if (Array.isArray(res.requests)) {
-                    res.requests.forEach(req => {
-                        bookRequestMap.value[req.book] = req.name
-                    })
-                }
+                requeststatus.value = {}
+                latestRequests.forEach(req => {
+                    bookRequestMap.value[req.book] = req.name
+                    requeststatus.value[req.book] = req.status
+                })
             }
 
             console.log("Pending requests loaded:", [...requestedBooks.value])
@@ -141,6 +194,7 @@ export const useBookRequest = () => {
     return {
         requestedBooks,
         bookRequestMap,
+        requeststatus,
         loading,
         error,
         successMessage,
@@ -158,7 +212,7 @@ export const useBookRequest = () => {
 // ─── Standalone helper (used outside the composable if needed) ─────────────────
 export const getPendingRequest = async () => {
     const requestResource = createResource({
-        url: 'maxedu.api_folder.books.get_all_pending_requests',
+        url: 'maxedu.library_management.api.get_my_requests',
     })
     const request = await requestResource.fetch()   // fetch, not submit — no body needed
     return request

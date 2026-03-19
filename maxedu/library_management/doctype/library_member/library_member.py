@@ -1,4 +1,4 @@
 from frappe.model.document import Document
 
-class BookCategory(Document):
+class LibraryMember(Document):
     pass

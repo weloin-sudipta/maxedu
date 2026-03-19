@@ -18,7 +18,7 @@ export const useBooks = () => {
         error.value = null
         try {
             const resource = createResource({
-                url: 'maxedu.api_folder.books.all_available_book',
+                url: 'maxedu.library_management.api.get_catalog',
             })
             const res = await resource.fetch()
             console.log(res);
@@ -37,7 +37,7 @@ export const useBooks = () => {
         error.value = null
         try {
             const resource = createResource({
-                url: 'maxedu.api_folder.books.all_borrowed_books',
+                url: 'maxedu.library_management.api.get_my_issues',
             })
             const res = await resource.fetch()
             console.log(res);
@@ -56,7 +56,7 @@ export const useBooks = () => {
         error.value= null
         try {
             const resource = createResource({
-                url: 'maxedu.api_folder.books.book_tracking',
+                url: 'maxedu.library_management.api.get_my_requests',
             })
             const res = await resource.fetch()
             console.log(res);

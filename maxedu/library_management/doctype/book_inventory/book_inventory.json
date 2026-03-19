@@ -10,10 +10,17 @@
             "label": "Basic Info"
         },
         {
+            "fieldname": "library",
+            "fieldtype": "Link",
+            "label": "Library",
+            "options": "Library",
+            "reqd": 1
+        },
+        {
             "fieldname": "book",
             "fieldtype": "Link",
             "label": "Book",
-            "options": "Book Copy",
+            "options": "Book",
             "reqd": 1,
             "in_list_view": 1
         },

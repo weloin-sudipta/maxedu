@@ -88,10 +88,15 @@
               </span>
             </td>
             <td class="px-6 py-5 text-center">
-              <span
-                :class="['status-badge', isAvailable(book) ? 'bg-green-50 text-green-600 border-green-100' : 'bg-rose-50 text-rose-600 border-rose-100']">
-                {{ isAvailable(book) ? 'Available' : 'Issued Out' }}
-              </span>
+              <div class="flex flex-col items-center justify-center gap-1.5">
+                <span
+                  :class="['status-badge', isAvailable(book) ? 'bg-green-50 text-green-600 border-green-100' : 'bg-rose-50 text-rose-600 border-rose-100']">
+                  {{ isAvailable(book) ? 'Available' : 'Issued Out' }}
+                </span>
+                <span v-if="book.copy_type !== 'Online'" class="text-[9px] font-bold text-slate-400 tracking-wider">
+                  {{ book.available_copies }} / {{ book.total_copies }} copies
+                </span>
+              </div>
             </td>
             <td class="px-6 py-5 text-right">
               <!--
@@ -110,11 +115,20 @@
               </template>
 
               <!-- Pending Request -->
-              <template v-else-if="book.status === 'Pending' || bookRequest.isBookRequested(book.name)">
+              <template v-else-if="bookRequest.requeststatus.value[book.name] === 'Pending'">
                 <button @click="handleBookRequest(book, isAvailable(book))" class="btn-cancel"
                   :disabled="bookRequest.loading.value">
                   <i v-if="bookRequest.loading.value" class="fa fa-spinner fa-spin mr-2"></i>
-                  Cancel Request
+                  {{ isAvailable(book) ? 'Cancel Request' : 'Cancel Reservation' }}
+                </button>
+              </template>
+
+              <!-- Approved Request -->
+              <template v-else-if="bookRequest.requeststatus.value[book.name] === 'Approved'">
+                <button @click="handleBookRequest(book, isAvailable(book))" class="btn-approved"
+                  :disabled="bookRequest.loading.value">
+                  <i v-if="bookRequest.loading.value" class="fa fa-spinner fa-spin mr-2"></i>
+                  Accepted
                 </button>
               </template>
 
@@ -169,56 +183,23 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useBooks } from '~/composable/useLibraryBooks';
 
+const { allBooks, fetchAllBooks, data, fetchData, bookRequest, isBookRequested, toggleBookRequest } = useBooks();
 
-// ─── Static Book Data ────────────────────────────────────────────────────────
-const allBooks = ref([
-  {
-    name: 'book1',
-    title: 'Atomic Habits',
-    author: 'James Clear',
-    category: 'Self Help',
-    copy_type: 'Physical',
-    status: 'Available'
-  },
-  {
-    name: 'book2',
-    title: 'Rich Dad Poor Dad',
-    author: 'Robert Kiyosaki',
-    category: 'Finance',
-    copy_type: 'Physical',
-    status: 'Issued'
-  },
-  {
-    name: 'book3',
-    title: 'The Alchemist',
-    author: 'Paulo Coelho',
-    category: 'Fiction',
-    copy_type: 'Online',
-    status: 'Available',
-    url: 'https://example.com'
-  },
-  {
-    name: 'book4',
-    title: 'Deep Work',
-    author: 'Cal Newport',
-    category: 'Productivity',
-    copy_type: 'Physical',
-    status: 'Pending'
-  },
-  {
-    name: 'book5',
-    title: 'Ikigai',
-    author: 'Héctor García',
-    category: 'Self Help',
-    copy_type: 'Physical',
-    status: 'Issued'
-  }
-]);
+onMounted(async () => {
+    loading.value = true;
+    await Promise.all([
+        fetchAllBooks(),
+        fetchData(),
+        bookRequest.loadUserRequests()
+    ]);
+    loading.value = false;
+});
 
 // ─── UI State ────────────────────────────────────────────────────────────────
-const loading = ref(false);
+const loading = ref(true);
 const searchQuery = ref('');
 const selectedCategory = ref('All');
 const selectedType = ref('All');
@@ -226,30 +207,16 @@ const selectedStatus = ref('All');
 const itemsPerPage = ref(10);
 const currentPage = ref(1);
 
-// ─── Dummy Request Logic ─────────────────────────────────────────────────────
-const requestedBooks = ref(new Set());
-
-const bookRequest = {
-  loading: ref(false),
-  isBookRequested: (name) => requestedBooks.value.has(name)
-};
-
+// ─── Request Logic is handled via Composables ──────────────────────────────────────────────
 const isAvailable = (book) =>
-  book.copy_type === 'Online' || book.status === 'Available';
+  book.copy_type === 'Online' || book.available_copies > 0;
 
-const handleBookRequest = (book, available) => {
+const handleBookRequest = async (book, available) => {
   if (book.copy_type === 'Online') {
     window.open(book.url || '#', '_blank');
     return;
   }
-
-  if (requestedBooks.value.has(book.name)) {
-    requestedBooks.value.delete(book.name);
-    alert(`Cancelled request: ${book.title}`);
-  } else {
-    requestedBooks.value.add(book.name);
-    alert(`${available ? 'Requested' : 'Reserved'}: ${book.title}`);
-  }
+  await toggleBookRequest(book);
 };
 
 // ─── Categories ──────────────────────────────────────────────────────────────
@@ -259,8 +226,17 @@ const categories = computed(() => {
 });
 
 // ─── Filtering ───────────────────────────────────────────────────────────────
+const isBookIssuedToUser = (bookId) => {
+  if (!data.value || !Array.isArray(data.value)) return false;
+  return data.value.some(issue => issue.book === bookId && issue.status === 'Issued');
+};
+
 const filteredCatalog = computed(() => {
   return allBooks.value.filter(book => {
+    if (isBookIssuedToUser(book.name)) {
+      return false;
+    }
+
     const query = searchQuery.value.toLowerCase();
 
     const matchesSearch =
@@ -336,7 +312,9 @@ watch(
 .btn-cancel {
   @apply px-5 py-3 rounded-xl bg-red-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-700 shadow-sm transition-all active:scale-95;
 }
-
+.btn-approved {
+  @apply px-5 py-3 rounded-xl bg-slate-400 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 shadow-sm transition-all active:scale-95;
+}
 .page-btn-fixed {
   @apply p-2 w-10 h-10 rounded-xl bg-white border border-slate-200 disabled:opacity-30 disabled:cursor-not-allowed hover:border-indigo-500 transition-all shadow-sm flex items-center justify-center text-slate-400;
 }

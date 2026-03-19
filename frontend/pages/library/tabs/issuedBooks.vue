@@ -111,16 +111,18 @@
               <div class="flex items-center justify-center gap-2">
                 <button 
                   @click="renewBook(book.name)"
-                  :disabled="book.has_reservation || renewingBook === book.name"
-                  :title="book.has_reservation ? 'Cannot renew: book has pending reservation' : 'Renew this book'"
+                  :disabled="book.has_reservation || renewingBook === book.name || book.renew_requested"
+                  :title="book.has_reservation ? 'Cannot renew: book has pending reservation' : (book.renew_requested ? 'Renewal pending approval' : 'Request Renew')"
                   class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all"
                   :class="book.has_reservation 
                     ? 'bg-slate-50 text-slate-400 cursor-not-allowed opacity-50'
-                    : 'bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white'
+                    : book.renew_requested
+                      ? 'bg-amber-50 text-amber-600 border border-amber-100 cursor-not-allowed'
+                      : 'bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white'
                   "
                 >
                   <i v-if="renewingBook === book.name" class="fa fa-spinner fa-spin mr-1"></i>
-                  {{ book.has_reservation ? 'Reserved' : 'Renew' }}
+                  {{ book.renew_requested ? 'Pending Approval' : (book.has_reservation ? 'Reserved' : 'Request Renew') }}
                 </button>
               </div>
             </td>
@@ -146,14 +148,16 @@
             </div>
             <button 
               @click="renewBook(book.name)"
-              :disabled="book.has_reservation || renewingBook === book.name"
+              :disabled="book.has_reservation || renewingBook === book.name || book.renew_requested"
               class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all"
               :class="book.has_reservation 
                 ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                : book.renew_requested
+                  ? 'bg-amber-100 text-amber-600 cursor-not-allowed'
+                  : 'bg-indigo-600 text-white hover:bg-indigo-700'
               "
             >
-              Renew
+              {{ book.renew_requested ? 'Pending Approval' : 'Renew' }}
             </button>
           </div>
           <div class="grid grid-cols-2 gap-2 text-[10px] font-bold">
@@ -199,82 +203,35 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useBooks } from '~/composable/useLibraryBooks';
+import { createResource } from '~/composable/useFrappeFetch';
+
+const { data: borrowedBooks, fetchData } = useBooks();
 
 const searchQuery = ref('');
 const itemsPerPage = ref(5);
 const currentPage = ref(1);
-const loading = ref(false);
+const loading = ref(true);
 const renewingBook = ref(null);
 
-/* ---------------- STATIC BOOK DATA ---------------- */
+onMounted(async () => {
+    await fetchData();
+    loading.value = false;
+});
 
-const borrowedBooks = ref([
-  {
-    name: "ISSUE-001",
-    book_title: "Clean Code",
-    book_isbn: "9780132350884",
-    issue_date: "2026-03-01",
-    due_date: "2026-03-20",
-    days_left: 3,
-    days_overdue: 0,
-    is_overdue: false,
-    renewal_count: 1,
-    has_reservation: false
-  },
-  {
-    name: "ISSUE-002",
-    book_title: "Introduction to Algorithms",
-    book_isbn: "9780262033848",
-    issue_date: "2026-02-20",
-    due_date: "2026-03-10",
-    days_left: 0,
-    days_overdue: 7,
-    is_overdue: true,
-    renewal_count: 0,
-    has_reservation: false
-  },
-  {
-    name: "ISSUE-003",
-    book_title: "Computer Networks",
-    book_isbn: "9780132126953",
-    issue_date: "2026-03-05",
-    due_date: "2026-03-28",
-    days_left: 10,
-    days_overdue: 0,
-    is_overdue: false,
-    renewal_count: 2,
-    has_reservation: true
-  },
-  {
-    name: "ISSUE-004",
-    book_title: "Python Crash Course",
-    book_isbn: "9781593279288",
-    issue_date: "2026-03-07",
-    due_date: "2026-03-25",
-    days_left: 8,
-    days_overdue: 0,
-    is_overdue: false,
-    renewal_count: 0,
-    has_reservation: false
-  }
-]);
-
-/* ---------------- RENEW BOOK (LOCAL DEMO) ---------------- */
-
-const renewBook = (bookIssueName) => {
+/* ---------------- RENEW BOOK (API DEMO) ---------------- */
+const renewBook = async (bookIssueName) => {
   renewingBook.value = bookIssueName;
-
-  setTimeout(() => {
-    const book = borrowedBooks.value.find(b => b.name === bookIssueName);
-
-    if (book && !book.has_reservation) {
-      book.renewal_count += 1;
-      book.days_left += 7;
-    }
-
-    renewingBook.value = null;
-  }, 800);
+  try {
+     const resource = createResource({ url: 'maxedu.library_management.api.renew_book' });
+     await resource.submit({ issue_name: bookIssueName });
+     await fetchData(); // Refresh data
+  } catch(e) {
+     alert(e.message || "Failed to renew book.");
+  } finally {
+     renewingBook.value = null;
+  }
 };
 
 /* ---------------- FILTER ---------------- */

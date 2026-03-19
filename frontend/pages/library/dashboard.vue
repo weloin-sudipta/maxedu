@@ -105,9 +105,10 @@
 
                             <div class="mt-4 md:mt-0 flex items-center gap-8">
                                 <div class="text-right">
-                                    <p class="text-xs font-black text-slate-800">{{ daysRemaining(book.due) }} Days Left
+                                    <p class="text-xs font-black" :class="book.is_overdue ? 'text-red-600' : 'text-slate-800'">
+                                        {{ book.is_overdue ? book.days_overdue + ' Days Overdue' : book.days_left + ' Days Left' }}
                                     </p>
-                                    <p class="text-[10px] font-bold text-slate-400">Due {{ formatDate(book.due) }}</p>
+                                    <p class="text-[10px] font-bold text-slate-400">Due {{ formatDate(book.due_date) }}</p>
                                 </div>
                                 <button
                                     class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-indigo-600 hover:text-white transition-all">
@@ -141,12 +142,12 @@
                                 <tr v-for="item in history" :key="item.id"
                                     class="hover:bg-slate-50/30 transition-colors">
                                     <td class="px-8 py-5">
-                                        <p class="font-bold text-slate-800 text-sm">{{ item.title }}</p>
-                                        <p class="text-[10px] font-medium text-slate-400">{{ item.category }}</p>
+                                        <p class="font-bold text-slate-800 text-sm">{{ item.book_title }}</p>
+                                        <p class="text-[10px] font-medium text-slate-400">ISBN: {{ item.book_isbn }}</p>
                                     </td>
                                     <td class="px-8 py-5">
-                                        <p class="text-xs font-bold text-slate-600">{{ formatDate(item.issue) }} — {{
-                                            item.return ? formatDate(item.return) : '...' }}</p>
+                                        <p class="text-xs font-bold text-slate-600">{{ formatDate(item.issue_date) }} — {{
+                                            item.return_date ? formatDate(item.return_date) : '...' }}</p>
                                     </td>
                                     <td class="px-8 py-5">
                                         <span :class="statusColor(item.status)"
@@ -200,43 +201,51 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import BookRecommendetion from '~/components/BookRecommendation.vue'
+import { useBooks } from '~/composable/useLibraryBooks'
+
 const config = useRuntimeConfig();
+const { data: history, requestedBook, fetchData, fetchRequestedBook } = useBooks();
 
 // ─── USER ────────────────────────────────────────────────────────────────────
 const user = {
     name: 'Sudipta Ghosh',
     title: 'Software Architect',
     libraryId: 'LIB-2026-SG',
-    profileImage: null, // Set to a URL string when you have one
+    profileImage: null, 
 }
 
-// ─── RAW DATA (Single Source of Truth) ───────────────────────────────────────
-const currentBooks = ref([
-    { id: 1, title: "Clean Code", isbn: "9780132350884", due: "2026-03-25" },
-    { id: 2, title: "Computer Networks", isbn: "9780132126953", due: "2026-03-20" }
-])
+onMounted(async () => {
+    await fetchData();
+    await fetchRequestedBook();
+});
 
-const history = ref([
-    { id: 1, title: "Quantum Physics", category: "Science", issue: "2026-01-10", return: "2026-02-01", status: "Returned" },
-    { id: 2, title: "UI Design Patterns", category: "Design", issue: "2026-02-15", return: null, status: "Issued" },
-    { id: 3, title: "World History Vol 1", category: "History", issue: "2025-12-01", return: "2025-12-20", status: "Overdue" }
-])
+// ─── DERIVED STATS (Dynamic) ────────────────────────────
+const currentBooks = computed(() => {
+    return (history.value || []).filter(b => b.status === 'Issued')
+})
 
-// ─── DERIVED STATS (Dynamic instead of hardcoded) ────────────────────────────
 const stats = computed(() => {
-    const total = history.value.length
-    const current = history.value.filter(b => b.status === 'Issued').length
-    const returned = history.value.filter(b => b.status === 'Returned').length
-    const overdue = history.value.filter(b => b.status === 'Overdue').length
+    const total = (history.value || []).length
+    const current = currentBooks.value.length
+    const returned = (history.value || []).filter(b => b.status === 'Returned').length
+    
+    // An issue is technically overdue if due_date is past today, but our API calculates `is_overdue`
+    const overdue = (history.value || []).filter(b => b.is_overdue).length
+
+    // Calculate total fine
+    const totalFine = (history.value || []).reduce((sum, b) => sum + (parseFloat(b.fine_amount) || 0), 0)
+
+    const pendingRequests = (requestedBook.value || []).filter(r => r.status === 'Pending').length
 
     return {
         total,
         current,
         returned,
         overdue,
-        fine: "$12.50" // static for now
+        fine: `$${totalFine.toFixed(2)}`,
+        pendingRequests
     }
 })
 
@@ -245,7 +254,7 @@ const libraryStats = computed(() => [
     { label: 'Borrowed', value: stats.value.total, color: 'text-black' },
     { label: 'Active', value: stats.value.current, color: 'text-indigo-600' },
     { label: 'Overdue', value: stats.value.overdue, color: 'text-red-600' },
-    { label: 'Reserved', value: '03', color: 'text-slate-400' }
+    { label: 'Reserved', value: stats.value.pendingRequests, color: 'text-slate-400' }
 ])
 
 // ─── POLICY TEXTS ────────────────────────────────────────────────────────────
@@ -272,14 +281,11 @@ const daysRemaining = (due) => {
 }
 
 // ─── STATUS COLORS (SCALABLE) ────────────────────────────────────────────────
-const STATUS_STYLES = {
-    Returned: 'bg-green-100 text-green-700',
-    Issued: 'bg-indigo-100 text-indigo-700',
-    Overdue: 'bg-red-100 text-red-700'
-}
-
 const statusColor = (status) => {
-    return STATUS_STYLES[status] || 'bg-slate-100 text-slate-600'
+    if (status === 'Returned') return 'bg-green-100 text-green-700'
+    if (status === 'Issued') return 'bg-indigo-100 text-indigo-700'
+    if (status === 'Overdue') return 'bg-red-100 text-red-700'
+    return 'bg-slate-100 text-slate-600'
 }
 
 // ─── Recommended Books ────────────────────────────────────────────────

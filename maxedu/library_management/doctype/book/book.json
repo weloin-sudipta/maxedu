@@ -134,6 +134,13 @@
             "label": "Description"
         },
         {
+            "fieldname": "library",
+            "fieldtype": "Link",
+            "label": "Library",
+            "options": "Library",
+            "reqd": 1
+        },
+        {
             "fieldname": "description",
             "fieldtype": "Small Text",
             "label": "Description"

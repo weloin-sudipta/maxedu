@@ -19,7 +19,7 @@ export const useBorrowedBooks = () => {
 
         try {
             const resource = createResource({
-                url: 'maxedu.api_folder.books.all_borrowed_books',
+                url: 'maxedu.library_management.api.get_my_issues',
             })
 
             const res = await resource.fetch()

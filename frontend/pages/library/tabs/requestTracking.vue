@@ -42,9 +42,18 @@
               </div>
             </div>
 
-            <div
-              :class="['px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border shadow-sm transition-all', statusTheme(request.status).bg]">
-              {{ request.status }}
+            <div class="flex flex-col items-end gap-2">
+              <div
+                :class="['px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border shadow-sm transition-all', statusTheme(request.status).bg]">
+                {{ request.status }}
+              </div>
+              <button 
+                v-if="request.status === 'Pending'" 
+                @click="onCancelRequest(request)"
+                class="text-xs px-3 py-1 rounded border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                title="Cancel Request">
+                <i class="fa fa-times mr-1"></i> Cancel
+              </button>
             </div>
           </div>
 
@@ -91,38 +100,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue'
+import { useBooks } from '~/composable/useLibraryBooks'
 
-// ─── Static Request Data ─────────────────────────────────────────────────────
-const requestedBook = ref([
-  {
-    name: 'req1',
-    book: 'B101',
-    book_title: 'Atomic Habits',
-    request_date: '2026-03-01',
-    status: 'Pending',
-    remarks: 'Need for personal development'
-  },
-  {
-    name: 'req2',
-    book: 'B102',
-    book_title: 'Deep Work',
-    request_date: '2026-02-20',
-    status: 'Issued',
-    remarks: 'For productivity improvement'
-  },
-  {
-    name: 'req3',
-    book: 'B103',
-    book_title: 'The Alchemist',
-    request_date: '2026-01-15',
-    status: 'Returned',
-    remarks: ''
-  }
-]);
+const { requestedBook, fetchRequestedBook, cancelRequest } = useBooks();
 
-// ─── Loading State ───────────────────────────────────────────────────────────
-const loading = ref(false);
+const loading = ref(true);
+
+onMounted(async () => {
+    await fetchRequestedBook();
+    loading.value = false;
+});
+
+const onCancelRequest = async (request) => {
+    if (!confirm(`Are you sure you want to cancel the request for ${request.book_title}?`)) return;
+    try {
+        await cancelRequest(request.book, request.name);
+        await fetchRequestedBook();
+    } catch(err) {
+        alert("Failed to cancel request.");
+    }
+};
 
 // ─── Steps ───────────────────────────────────────────────────────────────────
 const steps = [
