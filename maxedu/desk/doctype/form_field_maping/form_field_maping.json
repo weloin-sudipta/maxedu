@@ -1,0 +1,59 @@
+{
+  "doctype": "DocType",
+  "name": "Form Field Map",
+  "module": "Application",
+  "istable": 1,
+  "fields": [
+
+    {
+      "fieldname": "field",
+      "label": "Field",
+      "fieldtype": "Link",
+      "options": "Form Field",
+      "reqd": 1
+    },
+
+    {
+      "fieldname": "field_label",
+      "label": "Label",
+      "fieldtype": "Data",
+      "read_only": 1,
+      "fetch_from": "field.field_label"
+    },
+
+    {
+      "fieldname": "field_type",
+      "label": "Type",
+      "fieldtype": "Data",
+      "read_only": 1,
+      "fetch_from": "field.field_type"
+    },
+
+    {
+      "fieldname": "is_required",
+      "label": "Required",
+      "fieldtype": "Check"
+    },
+
+    {
+      "fieldname": "placeholder",
+      "label": "Placeholder",
+      "fieldtype": "Data"
+    },
+
+    {
+      "fieldname": "options",
+      "label": "Options",
+      "fieldtype": "Small Text",
+      "read_only": 1,
+      "fetch_from": "field.options"
+    },
+
+    {
+      "fieldname": "order",
+      "label": "Order",
+      "fieldtype": "Int"
+    }
+
+  ]
+}

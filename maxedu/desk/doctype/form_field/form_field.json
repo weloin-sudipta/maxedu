@@ -1,0 +1,39 @@
+{
+  "doctype": "DocType",
+  "name": "Form Field",
+  "module": "Application",
+  "track_changes": 1,
+  "title_field": "field_label",
+  "fields": [
+    {
+      "fieldname": "field_label",
+      "label": "Field Label",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "field_name",
+      "label": "Field Name",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "field_type",
+      "label": "Field Type",
+      "fieldtype": "Select",
+      "options": "Data\nText\nDate\nSelect\nNumber\nCheck\nFile",
+      "reqd": 1
+    },
+    {
+      "fieldname": "options",
+      "label": "Options",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "default_value",
+      "label": "Default Value",
+      "fieldtype": "Data"
+    }
+  ]
+}

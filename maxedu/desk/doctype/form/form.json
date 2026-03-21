@@ -1,0 +1,43 @@
+{
+  "doctype": "DocType",
+  "name": "Form",
+  "module": "Application",
+  "track_changes": 1,
+  "fields": [
+
+    {
+      "fieldname": "form_name",
+      "label": "Form Name",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "Company"
+    },
+
+    {
+      "fieldname": "is_active",
+      "label": "Is Active",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+
+    {
+      "fieldname": "fields_section",
+      "label": "Form Builder",
+      "fieldtype": "Section Break"
+    },
+
+    {
+      "fieldname": "fields",
+      "label": "Fields",
+      "fieldtype": "Table",
+      "options": "Form Field Map"
+    }
+
+  ]
+}
