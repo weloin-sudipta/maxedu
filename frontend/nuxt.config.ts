@@ -1,6 +1,6 @@
 // @ts-ignore – JSON import from bench config
-import { webserver_port } from '../../../sites/common_site_config.json'
-
+// import { webserver_port } from '../../../sites/common_site_config.json'
+// webserver_port = 8000
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   modules: ['@nuxtjs/tailwindcss'],
@@ -21,22 +21,23 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       appName: '',
-      apiBaseUrl: ''
+      apiBaseUrl: '',
+      googleCalendarApiKey: ''
     }
   },
 
   nitro: {
     devProxy: {
       '/api': {
-        target: `http://localhost:${webserver_port}`,
+        target: `http://localhost:8000`,
         changeOrigin: true,
       },
       '/assets': {
-        target: `http://localhost:${webserver_port}`,
+        target: `http://localhost:8000`,
         changeOrigin: true,
       },
       '/files': {
-        target: `http://localhost:${webserver_port}`,
+        target: `http://localhost:8000`,
         changeOrigin: true,
       },
     },
@@ -46,15 +47,15 @@ export default defineNuxtConfig({
     server: {
       proxy: {
         '/api': {
-          target: `http://localhost:${webserver_port}`,
+          target: `http://localhost:8000`,
           changeOrigin: true,
         },
         '/assets': {
-          target: `http://localhost:${webserver_port}`,
+          target: `http://localhost:8000`,
           changeOrigin: true,
         },
         '/files': {
-          target: `http://localhost:${webserver_port}`,
+          target: `http://localhost:8000`,
           changeOrigin: true,
         },
       },
