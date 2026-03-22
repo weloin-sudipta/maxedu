@@ -1,11 +1,7 @@
 import frappe
-import requests
 import base64
 import os
 from typing import Optional
-
-
-PDF_SERVICE_URL = os.environ.get("PDF_SERVICE_URL", "http://localhost:3001")
 
 
 # ─────────────────────────────────────────────────────────
@@ -61,27 +57,18 @@ def _render_template(template_name: str, data: dict) -> str:
 #  🔧 Internal helper: call PDF service and save to Frappe
 # ─────────────────────────────────────────────────────────
 def _generate_and_save(html: str, filename: str, options: Optional[dict] = None) -> str:
-    """Call the Node PDF service, save result as a Frappe File, return URL."""
-    payload = {"html": html, "options": options or {}}
+    """Generate PDF using Frappe's native get_pdf, save result as a Frappe File, return URL."""
+    from frappe.utils.pdf import get_pdf
 
     try:
-        response = requests.post(
-            f"{PDF_SERVICE_URL}/generate-pdf",
-            json=payload,
-            timeout=60
-        )
-    except requests.exceptions.ConnectionError:
-        frappe.throw(
-            "PDF Service is not running. "
-            "Please start it with: cd apps/maxedu/pdf-service && npm start"
-        )
-
-    if response.status_code != 200:
-        frappe.throw(f"PDF generation failed: {response.text}")
+        # Generate raw PDF bytes using Frappe's native wkhtmltopdf wrapper
+        pdf_bytes = get_pdf(html, options=options)
+    except Exception as e:
+        frappe.throw(f"PDF generation failed: {str(e)}")
 
     # Frappe File requires base64-encoded content + decode=True for binary files.
     # Passing raw bytes with decode=False results in a corrupt / "Page not found" file.
-    pdf_b64 = base64.b64encode(response.content).decode("utf-8")
+    pdf_b64 = base64.b64encode(pdf_bytes).decode("utf-8")
 
     file_doc = frappe.get_doc({
         "doctype": "File",
