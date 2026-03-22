@@ -1,0 +1,13 @@
+{
+  "doctype": "DocType",
+  "name": "Application Approval Log",
+  "module": "Approval Desk",
+  "fields": [
+    {"fieldname": "application", "fieldtype": "Link", "options": "Application", "label": "Application"},
+    {"fieldname": "approver", "fieldtype": "Link", "options": "User", "label": "Approver"},
+    {"fieldname": "role", "fieldtype": "Link", "options": "Role", "label": "Role"},
+    {"fieldname": "status", "fieldtype": "Select", "options": "Pending\nApproved\nRejected", "label": "Status"},
+    {"fieldname": "order", "fieldtype": "Int", "label": "Order"},
+    {"fieldname": "is_active", "fieldtype": "Check", "default": "0", "label": "Is Active"}
+  ]
+}

@@ -1,3 +1,3 @@
 Maxedu
 Library Management
-Desk
+Approval Desk

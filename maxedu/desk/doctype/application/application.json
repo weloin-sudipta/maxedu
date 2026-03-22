@@ -1,0 +1,15 @@
+{
+  "doctype": "DocType",
+  "name": "Application",
+  "module": "Approval Desk",
+  "track_changes": 1,
+  "fields": [
+    {"fieldname": "form", "fieldtype": "Link", "options": "Form", "reqd": 1, "label": "Form"},
+    {"fieldname": "applicant", "fieldtype": "Link", "options": "User", "label": "Applicant"},
+    {"fieldname": "status", "fieldtype": "Select", "options": "Draft\nPending\nApproved\nRejected", "default": "Draft", "label": "Status"},
+    {"fieldname": "data", "fieldtype": "Long Text", "label": "Data"},
+    {"fieldname": "current_step", "fieldtype": "Int", "label": "Current Step"},
+    {"fieldname": "created_by", "fieldtype": "Link", "options": "User", "label": "Created By"},
+    {"fieldname": "approved_by", "fieldtype": "Link", "options": "User", "label": "Approved By"}
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "doctype": "DocType",
+  "name": "Approval Step",
+  "module": "Approval Desk",
+  "istable": 1,
+  "fields": [
+
+    {
+      "fieldname": "approved_by",
+      "fieldtype": "Select",
+      "options": "Role\nUser",
+      "label": "Approved By",
+      "default": "Role"
+    },
+
+    {
+      "fieldname": "user",
+      "fieldtype": "Link",
+      "options": "User",
+      "label": "User",
+      "depends_on": "eval:doc.approved_by=='User'"
+    },
+
+    {
+      "fieldname": "role",
+      "fieldtype": "Link",
+      "options": "Role",
+      "label": "Role",
+      "depends_on": "eval:doc.approved_by=='Role'"
+    },
+
+    {
+      "fieldname": "order",
+      "fieldtype": "Int",
+      "label": "Order"
+    },
+
+    {
+      "fieldname": "approval_mode",
+      "fieldtype": "Select",
+      "options": "Any One\nAll",
+      "default": "Any One",
+      "label": "Approval Mode"
+    },
+
+    {
+      "fieldname": "is_optional",
+      "fieldtype": "Check",
+      "label": "Is Optional"
+    },
+
+    {
+      "fieldname": "fallback_user",
+      "fieldtype": "Link",
+      "options": "User",
+      "label": "Fallback User"
+    },
+
+    {
+      "fieldname": "fallback_role",
+      "fieldtype": "Link",
+      "options": "Role",
+      "label": "Fallback Role"
+    },
+
+    {
+      "fieldname": "condition_script",
+      "fieldtype": "Small Text",
+      "label": "Condition Script"
+    }
+
+  ]
+}

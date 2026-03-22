@@ -1,7 +1,7 @@
 {
   "doctype": "DocType",
   "name": "Form Field Map",
-  "module": "Application",
+  "module": "Approval Desk",
   "istable": 1,
   "fields": [
 

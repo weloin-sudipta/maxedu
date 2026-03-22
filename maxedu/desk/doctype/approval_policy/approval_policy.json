@@ -1,0 +1,16 @@
+{
+  "doctype": "DocType",
+  "name": "Approval Policy",
+  "module": "Approval Desk",
+  "fields": [
+    {"fieldname": "institute", "fieldtype": "Link", "options": "Company", "label": "Institute"},
+    {"fieldname": "form", "fieldtype": "Link", "options": "Form", "label": "Application Type"},
+    {"fieldname": "is_active", "fieldtype": "Check", "default": "1", "label": "Is Active"},
+    {
+      "fieldname": "steps",
+      "fieldtype": "Table",
+      "options": "Approval Step",
+      "label": "Steps"
+    }
+  ]
+}
