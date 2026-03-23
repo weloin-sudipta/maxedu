@@ -1,0 +1,103 @@
+{
+    "actions": [],
+    "autoname": "field:institute_code",
+    "creation": "2026-03-23 10:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "institute_name",
+        "institute_code",
+        "column_break_1",
+        "status",
+        "email",
+        "phone",
+        "section_break_address",
+        "address",
+        "listed_by"
+    ],
+    "fields": [
+        {
+            "fieldname": "institute_name",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Institute Name",
+            "reqd": 1
+        },
+        {
+            "fieldname": "institute_code",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Institute Code",
+            "reqd": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Status",
+            "options": "Active\nInactive",
+            "default": "Active"
+        },
+        {
+            "fieldname": "email",
+            "fieldtype": "Data",
+            "label": "Email",
+            "options": "Email"
+        },
+        {
+            "fieldname": "phone",
+            "fieldtype": "Data",
+            "label": "Phone"
+        },
+        {
+            "fieldname": "section_break_address",
+            "fieldtype": "Section Break",
+            "label": "Address"
+        },
+        {
+            "fieldname": "address",
+            "fieldtype": "Small Text",
+            "label": "Address"
+        },
+        {
+            "fieldname": "listed_by",
+            "fieldtype": "Link",
+            "label": "Listed By",
+            "options": "User",
+            "read_only": 1,
+            "in_list_view": 1
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2026-03-23 10:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Maxedu",
+    "name": "Institute",
+    "naming_rule": "By fieldname",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "institute_name",
+    "sort_order": "ASC",
+    "states": [],
+    "title_field": "institute_name",
+    "search_fields": "institute_name,institute_code",
+    "track_changes": 1
+}
