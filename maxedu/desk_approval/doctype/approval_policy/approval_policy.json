@@ -3,14 +3,67 @@
   "name": "Approval Policy",
   "module": "Desk Approval",
   "fields": [
-    {"fieldname": "institute", "fieldtype": "Link", "options": "Company", "label": "Institute"},
-    {"fieldname": "form", "fieldtype": "Link", "options": "Form", "label": "Application Type"},
-    {"fieldname": "is_active", "fieldtype": "Check", "default": "1", "label": "Is Active"},
+    {
+      "fieldname": "institute",
+      "fieldtype": "Link",
+      "options": "Company",
+      "label": "Institute"
+    },
+    {
+      "fieldname": "form",
+      "fieldtype": "Link",
+      "options": "Form",
+      "label": "Application Type"
+    },
+    {
+      "fieldname": "is_active",
+      "fieldtype": "Check",
+      "default": "1",
+      "label": "Is Active"
+    },
     {
       "fieldname": "steps",
       "fieldtype": "Table",
       "options": "Approval Step",
       "label": "Steps"
+    }
+  ],
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Student",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Instructor",
+      "share": 1,
+      "write": 1
     }
   ]
 }

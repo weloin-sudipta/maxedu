@@ -113,45 +113,35 @@
       </div>
     </div>
 
-    <ApplicationsNewRequestModal v-model="showForm" />
+    <ApplicationsNewRequestModal v-model="showForm" @submitted="fetchApplications" />
   </main>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { call } from '~/composable/useFrappeFetch'
 
 const showForm = ref(false)
 const visibleLimit = ref(5)
+const loading = ref(false)
 
-const myApplications = ref([
-  {
-    id: 'REQ-8821',
-    type: 'Leave Application',
-    subject: 'Sick Leave for 2 Days',
-    date: 'Mar 18, 2026',
-    status: 'In Progress',
-    workflow: [
-      { role: 'Student', icon: 'fa fa-user', state: 'approved' },
-      { role: 'Class Teacher', icon: 'fa fa-user-tie', state: 'approved' },
-      { role: 'HOD', icon: 'fa fa-building', state: 'pending' },
-      { role: 'Principal', icon: 'fa fa-award', state: 'waiting' }
-    ]
-  },
-  {
-    id: 'REQ-7712',
-    type: 'Improvement',
-    subject: 'Extra Python Lab Sessions',
-    date: 'Mar 15, 2026',
-    status: 'Approved',
-    workflow: [
-      { role: 'Student', icon: 'fa fa-user', state: 'approved' },
-      { role: 'Class Teacher', icon: 'fa fa-user-tie', state: 'approved' },
-      { role: 'HOD', icon: 'fa fa-building', state: 'approved' },
-      { role: 'Principal', icon: 'fa fa-award', state: 'approved' }
-    ]
+const myApplications = ref([])
+
+const fetchApplications = async () => {
+  loading.value = true
+  try {
+    const res = await call('maxedu.desk_approval.doctype.application.application.get_user_applications')
+    myApplications.value = res || []
+  } catch (err) {
+    console.error(err)
+  } finally {
+    loading.value = false
   }
+}
 
-])
+onMounted(() => {
+  fetchApplications()
+})
 
 const displayedApplications = computed(() => {
   return myApplications.value.slice(0, visibleLimit.value)
@@ -163,7 +153,7 @@ const loadMore = () => {
 
 const statusColor = (status) => {
   if (status === 'Approved') return 'bg-green-100 text-green-600'
-  if (status === 'In Progress') return 'bg-amber-100 text-amber-600'
+  if (status === 'Pending' || status === 'In Progress') return 'bg-amber-100 text-amber-600'
   return 'bg-slate-100 text-slate-500'
 }
 </script>
