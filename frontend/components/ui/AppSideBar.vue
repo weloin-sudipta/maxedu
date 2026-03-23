@@ -175,16 +175,16 @@ const navItems = reactive([
     icon: 'fa fa-file-pen', // Better icon for "requesting"
      route: '/applications/'
   },
-  {
-    name: 'Documents',
-    icon: 'fa fa-folder-open',
-    isOpen: false,
-    children: [
-      { name: 'Certificates', route: '/documents/personal' },
-      { name: 'Fee Receipts', route: '/documents/fees' },
-      { name: 'ID Card', route: '/documents/id-card' },
-    ]
-  },
+  // {
+  //   name: 'Documents',
+  //   icon: 'fa fa-folder-open',
+  //   isOpen: false,
+  //   children: [
+  //     { name: 'Certificates', route: '/documents/personal' },
+  //     { name: 'Fee Receipts', route: '/documents/fees' },
+  //     { name: 'ID Card', route: '/documents/id-card' },
+  //   ]
+  // },
   { name: 'Library', icon: 'fa fa-book', route: '/library' },
 
   // PERSONAL SECTION
