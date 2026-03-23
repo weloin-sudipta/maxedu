@@ -44,46 +44,22 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { call } from '~/composable/useFrappeFetch'
 
 const route = useRoute();
 const router = useRouter();
 const detail = ref(null);
 
-// Mock constant data
-const mockNotices = [
-  {
-    slug: 'annual-sports-day',
-    title: 'Annual Sports Day Announced!',
-    description: 'Join us for the annual sports day. All students are encouraged to participate. See details for schedule.',
-    category: 'Event',
-    type: 'Notice',
-    attachments: [],
-    date: '15 Mar 2026',
-  },
-  {
-    slug: 'exam-timetable',
-    title: 'Exam Timetable Released',
-    description: 'The final exam timetable is now available. Download the PDF for your subjects.',
-    category: 'Academics',
-    type: 'Notice',
-    attachments: [
-      { file_name: 'Exam_Timetable.pdf', file_url: '/files/exam-timetable.pdf' },
-    ],
-    date: '14 Mar 2026',
-  },
-  {
-    slug: 'library-closed',
-    title: 'Library Closed on Friday',
-    description: 'The library will be closed this Friday for maintenance.',
-    category: 'Library',
-    type: 'Notice',
-    attachments: [],
-    date: '13 Mar 2026',
-  },
-];
-
-onMounted(() => {
+onMounted(async () => {
   const slug = route.params.slug;
-  detail.value = mockNotices.find(n => n.slug === slug);
+  if (!slug) return;
+  
+  try {
+    const res = await call('maxedu.desk_approval.doctype.application.application.get_notice', { slug });
+    detail.value = res || null;
+  } catch (err) {
+    console.error("Failed to fetch notice", err);
+    // fallback or redirect could go here
+  }
 });
 </script>

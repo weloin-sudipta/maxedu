@@ -52,8 +52,13 @@
 
                 <!-- TAG FILTER -->
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                    <button v-for="tag in tags" :key="tag"
-                        class="px-6 py-2 bg-white rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-200 text-slate-500 hover:border-indigo-400 transition-all">
+                    <button v-for="tag in tags" :key="tag" @click="selectedTag = tag"
+                        :class="[
+                            selectedTag === tag 
+                                ? 'border-indigo-400 text-indigo-600 bg-indigo-50' 
+                                : 'border-slate-200 text-slate-500 bg-white',
+                            'px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border hover:border-indigo-400 transition-all'
+                        ]">
                         {{ tag }}
                     </button>
                 </div>
@@ -61,7 +66,7 @@
                 <!-- NOTICE GRID -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                    <div v-for="notice in notices" :key="notice.id"
+                    <div v-for="notice in filteredNotices" :key="notice.id"
                         class="bg-white border-2 border-slate-100 rounded-[2.5rem] p-8 flex flex-col group shadow-md hover:shadow-xl transition-shadow">
 
                         <div class="flex justify-between items-start mb-6">
@@ -184,7 +189,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -203,6 +208,9 @@ const startTimer = () => {
     }, 50)
 
     timer = setInterval(() => {
+        if (!pinNotices.value || pinNotices.value.length === 0) {
+            return
+        }
 
         currentIndex.value =
             (currentIndex.value + 1) % pinNotices.value.length
@@ -232,74 +240,35 @@ function goToNotice(slug) {
 
 /* DATA */
 
-const pinNotices = ref([
-    {
-        id: 'notice-1',
-        title: 'Annual Sports Day Announced!',
-        description: 'Join us for the annual sports day. All students are encouraged to participate.',
-        icon: 'fa-trophy',
-        slug: 'annual-sports-day'
-    },
-    {
-        id: 'notice-2',
-        title: 'Exam Timetable Released',
-        description: 'The final exam timetable is now available.',
-        icon: 'fa-calendar',
-        slug: 'exam-timetable'
-    },
-    {
-        id: 'notice-3',
-        title: 'Library Closed on Friday',
-        description: 'The library will be closed this Friday for maintenance.',
-        icon: 'fa-book',
-        slug: 'library-closed'
+import { call } from '~/composable/useFrappeFetch'
+
+const pinNotices = ref([])
+const notices = ref([])
+const tags = ref(['All'])
+const news = ref([])
+const topics = ref([])
+
+const selectedTag = ref('All')
+
+const filteredNotices = computed(() => {
+    if (selectedTag.value === 'All') return notices.value;
+    return notices.value.filter(n => n.category === selectedTag.value);
+})
+
+
+onMounted(async () => {
+    try {
+        const res = await call('maxedu.desk_approval.doctype.application.application.get_approved_notices')
+        if (res) {
+            pinNotices.value = res.pinNotices || []
+            notices.value = res.notices || []
+            tags.value = res.tags || ['All']
+            news.value = res.news || []
+            topics.value = res.topics || []
+        }
+    } catch (err) {
+        console.error("Failed to load news & notices:", err)
     }
-])
+})
 
-const notices = [
-    {
-        id: 'notice-1',
-        title: 'Annual Sports Day Announced!',
-        description: 'Join us for the annual sports day.',
-        icon: 'fa-trophy',
-        category: 'Event',
-        slug: 'annual-sports-day',
-        date: '15 Mar 2026'
-    },
-    {
-        id: 'notice-2',
-        title: 'Exam Timetable Released',
-        description: 'The final exam timetable is now available.',
-        icon: 'fa-calendar',
-        category: 'Academics',
-        slug: 'exam-timetable',
-        date: '14 Mar 2026'
-    },
-    {
-        id: 'notice-3',
-        title: 'Library Closed on Friday',
-        description: 'Library closed for maintenance.',
-        icon: 'fa-book',
-        category: 'Library',
-        slug: 'library-closed',
-        date: '13 Mar 2026'
-    }
-]
-
-const tags = ['All', 'Event', 'Academics', 'Library']
-
-const news = [
-    {
-        id: 1,
-        title: '50 New AI Books Added',
-        description: 'Library has added new AI and Machine Learning books.'
-    },
-    {
-        id: 2,
-        title: 'Digital Reading Portal Launched',
-        description: 'Students can now read books online.'
-    }
-]
-
-const topics = ['#ExamPrep', '#LibraryUpdate', '#CampusFest']
 </script>

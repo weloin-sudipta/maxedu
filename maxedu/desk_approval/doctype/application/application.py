@@ -227,3 +227,103 @@ def reject_application(application_name):
     doc.status = "Rejected"
     doc.save(ignore_permissions=True)
     frappe.db.commit()
+
+@frappe.whitelist()
+def get_approved_notices():
+    import json
+    from frappe.utils import formatdate
+    
+    form_id = frappe.db.get_value("Form", {"form_name": "Notice & News"}, "name")
+    if not form_id:
+        return {"pinNotices": [], "notices": [], "news": [], "tags": ["All"], "topics": []}
+        
+    apps = frappe.get_all("Application", filters={"form": form_id, "status": "Approved"}, fields=["name", "data", "creation"], order_by="creation desc")
+    
+    pinNotices = []
+    notices = []
+    news = []
+    tags = set()
+    
+    for app in apps:
+        if not app.data: continue
+        try:
+            data = json.loads(app.data)
+        except Exception:
+            continue
+            
+        notice_type = data.get("notice_type", "Notice")
+        title = data.get("title", "")
+        description = data.get("description", "")
+        category = data.get("category", "")
+        is_pinned = data.get("is_pinned", 0)
+        
+        icon = "fa-bullhorn"
+        if category == "Event": icon = "fa-trophy"
+        elif category == "Academics": icon = "fa-calendar"
+        elif category == "Library": icon = "fa-book"
+        
+        if notice_type == "Notice":
+            if category:
+                tags.add(category)
+                
+            notice_obj = {
+                "id": app.name,
+                "title": title,
+                "description": description,
+                "icon": icon,
+                "category": category,
+                "slug": app.name,
+                "date": formatdate(app.creation, "dd MMM yyyy")
+            }
+            notices.append(notice_obj)
+            
+            if is_pinned:
+                pinNotices.append(notice_obj)
+                
+        elif notice_type == "News":
+            news.append({
+                "id": app.name,
+                "title": title,
+                "description": description
+            })
+            
+    final_tags = ["All"] + sorted(list(tags))
+    
+    return {
+        "pinNotices": pinNotices,
+        "notices": notices,
+        "news": news,
+        "tags": final_tags,
+        "topics": [f"#{t.replace(' ', '')}News" for t in list(tags)[:3]]
+    }
+
+@frappe.whitelist()
+def get_notice(slug):
+    import json
+    from frappe.utils import formatdate
+    
+    app = frappe.get_doc("Application", slug)
+    if app.status != "Approved":
+        frappe.throw("Notice not found or not approved.")
+        
+    data = {}
+    if app.data:
+        try:
+            data = json.loads(app.data)
+        except Exception:
+            pass
+            
+    notice_type = data.get("notice_type", "Notice")
+    title = data.get("title", "")
+    description = data.get("description", "")
+    category = data.get("category", "")
+    
+    return {
+        "slug": app.name,
+        "title": title,
+        "description": description,
+        "category": category,
+        "type": notice_type,
+        "attachments": [],
+        "date": formatdate(app.creation, "dd MMM yyyy")
+    }
