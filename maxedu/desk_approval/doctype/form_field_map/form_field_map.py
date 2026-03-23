@@ -1,4 +1,4 @@
 from frappe.model.document import Document
 
-class FormFieldMaping(Document):
+class FormFieldMap(Document):
     pass

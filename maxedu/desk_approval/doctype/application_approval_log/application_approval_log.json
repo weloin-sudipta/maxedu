@@ -1,7 +1,7 @@
 {
   "doctype": "DocType",
   "name": "Application Approval Log",
-  "module": "Approval Desk",
+  "module": "Desk Approval",
   "fields": [
     {"fieldname": "application", "fieldtype": "Link", "options": "Application", "label": "Application"},
     {"fieldname": "approver", "fieldtype": "Link", "options": "User", "label": "Approver"},

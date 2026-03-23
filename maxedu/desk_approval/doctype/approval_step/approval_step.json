@@ -1,7 +1,7 @@
 {
   "doctype": "DocType",
   "name": "Approval Step",
-  "module": "Approval Desk",
+  "module": "Desk Approval",
   "istable": 1,
   "fields": [
 

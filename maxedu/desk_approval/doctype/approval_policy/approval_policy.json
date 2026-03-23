@@ -1,7 +1,7 @@
 {
   "doctype": "DocType",
   "name": "Approval Policy",
-  "module": "Approval Desk",
+  "module": "Desk Approval",
   "fields": [
     {"fieldname": "institute", "fieldtype": "Link", "options": "Company", "label": "Institute"},
     {"fieldname": "form", "fieldtype": "Link", "options": "Form", "label": "Application Type"},

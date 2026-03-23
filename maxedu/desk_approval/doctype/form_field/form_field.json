@@ -1,7 +1,7 @@
 {
   "doctype": "DocType",
   "name": "Form Field",
-  "module": "Approval Desk",
+  "module": "Desk Approval",
   "track_changes": 1,
   "title_field": "field_label",
   "fields": [
