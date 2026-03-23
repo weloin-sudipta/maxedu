@@ -20,7 +20,7 @@
 
             <div class="grid grid-cols-1 gap-8" v-else>
                 <div v-for="subject in subjects" :key="subject.code"
-                    class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm overflow-hidden group transition-all hover:shadow-xl hover:shadow-slate-200/50">
+                    class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm overflow-hidden group transition-all">
 
                     <div class="flex flex-col lg:flex-row">
                         <div :class="['lg:w-80 p-10 flex flex-col justify-between items-center text-center border-b lg:border-b-0 lg:border-r border-slate-50 relative', subject.bgColor]">
@@ -58,17 +58,16 @@
                                 <div
                                     v-for="(chapter, i) in subject.chapters"
                                     :key="i"
-                                    @click="openLessons(subject, chapter)"
-                                    class="group/item cursor-pointer relative flex items-center gap-4 bg-slate-50 border border-slate-100 p-4 pr-6 rounded-[1.5rem] hover:bg-white hover:border-indigo-400 hover:shadow-lg transition-all duration-300 active:scale-95"
+                                    class="group/item relative flex items-center gap-4 bg-slate-50 border border-slate-100 p-4 pr-6 rounded-[1.5rem] transition-all duration-300"
                                 >
-                                    <div :class="['w-12 h-12 rounded-2xl flex flex-col items-center justify-center shadow-sm transition-transform group-hover/item:rotate-12', chapter.weightColor]">
+                                    <div :class="['w-12 h-12 rounded-2xl flex flex-col items-center justify-center shadow-sm', chapter.weightColor]">
                                         <span class="text-xs font-black text-white">{{ chapter.marks }}%</span>
                                         <span class="text-[7px] font-bold text-white/80 uppercase">Marks</span>
                                     </div>
 
                                     <div>
                                         <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Chapter {{ i + 1 }}</p>
-                                        <h5 class="text-sm font-black text-slate-700 group-hover/item:text-indigo-600 transition-colors">{{ chapter.title }}</h5>
+                                        <h5 class="text-sm font-black text-slate-700">{{ chapter.title }}</h5>
                                     </div>
                                 </div>
 
@@ -80,30 +79,6 @@
                     </div>
                 </div>
             </div>
-
-            <div v-if="selectedChapter" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="selectedChapter = null"></div>
-
-                <div class="relative bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[85vh] overflow-hidden animate-modal">
-                    <div :class="['p-8 text-white relative overflow-hidden', selectedSubject.bgColor]">
-                        <div class="relative z-10 flex justify-between items-start">
-                            <div>
-                                <p class="text-[10px] font-black uppercase tracking-[0.2em] opacity-70 mb-1">{{ selectedSubject.name }}</p>
-                                <h3 class="text-2xl font-black tracking-tight">{{ selectedChapter.title }}</h3>
-                            </div>
-                            <button @click="selectedChapter = null" class="w-10 h-10 bg-white/20 hover:bg-white/40 rounded-xl flex items-center justify-center transition-colors">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </div>
-                        <i :class="['fa absolute -right-4 -bottom-4 text-9xl opacity-10', selectedSubject.icon]"></i>
-                    </div>
-
-                    <div class="p-8 text-center text-slate-400">
-                        <p class="text-xs font-bold uppercase">Topic details coming soon</p>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 </template>

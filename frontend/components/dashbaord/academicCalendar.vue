@@ -52,10 +52,10 @@
             :key="e.title + e.date"
             class="w-1 h-1 rounded-full"
             :class="{
-              'bg-rose-400': e.type === 'exam',
-              'bg-amber-400': e.type === 'holiday',
+              'bg-red-500': e.type === 'exam',
+              'bg-green-400': e.type === 'holiday',
               'bg-indigo-400': e.type === 'event',
-              'bg-green-400': e.type === 'assignment',
+              'bg-rose-400': e.type === 'assignment',
               'bg-white': date.isToday
             }">
           </div>
