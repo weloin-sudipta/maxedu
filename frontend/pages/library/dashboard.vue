@@ -46,7 +46,7 @@
                             </p>
 
                             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                                {{ user.title }}
+                                {{ user.libraryId }}
                             </p>
                         </div>
                     </div>
@@ -204,24 +204,40 @@
 import { ref, computed, onMounted } from 'vue'
 import BookRecommendetion from '~/components/BookRecommendation.vue'
 import { useBooks } from '~/composable/useLibraryBooks'
+import { useLibraryMember } from '~/composable/useLibraryMember'
+
+const { memberData, fetchMemberData } = useLibraryMember()
 
 const config = useRuntimeConfig();
 const { data: history, requestedBook, fetchData, fetchRequestedBook } = useBooks();
 
-// ─── USER ────────────────────────────────────────────────────────────────────
-const user = {
-    name: 'Sudipta Ghosh',
-    title: 'Software Architect',
-    libraryId: 'LIB-2026-SG',
-    profileImage: null, 
-}
+
+const user = computed(() => {
+    const member = memberData.value?.[0]
+    return {
+        name:         member?.full_name        ?? 'Unknown',
+        title:        member?.member_type      ?? 'Member',
+        libraryId:    member?.library_member_id ?? 'N/A',
+        profileImage: null
+    }
+})
+
+const initials = computed(() => {
+    return (user.value.name || '')
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+})
 
 onMounted(async () => {
     await fetchData();
     await fetchRequestedBook();
+    await fetchMemberData()
 });
 
-// ─── DERIVED STATS (Dynamic) ────────────────────────────
+// DERIVED STATS (Dynamic) 
 const currentBooks = computed(() => {
     return (history.value || []).filter(b => b.status === 'Issued')
 })
@@ -249,7 +265,7 @@ const stats = computed(() => {
     }
 })
 
-// ─── LIBRARY CARDS ───────────────────────────────────────────────────────────
+//  LIBRARY CARDS 
 const libraryStats = computed(() => [
     { label: 'Borrowed', value: stats.value.total, color: 'text-black' },
     { label: 'Active', value: stats.value.current, color: 'text-indigo-600' },

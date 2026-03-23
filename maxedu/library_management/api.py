@@ -274,3 +274,11 @@ def approve_renewal(issue_name):
         "success": True,
         "new_due_date": new_due_date
     }
+
+@frappe.whitelist()
+def get_member_details():
+    return frappe.get_all(
+        "Library Member",
+        filters={"user": frappe.session.user},
+        fields=["*"]
+    )
