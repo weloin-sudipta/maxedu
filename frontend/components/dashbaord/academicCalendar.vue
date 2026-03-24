@@ -217,9 +217,9 @@ const nextMonth = () => {
 }
 
 const getTypeStyles = (type) => {
-  if(type==="exam") return "bg-rose-50 text-rose-500"
-  if(type==="holiday") return "bg-amber-50 text-amber-500"
-  if(type==="assignment") return "bg-green-50 text-green-500"
+  if(type==="exam") return "bg-red-50 text-red-500"
+  if(type==="holiday") return "bg-green-50 text-green-500"
+  if(type==="assignment") return "bg-amber-50 text-amber-500"
   return "bg-indigo-50 text-indigo-500"
 }
 

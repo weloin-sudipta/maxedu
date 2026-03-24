@@ -167,7 +167,7 @@
 
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import walkingStudent from '~/assets/images/student-walking-nobg.gif'
 import CurrentProgram from '~/components/dashbaord/currentProgram.vue'
 import { useStudentDashboard } from '~/composable/userDashboard'
@@ -186,7 +186,8 @@ import { useTimetable } from '~/composable/useTimetable'
 import { useNotices } from '~/composable/useNotices'
 
 const { dashboardData, loading, error, loadDashboard } = useStudentDashboard()
-const { assignments, fetchAssignments } = useAssignments()
+const { assignments: allAssignments, fetchAssignments } = useAssignments()
+const assignments = computed(() => allAssignments.value.slice(0, 2))
 const showModal = ref(false)
 
 // class schedule data
@@ -194,11 +195,9 @@ const { activeDay, weekDays, currentDaySchedule: todayClasses, fetchSchedule } =
 const today = new Date().toLocaleDateString('en-US', { weekday: 'long' })
 if (weekDays.includes(today)) activeDay.value = today
 
-
 // notice data
 const { notices: allNotices, fetchNotices } = useNotices()
 const notices = computed(() => allNotices.value.slice(0, 3))
-
 
 /* PROGRAM DATA */
 const programData = computed(() => {
@@ -224,7 +223,6 @@ const programData = computed(() => {
     }
 })
 
-
 /* UPCOMING EXAMS DATA */
 const upcomingExams = computed(() => {
   const today = new Date()
@@ -233,14 +231,14 @@ const upcomingExams = computed(() => {
   return upcommingExamination
     .map(a => ({
       id: a.id,
-      subject: a.title,       
-      date: a.date,             
+      subject: a.title,
+      date: a.date,
       description: a.description,
       day: a.day,
       month: a.month
     }))
     .filter(a => new Date(a.date) >= today)
-    .sort((a, b) => new Date(a.date) - new Date(b.date)) 
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
 })
 
 /* BOOKS */
@@ -279,7 +277,7 @@ onMounted(() => {
     loadDashboard()
     fetchAssignments()
     fetchSchedule()
-    fetchNotices()  
+    fetchNotices()
 })
 </script>
 
