@@ -1,300 +1,99 @@
 <template>
-    <main class="flex-1 overflow-y-auto p-6 lg:p-10 custom-scrollbar bg-transparent transition-colors duration-300">
+  <main class="flex-1 overflow-y-auto p-6 lg:p-10 custom-scrollbar bg-transparent transition-colors duration-300">
 
-        <!-- HERO -->
-        <div class="relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 lg:p-12 overflow-hidden shadow-sm dark:shadow-none border border-transparent dark:border-slate-800 mb-10">
-            <div class="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
+    <!-- HERO SECTION -->
+    <div class="relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 lg:p-12 overflow-hidden shadow-sm dark:shadow-none border border-transparent dark:border-slate-800 mb-10 transition-colors">
+      <div class="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
+        
+        <div class="max-w-xl text-center lg:text-left">
+          <span class="text-indigo-500 dark:text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] mb-4 block">
+            Faculty Control Center
+          </span>
+          
+          <h1 class="text-3xl lg:text-5xl font-black text-slate-900 dark:text-white leading-tight mb-4 transition-colors">
+            Hello, <br />
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">
+                Prof. {{ teacherInfo?.name || 'Educator' }}!
+            </span>
+          </h1>
 
-                <div class="max-w-xl text-center lg:text-left">
-
-                    <span class="text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] mb-4 block">
-                        Student Overview
-                    </span>
-
-                    <h1 class="text-3xl lg:text-5xl font-black text-black dark:text-white leading-tight mb-4">
-                        Welcome back, <br />
-
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
-                            {{ dashboardData?.student_info?.name || 'Scholar' }}!
-                        </span>
-
-                    </h1>
-
-                    <p class="text-slate-400 text-sm font-medium leading-relaxed">
-                        Your academic progress this week is looking excellent.
-                    </p>
-
-                </div>
-
-                <!-- BIGGER IMAGE -->
-                <img :src="walkingStudent" alt="Student" class="w-80 lg:w-[420px] object-contain" />
-
-            </div>
-
-            <div class="absolute -right-20 -top-20 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-3xl"></div>
-
-        </div>
-
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-            <!-- LEFT SIDE -->
-            <div class="lg:col-span-8 space-y-8">
-                <template v-if="loading">
-                    <UiSkeleton height="h-32" class="rounded-[2.5rem]" />
-                    <UiSkeleton height="h-64" class="rounded-[2.5rem]" />
-                    <UiSkeleton height="h-48" class="rounded-[2.5rem]" />
-                </template>
-                <template v-else>
-                    <CurrentProgram :program-data="programData" @click="showModal = true" />
-                    <TodayClass :todayClasses="todayClasses" />
-                    <UpcomingExams :upcomingExams="upcomingExams" />
-                    <Assignment :assignments="assignments" />
-                    <!-- <PaymentHistory /> -->
-                </template>
-            </div>
-
-
-            <!-- RIGHT SIDE -->
-            <div class="lg:col-span-4 space-y-8">
-                <template v-if="loading">
-                    <UiSkeleton height="h-48" class="rounded-[2.5rem]" />
-                    <UiSkeleton height="h-64" class="rounded-[2.5rem]" />
-                </template>
-                <template v-else>
-                    <!-- ATTENDANCE -->
-                    <!-- <Attendance :attendance="attendanceData" /> -->
-                    <!-- <StopWatch /> -->
-                    <!-- <BookRecommendetion :recommendedBooks="recommendedBooks" /> -->
-                    <CampusNotice :notices="notices" />
-                    <AcademicCalendar />
-                    <!-- <Event /> -->
-                </template>
-            </div>
-
-        </div>
-
-    </main>
-
-    <!-- CURRICULUM MODAL -->
-
-    <div v-if="showModal" class="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-colors">
-
-        <div class="bg-white dark:bg-slate-900 w-full max-w-3xl rounded-[2rem] shadow-2xl dark:shadow-none p-8 relative border border-transparent dark:border-slate-800">
-
-            <!-- CLOSE -->
-
-            <button @click="showModal = false" class="absolute top-5 right-5 text-slate-400 hover:text-black dark:hover:text-white transition-colors">
-
-                <i class="fa fa-times"></i>
-
-            </button>
-
-
-            <!-- HEADER -->
-
-            <h2 class="text-2xl font-black text-slate-800 dark:text-white mb-2">
-
-                {{ programData.name }}
-
-            </h2>
-
-            <p class="text-xs text-slate-400 mb-6">
-
-                Semester {{ programData.semester }}
-
-            </p>
-
-
-            <!-- PROGRAM DESCRIPTION -->
-
-            <div class="mb-6">
-
-                <h3 class="text-xs font-black uppercase text-slate-400 mb-2">
-
-                    Program Overview
-
-                </h3>
-
-                <p class="text-sm text-slate-600">
-
-                    {{ programData.description }}
-
-                </p>
-
-            </div>
-
-
-            <!-- SUBJECTS -->
-
+          <p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-relaxed mb-6">
+            You have {{ todayClasses.length }} classes scheduled today. Your class attendance is looking excellent.
+          </p>
+          
+          <div class="flex gap-8 justify-center lg:justify-start border-t border-slate-100 dark:border-slate-800 pt-6">
             <div>
-
-                <h3 class="text-xs font-black uppercase text-slate-400 mb-4">
-
-                    Curriculum Subjects
-
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                    <div v-for="subject in programData.subjects" :key="subject.name"
-                        class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 flex justify-between">
-
-                        <span class="font-bold text-slate-700 dark:text-slate-200 text-sm">
-
-                            {{ subject.name }}
-
-                        </span>
-
-                        <span class="text-xs text-indigo-500 font-bold">
-
-                            {{ subject.credits }} Credits
-
-                        </span>
-
-                    </div>
-
-                </div>
-
+              <p class="text-2xl font-black text-slate-800 dark:text-slate-200">{{ todayClasses.length }}</p>
+              <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Classes Today</p>
             </div>
-
-
-            <!-- FOOTER -->
-
-            <div class="mt-8 flex justify-end">
-
-                <button @click="showModal = false"
-                    class="px-6 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">
-
-                    Close
-
-                </button>
-
+            <div class="border-l border-slate-100 dark:border-slate-800 pl-8">
+              <p class="text-2xl font-black text-slate-800 dark:text-slate-200">12</p>
+              <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Pending Tasks</p>
             </div>
-
+          </div>
         </div>
 
+        <img src="~/assets/images/student-walking-nobg.gif" alt="Teacher" class="w-80 lg:w-[380px] object-contain relative z-10" />
+      </div>
+      
+      <!-- Decorative BLUR -->
+      <div class="absolute -right-20 -top-20 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-3xl"></div>
     </div>
+
+    <!-- MAIN GRID LAYOUT -->
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+       <!-- LEFT COLUMN -->
+       <div class="xl:col-span-8 space-y-8">
+          <DailyRoutine :classes="todayClasses" />
+          <GradingQueue :pendingItems="pendingGrading" />
+       </div>
+       
+       <!-- RIGHT COLUMN -->
+       <div class="xl:col-span-4 space-y-8">
+          <AttendanceCard :unMarkedStudents="unMarkedStudents" />
+          <Announcements :recentNotices="recentNotices" />
+       </div>
+    </div>
+
+  </main>
 </template>
 
-
 <script setup>
-import { ref, computed } from 'vue'
-import walkingStudent from '~/assets/images/student-walking-nobg.gif'
-import CurrentProgram from '~/components/dashbaord/currentProgram.vue'
-import { useStudentDashboard } from '~/composable/userDashboard'
-import Assignment from '~/components/dashbaord/assignment.vue'
-import UpcomingExams from '~/components/dashbaord/upcomingExams.vue'
-import TodayClass from '~/components/dashbaord/todayClass.vue'
-import StopWatch from '~/components/dashbaord/stopWatch.vue'
-import AcademicCalendar from '~/components/dashbaord/academicCalendar.vue'
-import PaymentHistory from '~/components/dashbaord/paymentHistory.vue'
-import Attendance from '~/components/dashbaord/attendance.vue'
-import BookRecommendetion from '~/components/dashbaord/bookRecommendetion.vue'
-import CampusNotice from '~/components/dashbaord/campusNotice.vue'
-import Event from '~/components/dashbaord/event.vue'
-import { useAssignments } from '~/composable/useAssignments'
-import { useTimetable } from '~/composable/useTimetable'
-import { useNotices } from '~/composable/useNotices'
+import { ref } from 'vue'
+import DailyRoutine from '~/components/dashboard/teacher/DailyRoutine.vue'
+import GradingQueue from '~/components/dashboard/teacher/GradingQueue.vue'
+import AttendanceCard from '~/components/dashboard/teacher/AttendanceCard.vue'
+import Announcements from '~/components/dashboard/teacher/Announcements.vue'
 
-const { dashboardData, loading, error, loadDashboard } = useStudentDashboard()
-const { assignments, fetchAssignments } = useAssignments()
-const showModal = ref(false)
+// Teacher info mock
+const teacherInfo = ref({ name: 'Sudipta Ghosh', department: 'Computer Science' })
 
-// class schedule data
-const { activeDay, weekDays, currentDaySchedule: todayClasses, fetchSchedule } = useTimetable()
-const today = new Date().toLocaleDateString('en-US', { weekday: 'long' })
-if (weekDays.includes(today)) activeDay.value = today
-
-
-// notice data
-const { notices: allNotices, fetchNotices } = useNotices()
-const notices = computed(() => allNotices.value.slice(0, 3))
-
-
-/* PROGRAM DATA */
-const programData = computed(() => {
-    const studentInfo = dashboardData.value?.student_info
-    const courses = dashboardData.value?.courses || []
-
-    if (!studentInfo) return {}
-
-    return {
-        name: studentInfo.program || 'N/A',
-        semester: studentInfo.semester || 'N/A',
-        endDate: "June 24, 2026",
-        daysRemaining: 112,
-        description: `A comprehensive program for ${studentInfo.program || 'your studies'}, focusing on your academic growth.`,
-        subjects: courses.map(c => ({
-            name: c.name || c.code || 'Unnamed Subject',
-            code: c.code || c.id || '',
-            credits: 1,
-            teacher: c.teacher || 'TBD',
-            grade: c.grade || 'N/A',
-            next_class: c.next_class || null
-        }))
-    }
-})
-
-
-/* UPCOMING EXAMS DATA */
-const upcomingExams = computed(() => {
-  const today = new Date()
-  const upcommingExamination = dashboardData.value?.assessments || []
-
-  return upcommingExamination
-    .map(a => ({
-      id: a.id,
-      subject: a.title,       
-      date: a.date,             
-      description: a.description,
-      day: a.day,
-      month: a.month
-    }))
-    .filter(a => new Date(a.date) >= today)
-    .sort((a, b) => new Date(a.date) - new Date(b.date)) 
-})
-
-/* BOOKS */
-const recommendedBooks = ref([
-    {
-        title: 'Atomic Habits',
-        author: 'James Clear',
-        cover: 'https://m.media-amazon.com/images/I/513Y5o-DYtL.jpg'
-    },
-    {
-        title: 'Deep Work',
-        author: 'Cal Newport',
-        cover: 'https://m.media-amazon.com/images/I/41f4oFz3u-L.jpg'
-    }
+// Mock data references
+const todayClasses = ref([
+    { subject: 'Data Structures', time: '10:00 AM', room: 'Lab 1', section: 'Section A' },
+    { subject: 'Web Technologies', time: '01:00 PM', room: 'Room 302', section: 'Section C' },
+    { subject: 'System Design', time: '03:30 PM', room: 'Audit. 1', section: 'Section B' }
 ])
 
-// attendance data
-const attendanceData = computed(() => {
-  const att = dashboardData.value?.attendance
-  if (!att) return {
-    present_days: 0,
-    absent_days: 0,
-    leave_days: 0,
-    total_days: 0
-  }
+const pendingGrading = ref([
+    { id: 1, title: 'JavaScript Fundamentals Quiz', class_name: 'CS-101', submissions: 45 },
+    { id: 2, title: 'UI Design Prototype', class_name: 'CS-204', submissions: 12 },
+    { id: 3, title: 'Database Schema Design', class_name: 'CS-302', submissions: 30 }
+])
 
-  return {
-    present_days: att.present_days,
-    absent_days: att.absent_days,
-    leave_days: att.leave_days,
-    total_days: att.total_days
-  }
-})
+const unMarkedStudents = ref([
+    { id: 1, name: 'Alice Smith', roll: '22', avatar: 'https://i.pravatar.cc/150?u=1' },
+    { id: 2, name: 'Bob Jones', roll: '23', avatar: 'https://i.pravatar.cc/150?u=2' },
+    { id: 3, name: 'Charlie Brown', roll: '24', avatar: 'https://i.pravatar.cc/150?u=3' },
+    { id: 4, name: 'Diana Prince', roll: '25', avatar: 'https://i.pravatar.cc/150?u=4' }
+])
 
-onMounted(() => {
-    loadDashboard()
-    fetchAssignments()
-    fetchSchedule()
-    fetchNotices()  
-})
+const recentNotices = ref([
+    { id: 1, title: 'Mid-Term Exam Syllabus', desc: 'Please upload your mid-term syllabus directly to the portal for review.', date: 'Today, 09:00 AM' },
+    { id: 2, title: 'Faculty Meetup', desc: 'Join us for a brief touchbase meeting in the staff room on Friday.', date: 'Yesterday, 04:30 PM' }
+])
+
 </script>
-
 
 <style scoped>
 .custom-scrollbar::-webkit-scrollbar {
@@ -304,9 +103,5 @@ onMounted(() => {
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #e2e8f0;
     border-radius: 10px;
-}
-
-.transition-all {
-    transition: all .3s cubic-bezier(.4, 0, .2, 1);
 }
 </style>
