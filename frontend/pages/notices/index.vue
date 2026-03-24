@@ -189,86 +189,41 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useNotices } from '~/composable/useNotices'
 
 const router = useRouter()
 
+const { pinNotices, tags, news, topics, selectedTag, filteredNotices, fetchNotices } = useNotices()
+
 const currentIndex = ref(0)
 const progressBarWidth = ref(0)
-
 let timer = null
 
 const startTimer = () => {
+  progressBarWidth.value = 0
+  setTimeout(() => { progressBarWidth.value = 100 }, 50)
 
+  timer = setInterval(() => {
+    if (!pinNotices.value || pinNotices.value.length === 0) return
+    currentIndex.value = (currentIndex.value + 1) % pinNotices.value.length
     progressBarWidth.value = 0
+    setTimeout(() => { progressBarWidth.value = 100 }, 50)
+  }, 6000)
+}
 
-    setTimeout(() => {
-        progressBarWidth.value = 100
-    }, 50)
-
-    timer = setInterval(() => {
-        if (!pinNotices.value || pinNotices.value.length === 0) {
-            return
-        }
-
-        currentIndex.value =
-            (currentIndex.value + 1) % pinNotices.value.length
-
-        progressBarWidth.value = 0
-
-        setTimeout(() => {
-            progressBarWidth.value = 100
-        }, 50)
-
-    }, 6000) // 6 seconds
-
+function goToNotice(slug) {
+  if (!slug) return
+  router.push(`/notices/${slug}`)
 }
 
 onMounted(() => {
-    startTimer()
+  startTimer()
+  fetchNotices()
 })
 
 onUnmounted(() => {
-    clearInterval(timer)
+  clearInterval(timer)
 })
-
-function goToNotice(slug) {
-    if (!slug) return
-    router.push(`/notices/${slug}`)
-}
-
-/* DATA */
-
-import { call } from '~/composable/useFrappeFetch'
-
-const pinNotices = ref([])
-const notices = ref([])
-const tags = ref(['All'])
-const news = ref([])
-const topics = ref([])
-
-const selectedTag = ref('All')
-
-const filteredNotices = computed(() => {
-    if (selectedTag.value === 'All') return notices.value;
-    return notices.value.filter(n => n.category === selectedTag.value);
-})
-
-
-onMounted(async () => {
-    try {
-        const res = await call('maxedu.desk_approval.doctype.application.application.get_approved_notices')
-        if (res) {
-            pinNotices.value = res.pinNotices || []
-            notices.value = res.notices || []
-            tags.value = res.tags || ['All']
-            news.value = res.news || []
-            topics.value = res.topics || []
-        }
-    } catch (err) {
-        console.error("Failed to load news & notices:", err)
-    }
-})
-
 </script>

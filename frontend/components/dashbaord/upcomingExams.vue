@@ -59,9 +59,9 @@
       </div>
     </div>
 
-    <button class="w-full mt-6 py-3 rounded-2xl border border-slate-100 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all">
+    <!-- <button class="w-full mt-6 py-3 rounded-2xl border border-slate-100 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all">
       Download Hall Ticket <i class="fa fa-download ml-2"></i>
-    </button>
+    </button> -->
 
     <i class="fa fa-graduation-cap absolute -right-6 -bottom-6 text-8xl text-slate-50 rotate-12 group-hover:text-rose-100 transition-colors pointer-events-none"></i>
   </div>

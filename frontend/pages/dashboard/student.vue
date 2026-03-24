@@ -54,10 +54,10 @@
                 <!-- ATTENDANCE -->
                 <Attendance :attendance="attendanceData" />
                 <StopWatch />
-                <BookRecommendetion :recommendedBooks="recommendedBooks" />
+                <!-- <BookRecommendetion :recommendedBooks="recommendedBooks" /> -->
                 <CampusNotice :notices="notices" />
                 <AcademicCalendar />
-                <Event />
+                <!-- <Event /> -->
             </div>
 
         </div>
@@ -167,7 +167,6 @@
 
 
 <script setup>
-
 import { ref, computed } from 'vue'
 import walkingStudent from '~/assets/images/student-walking-nobg.gif'
 import CurrentProgram from '~/components/dashbaord/currentProgram.vue'
@@ -183,11 +182,22 @@ import BookRecommendetion from '~/components/dashbaord/bookRecommendetion.vue'
 import CampusNotice from '~/components/dashbaord/campusNotice.vue'
 import Event from '~/components/dashbaord/event.vue'
 import { useAssignments } from '~/composable/useAssignments'
+import { useTimetable } from '~/composable/useTimetable'
+import { useNotices } from '~/composable/useNotices'
 
 const { dashboardData, loading, error, loadDashboard } = useStudentDashboard()
-const { assignments, fetchAssignments}  = useAssignments()
+const { assignments, fetchAssignments } = useAssignments()
 const showModal = ref(false)
 
+// class schedule data
+const { activeDay, weekDays, currentDaySchedule: todayClasses, fetchSchedule } = useTimetable()
+const today = new Date().toLocaleDateString('en-US', { weekday: 'long' })
+if (weekDays.includes(today)) activeDay.value = today
+
+
+// notice data
+const { notices: allNotices, fetchNotices } = useNotices()
+const notices = computed(() => allNotices.value.slice(0, 3))
 
 
 /* PROGRAM DATA */
@@ -215,27 +225,7 @@ const programData = computed(() => {
 })
 
 
-/* TODAY CLASSES */
-const todayClasses = ref([
-    {
-        subject: 'Mathematics',
-        time: '09:00 AM',
-        room: '204'
-    },
-    {
-        subject: 'Physics',
-        time: '11:00 AM',
-        room: '105'
-    },
-    {
-        subject: 'Computer Science',
-        time: '02:00 PM',
-        room: 'Lab 3'
-    }
-])
-
-
-/* UPCOMING EXAMS */
+/* UPCOMING EXAMS DATA */
 const upcomingExams = computed(() => {
   const today = new Date()
   const upcommingExamination = dashboardData.value?.assessments || []
@@ -253,11 +243,6 @@ const upcomingExams = computed(() => {
     .sort((a, b) => new Date(a.date) - new Date(b.date)) 
 })
 
-const notices = [
-    { id: 1, title: 'Library Hours Updated', desc: 'Open until 11:00 PM during exam week.', dotColor: 'bg-green-500' },
-    { id: 2, title: 'New Sports Club Registration', desc: 'Sign up via the portal by Friday.', dotColor: 'bg-indigo-500' },
-]
-
 /* BOOKS */
 const recommendedBooks = ref([
     {
@@ -272,8 +257,7 @@ const recommendedBooks = ref([
     }
 ])
 
-
-//attandance data
+// attendance data
 const attendanceData = computed(() => {
   const att = dashboardData.value?.attendance
   if (!att) return {
@@ -291,9 +275,11 @@ const attendanceData = computed(() => {
   }
 })
 
-onMounted(()=>{
-    loadDashboard(),
+onMounted(() => {
+    loadDashboard()
     fetchAssignments()
+    fetchSchedule()
+    fetchNotices()  
 })
 </script>
 

@@ -42,24 +42,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { call } from '~/composable/useFrappeFetch'
+import { onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useNotices } from '~/composable/useNotices'
 
-const route = useRoute();
-const router = useRouter();
-const detail = ref(null);
+const route = useRoute()
+const router = useRouter()
 
-onMounted(async () => {
-  const slug = route.params.slug;
-  if (!slug) return;
-  
-  try {
-    const res = await call('maxedu.desk_approval.doctype.application.application.get_notice', { slug });
-    detail.value = res || null;
-  } catch (err) {
-    console.error("Failed to fetch notice", err);
-    // fallback or redirect could go here
-  }
-});
+const { detail, fetchDetail } = useNotices()
+
+onMounted(() => {
+  fetchDetail(route.params.slug)
+})
 </script>
