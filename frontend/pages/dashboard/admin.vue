@@ -2,10 +2,10 @@
     <main class="flex-1 overflow-y-auto p-6 pt-2 custom-scrollbar">
 
         <div
-            class="relative flex flex-col items-center justify-between p-8 mb-6 overflow-hidden bg-white border border-gray-100 shadow-sm rounded-2xl md:flex-row">
+            class="relative flex flex-col items-center justify-between p-8 mb-6 overflow-hidden bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 shadow-sm dark:shadow-none rounded-2xl md:flex-row transition-colors">
             <div class="z-10 text-center md:text-left">
-                <h2 class="text-2xl font-bold text-indigo-600">Welcome to MaxEdu! 🎓</h2>
-                <p class="max-w-md mt-2 text-base text-gray-500 leading-relaxed">
+                <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 transition-colors">Welcome to MaxEdu! 🎓</h2>
+                <p class="max-w-md mt-2 text-base text-gray-500 dark:text-gray-400 leading-relaxed transition-colors">
                     Hey <strong>{{ username }}</strong>, your student enrollment system is up and running. You
                     have 12 pending tasks today.
                 </p>
@@ -26,7 +26,7 @@
         </div>
 
         <div
-            class="mt-6 p-10 bg-white/50 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center text-gray-400 min-h-[400px]">
+            class="mt-6 p-10 bg-white/50 dark:bg-slate-900/50 border-2 border-dashed border-gray-200 dark:border-slate-800 rounded-2xl flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 min-h-[400px] transition-colors">
             <i class="fa fa-folder-open-o text-4xl mb-2"></i>
             <p>Additional Dashboard Widgets Go Here</p>
         </div>

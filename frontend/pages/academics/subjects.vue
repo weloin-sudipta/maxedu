@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-[#f8fafc] p-4 lg:p-8 font-sans text-slate-900">
+    <div class="min-h-screen bg-[#f8fafc] dark:bg-slate-950 p-4 lg:p-8 font-sans text-slate-900 dark:text-slate-100 transition-colors">
         <div class="max-w-[1440px] mx-auto space-y-6">
 
             <HeroHeader title="Learning Path" subtitle="Strategic Overview & Mark Distribution" icon="fa fa-graduation-cap">
@@ -8,22 +8,21 @@
                 </router-link>
             </HeroHeader>
 
-            <div v-if="loading" class="text-center py-20">
-                <i class="fa fa-spinner fa-spin text-indigo-400 text-3xl"></i>
-                <p class="text-xs text-slate-400 mt-3 font-bold uppercase">Loading subjects...</p>
+            <div v-if="loading" class="grid grid-cols-1 gap-8 mt-6">
+                <UiSkeleton height="h-48" v-for="i in 3" :key="i" />
             </div>
 
-            <div v-else-if="subjects.length === 0" class="bg-white rounded-[2.5rem] p-20 border border-dashed border-slate-200 text-center">
-                <i class="fa fa-book text-slate-100 text-6xl mb-4"></i>
-                <p class="text-sm font-black text-slate-400 uppercase tracking-widest">No courses enrolled yet.</p>
-            </div>
+            <UiCard v-else-if="subjects.length === 0" padding="p-20" class="border-dashed dark:border-slate-800 text-center transition-colors">
+                <i class="fa fa-book text-slate-100 dark:text-slate-800/50 text-6xl mb-4 transition-colors"></i>
+                <p class="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-colors">No courses enrolled yet.</p>
+            </UiCard>
 
-            <div class="grid grid-cols-1 gap-8" v-else>
-                <div v-for="subject in subjects" :key="subject.code"
-                    class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm overflow-hidden group transition-all">
+            <div class="grid grid-cols-1 gap-8 animate-in" v-else>
+                <UiCard v-for="subject in subjects" :key="subject.code" padding="none"
+                    class="overflow-hidden group transition-all">
 
                     <div class="flex flex-col lg:flex-row">
-                        <div :class="['lg:w-80 p-10 flex flex-col justify-between items-center text-center border-b lg:border-b-0 lg:border-r border-slate-50 relative', subject.bgColor]">
+                        <div :class="['lg:w-80 p-10 flex flex-col justify-between items-center text-center border-b lg:border-b-0 lg:border-r border-slate-50 dark:border-slate-800/50 relative transition-colors', subject.bgColor]">
                             <div class="absolute top-0 right-0 p-4 opacity-10">
                                 <i :class="['fa text-8xl text-white', subject.icon]"></i>
                             </div>
@@ -51,14 +50,14 @@
 
                         <div class="flex-1 p-8 lg:p-10">
                             <div class="flex items-center justify-between mb-8">
-                                <h4 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">Exam-Weightage Breakdown</h4>
+                                <h4 class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] transition-colors">Exam-Weightage Breakdown</h4>
                             </div>
 
                             <div class="flex flex-wrap gap-4">
                                 <div
                                     v-for="(chapter, i) in subject.chapters"
                                     :key="i"
-                                    class="group/item relative flex items-center gap-4 bg-slate-50 border border-slate-100 p-4 pr-6 rounded-[1.5rem] transition-all duration-300"
+                                    class="group/item relative flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 p-4 pr-6 rounded-[1.5rem] transition-all duration-300"
                                 >
                                     <div :class="['w-12 h-12 rounded-2xl flex flex-col items-center justify-center shadow-sm', chapter.weightColor]">
                                         <span class="text-xs font-black text-white">{{ chapter.marks }}%</span>
@@ -66,18 +65,18 @@
                                     </div>
 
                                     <div>
-                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Chapter {{ i + 1 }}</p>
-                                        <h5 class="text-sm font-black text-slate-700">{{ chapter.title }}</h5>
+                                        <p class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5 transition-colors">Chapter {{ i + 1 }}</p>
+                                        <h5 class="text-sm font-black text-slate-700 dark:text-slate-200 transition-colors">{{ chapter.title }}</h5>
                                     </div>
                                 </div>
 
-                                <div v-if="subject.chapters.length === 0" class="text-xs text-slate-400 italic p-4">
+                                <div v-if="subject.chapters.length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic p-4 transition-colors">
                                     No topics assigned yet
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </UiCard>
             </div>
         </div>
     </div>

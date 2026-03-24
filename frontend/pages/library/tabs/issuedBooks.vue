@@ -1,14 +1,14 @@
 <template>
-  <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60 overflow-hidden animate-in fade-in duration-500">
+  <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm dark:shadow-none border border-slate-200/60 dark:border-slate-800 overflow-hidden animate-in fade-in duration-500 transition-colors">
 
     <!-- Header -->
-    <div class="flex flex-col lg:flex-row justify-between items-center p-8 gap-6 border-b border-slate-50">
+    <div class="flex flex-col lg:flex-row justify-between items-center p-8 gap-6 border-b border-slate-50 dark:border-slate-800/50 transition-colors">
       
       <!-- Rows per page -->
       <div class="flex items-center gap-4">
         <div class="flex flex-col">
-          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">View Count</span>
-          <select v-model="itemsPerPage" class="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20">
+          <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5 transition-colors">View Count</span>
+          <select v-model="itemsPerPage" class="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
             <option :value="5">5 Rows</option>
             <option :value="10">10 Rows</option>
             <option :value="25">25 Rows</option>
@@ -19,14 +19,14 @@
       <!-- Search & Buttons -->
       <div class="flex flex-col sm:flex-row items-end gap-4 w-full lg:w-auto">
         <div class="w-full sm:w-72">
-          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Search My Books</span>
+          <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5 block transition-colors">Search My Books</span>
           <div class="relative">
-            <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+            <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-500 transition-colors"></i>
             <input 
               v-model="searchQuery"
               type="search" 
               placeholder="Title or isbn No..." 
-              class="w-full bg-slate-50 border border-slate-100 rounded-xl pl-10 pr-4 py-2 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-xl pl-10 pr-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
             />
           </div>
         </div>
@@ -34,55 +34,52 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex items-center justify-center py-20">
-      <div class="text-center">
-        <i class="fa fa-circle-o-notch fa-spin text-indigo-600 text-3xl mb-4"></i>
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading your books...</p>
-      </div>
+    <div v-if="loading" class="space-y-4">
+      <UiSkeleton height="h-16" v-for="i in 5" :key="i" class="rounded-2xl" />
     </div>
 
     <!-- Table -->
     <div v-else class="overflow-x-auto min-h-[300px]">
-      <table class="w-full text-left border-collapse hidden md:table">
+      <table class="w-full text-left border-collapse hidden md:table transition-colors">
         <thead>
-          <tr class="bg-slate-50/50">
-            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Book Details</th>
-            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">ISBN</th>
-            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Issue Date</th>
-            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Due Date</th>
-            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Days Left</th>
-            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Actions</th>
+          <tr class="bg-slate-50/50 dark:bg-slate-800/50 transition-colors">
+            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest transition-colors">Book Details</th>
+            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest transition-colors">ISBN</th>
+            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest transition-colors">Issue Date</th>
+            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest transition-colors">Due Date</th>
+            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest transition-colors">Days Left</th>
+            <th class="px-6 py-5 text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest text-center transition-colors">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-50">
-          <tr v-for="book in paginatedBooks" :key="book.name" class="hover:bg-slate-50/30 transition-colors group">
+        <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50 transition-colors">
+          <tr v-for="book in paginatedBooks" :key="book.name" class="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors group">
             
             <!-- Book Details -->
             <td class="px-6 py-5">
               <div class="flex items-center gap-4">
-                <div class="h-10 w-10 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center border border-slate-100 shrink-0 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                <div class="h-10 w-10 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 flex items-center justify-center border border-slate-100 dark:border-slate-700/50 shrink-0 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                   <i class="fa fa-book text-xs"></i>
                 </div>
                 <div class="flex flex-col">
-                  <span class="text-sm font-black text-slate-700 group-hover:text-indigo-600 transition-colors">{{ book.book_title }}</span>
-                  <span class="text-[10px] font-bold text-slate-400">Renewed: {{ book.renewal_count || 0 }}x</span>
+                  <span class="text-sm font-black text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ book.book_title }}</span>
+                  <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 transition-colors">Renewed: {{ book.renewal_count || 0 }}x</span>
                 </div>
               </div>
             </td>
 
             <!-- ISBN -->
             <td class="px-6 py-5">
-              <span class="text-xs font-black text-slate-600 px-3 py-1 bg-slate-100 rounded-lg border border-slate-200/50 uppercase">{{ book.book_isbn }}</span>
+              <span class="text-xs font-black text-slate-600 dark:text-slate-300 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200/50 dark:border-slate-700/50 uppercase transition-colors">{{ book.book_isbn }}</span>
             </td>
 
             <!-- Issue Date -->
             <td class="px-6 py-5">
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ formatDate(book.issue_date) }}</span>
+              <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-colors">{{ formatDate(book.issue_date) }}</span>
             </td>
 
             <!-- Due Date -->
             <td class="px-6 py-5">
-              <span :class="['text-xs font-black', book.is_overdue ? 'text-red-600' : 'text-slate-700']">
+              <span :class="['text-xs font-black transition-colors', book.is_overdue ? 'text-red-600 dark:text-red-400' : 'text-slate-700 dark:text-slate-300']">
                 {{ formatDate(book.due_date) }}
               </span>
             </td>
@@ -90,17 +87,17 @@
             <!-- Days Left -->
             <td class="px-6 py-5">
               <div v-if="book.is_overdue" class="flex items-center gap-2">
-                <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm border bg-red-50 text-red-600 border-red-100">
+                <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm dark:shadow-none border bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-red-100 dark:border-red-900/30 transition-colors">
                   {{ book.days_overdue }} days overdue
                 </span>
               </div>
               <div v-else-if="book.days_left <= 3" class="flex items-center gap-2">
-                <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm border bg-amber-50 text-amber-600 border-amber-100">
+                <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm dark:shadow-none border bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/30 transition-colors">
                   {{ book.days_left }} days left
                 </span>
               </div>
               <div v-else>
-                <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm border bg-green-50 text-green-600 border-green-100">
+                <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm dark:shadow-none border bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-100 dark:border-green-900/30 transition-colors">
                   {{ book.days_left }} days left
                 </span>
               </div>
@@ -206,6 +203,9 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useBooks } from '~/composable/useLibraryBooks';
 import { createResource } from '~/composable/useFrappeFetch';
+import { useToast } from '~/composable/useToast';
+
+const { addToast } = useToast();
 
 const { data: borrowedBooks, fetchData } = useBooks();
 
@@ -227,8 +227,9 @@ const renewBook = async (bookIssueName) => {
      const resource = createResource({ url: 'maxedu.library_management.api.renew_book' });
      await resource.submit({ issue_name: bookIssueName });
      await fetchData(); // Refresh data
+     addToast("Book renewal requested successfully", "success");
   } catch(e) {
-     alert(e.message || "Failed to renew book.");
+     addToast(e.message || "Failed to renew book.", "error");
   } finally {
      renewingBook.value = null;
   }

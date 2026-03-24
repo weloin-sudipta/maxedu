@@ -1,47 +1,47 @@
 <template>
-  <div class="max-h-screen p-4 lg:p-8 font-sans text-slate-900">
+  <div class="min-h-screen bg-[#f8fafc] dark:bg-slate-950 p-4 lg:p-8 font-sans text-slate-900 dark:text-slate-100 transition-colors animate-in fade-in duration-500">
     <div class="max-w-[1440px] mx-auto space-y-6">
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         <div class="lg:col-span-8 space-y-6">
-          <div class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm overflow-hidden mb-6">
+          <UiCard padding="none" class="overflow-hidden mb-6">
 
-            <div class="p-8 border-b border-slate-50 flex justify-between items-center">
+            <div class="p-8 border-b border-slate-50 dark:border-slate-800/50 flex justify-between items-center transition-colors">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+                <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100 dark:shadow-none transition-colors">
                   <i class="fa fa-calendar text-xl"></i>
                 </div>
-                <h2 class="text-xl font-black text-slate-800 tracking-tight">
-                  {{ monthNames[currentMonth] }} <span class="text-slate-300">{{ currentYear }}</span>
+                <h2 class="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight transition-colors">
+                  {{ monthNames[currentMonth] }} <span class="text-slate-300 dark:text-slate-600 transition-colors">{{ currentYear }}</span>
                 </h2>
               </div>
 
-              <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl">
+              <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-2xl transition-colors">
                 <button @click="changeMonth(-1)" class="btn-nav"><i class="fa fa-chevron-left"></i></button>
-                <button @click="setToday" class="px-4 py-2 text-[10px] font-black uppercase text-slate-500 hover:text-indigo-600 transition-colors">Today</button>
+                <button @click="setToday" class="px-4 py-2 text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Today</button>
                 <button @click="changeMonth(1)" class="btn-nav"><i class="fa fa-chevron-right"></i></button>
               </div>
             </div>
 
             <div class="p-8">
-              <div v-if="loading" class="text-center py-12">
-                <i class="fa fa-spinner fa-spin text-indigo-400 text-2xl"></i>
-                <p class="text-xs text-slate-400 mt-2">Loading attendance...</p>
+              <div v-if="loading" class="grid grid-cols-7 gap-3 mb-6">
+                <UiSkeleton height="h-10" v-for="i in 35" :key="i" class="aspect-square rounded-2xl" />
               </div>
               <template v-else>
-                <div class="grid grid-cols-7 mb-6">
-                  <div v-for="day in weekDays" :key="day" class="text-center text-[10px] font-black text-slate-300 uppercase tracking-widest">{{ day }}</div>
+                <div class="animate-in">
+                  <div class="grid grid-cols-7 mb-6">
+                  <div v-for="day in weekDays" :key="day" class="text-center text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest transition-colors">{{ day }}</div>
                 </div>
 
                 <div class="grid grid-cols-7 gap-3">
                   <div v-for="empty in firstDayOfMonth" :key="'empty-'+empty" class="aspect-square"></div>
 
                   <div v-for="date in daysInMonth" :key="date"
-                       class="aspect-square rounded-[1.5rem] border border-slate-50 flex flex-col items-center justify-center relative transition-all cursor-pointer hover:shadow-md"
+                       class="aspect-square rounded-[1.5rem] flex flex-col items-center justify-center relative transition-all cursor-pointer hover:shadow-md dark:hover:shadow-none"
                        :class="getDayStatusClass(date)">
 
-                    <span class="text-xs font-black" :class="isToday(date) ? 'text-indigo-600' : 'text-slate-400'">{{ date }}</span>
+                    <span class="text-xs font-black transition-colors" :class="isToday(date) ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'">{{ date }}</span>
 
                     <div class="mt-2">
                       <div v-if="getAttendanceStatus(date) === 'P'" class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
@@ -50,21 +50,22 @@
                     </div>
                   </div>
                 </div>
+                </div>
               </template>
             </div>
 
-            <div class="px-8 py-4 bg-slate-50/50 border-t border-slate-50 flex gap-6">
+            <div class="px-8 py-4 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-50 dark:border-slate-800/50 flex gap-6 transition-colors">
               <div v-for="l in ['Present', 'Absent', 'Leave']" :key="l" class="flex items-center gap-2">
-                <span :class="['w-2 h-2 rounded-full', l === 'Present' ? 'bg-green-500' : l === 'Absent' ? 'bg-red-400' : 'bg-amber-500']"></span>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{{ l }}</span>
+                <span :class="['w-2 h-2 rounded-full transition-colors', l === 'Present' ? 'bg-green-500 dark:bg-green-400' : l === 'Absent' ? 'bg-red-400 dark:bg-red-500' : 'bg-amber-500 dark:bg-amber-400']"></span>
+                <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-tighter transition-colors">{{ l }}</span>
               </div>
             </div>
-          </div>
+          </UiCard>
         </div>
 
         <div class="lg:col-span-4 space-y-6">
 
-          <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-xl shadow-slate-200">
+          <UiCard variant="dark" class="shadow-slate-200">
             <h3 class="text-xs font-black uppercase opacity-40 mb-8 tracking-widest text-center">Monthly Score</h3>
             <div class="relative w-32 h-32 mx-auto mb-6 flex items-center justify-center">
                <svg class="w-full h-full transform -rotate-90">
@@ -76,25 +77,25 @@
                <span class="absolute text-2xl font-black">{{ monthlyPercent }}%</span>
             </div>
             <p class="text-center text-[10px] font-bold opacity-60">High attendance improves student performance by up to 12%.</p>
-          </div>
+          </UiCard>
 
-          <div class="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-sm">
-            <h3 class="text-xs font-black uppercase text-slate-400 tracking-widest mb-6">Attendance Summary</h3>
+          <UiCard>
+            <h3 class="text-xs font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-6 transition-colors">Attendance Summary</h3>
             <div class="space-y-4">
               <div class="flex items-center justify-between">
-                <span class="text-[10px] font-black text-slate-400 uppercase">Total Present</span>
-                <span class="text-sm font-black text-green-600">{{ monthlyPresent }}</span>
+                <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase transition-colors">Total Present</span>
+                <span class="text-sm font-black text-green-600 dark:text-green-500 transition-colors">{{ monthlyPresent }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-[10px] font-black text-slate-400 uppercase">Total Absent</span>
-                <span class="text-sm font-black text-red-500">{{ monthlyAbsent }}</span>
+                <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase transition-colors">Total Absent</span>
+                <span class="text-sm font-black text-red-500 transition-colors">{{ monthlyAbsent }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-[10px] font-black text-slate-400 uppercase">Leave</span>
-                <span class="text-sm font-black text-amber-500">{{ monthlyLeave }}</span>
+                <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase transition-colors">Leave</span>
+                <span class="text-sm font-black text-amber-500 dark:text-amber-400 transition-colors">{{ monthlyLeave }}</span>
               </div>
             </div>
-          </div>
+          </UiCard>
 
         </div>
       </div>
@@ -150,10 +151,10 @@ const getAttendanceStatus = (date) => attendanceMap.value[`${currentYear.value}-
 
 const getDayStatusClass = (date) => {
   const status = getAttendanceStatus(date);
-  if (status === 'P') return 'bg-green-50/50 border-green-100';
-  if (status === 'A') return 'bg-red-50/50 border-red-100';
-  if (status === 'L') return 'bg-amber-50/50 border-amber-100';
-  return 'bg-white';
+  if (status === 'P') return 'bg-green-50/50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30';
+  if (status === 'A') return 'bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30';
+  if (status === 'L') return 'bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30';
+  return 'bg-white dark:bg-slate-900 border border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800';
 };
 
 const monthlyPresent = computed(() => Object.values(attendanceMap.value).filter(v => v === 'P').length)
@@ -166,7 +167,7 @@ const monthlyPercent = computed(() => {
 </script>
 
 <style scoped>
-.btn-primary { @apply px-8 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all; }
-.btn-icon { @apply flex items-center justify-center bg-white border border-slate-200 text-slate-400 rounded-2xl hover:text-indigo-600 transition-all; }
-.btn-nav { @apply w-10 h-10 flex items-center justify-center bg-white border border-slate-100 rounded-xl hover:shadow-md transition-all text-slate-400 hover:text-indigo-600; }
+.btn-primary { @apply px-8 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 dark:shadow-none hover:bg-indigo-700 active:scale-95 transition-all; }
+.btn-icon { @apply flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 rounded-2xl hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors; }
+.btn-nav { @apply w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700/50 rounded-xl hover:shadow-md dark:hover:shadow-none transition-all text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400; }
 </style>

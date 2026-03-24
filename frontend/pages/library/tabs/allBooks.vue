@@ -1,8 +1,8 @@
 <template>
   <div
-    class="bg-white rounded-[2rem] lg:rounded-[2.5rem] shadow-sm border border-slate-200/60 overflow-hidden animate-in fade-in duration-500">
+    class="bg-white dark:bg-slate-900 rounded-[2rem] lg:rounded-[2.5rem] shadow-sm dark:shadow-none border border-slate-200/60 dark:border-slate-800 overflow-hidden animate-in fade-in duration-500 transition-colors">
 
-    <div class="p-5 lg:p-8 border-b border-slate-50 space-y-6">
+    <div class="p-5 lg:p-8 border-b border-slate-50 dark:border-slate-800/50 space-y-6 transition-colors">
       <div class="flex flex-col lg:flex-row justify-between items-end gap-6">
 
         <div class="flex flex-col">
@@ -19,7 +19,7 @@
           <div class="sm:col-span-1">
             <span class="filter-label">Search Catalog</span>
             <div class="relative">
-              <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+              <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-500 transition-colors"></i>
               <input v-model="searchQuery" type="text" placeholder="Title or Author..." class="filter-input" />
             </div>
           </div>
@@ -45,15 +45,13 @@
     </div>
 
     <div class="min-h-[400px] relative">
-      <div v-if="loading"
-        class="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center">
-        <i class="fa fa-circle-o-notch fa-spin text-indigo-600 text-3xl mb-4"></i>
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Synchronizing...</p>
+      <div v-if="loading" class="grid grid-cols-1 gap-2 p-6">
+        <UiSkeleton height="h-16" v-for="i in 5" :key="i" />
       </div>
 
-      <table class="w-full text-left border-collapse hidden md:table">
+      <table class="w-full text-left border-collapse hidden md:table transition-colors">
         <thead>
-          <tr class="bg-slate-50/50">
+          <tr class="bg-slate-50/50 dark:bg-slate-800/50 transition-colors">
             <th class="px-6 py-5 th-style">Book Information</th>
             <th class="px-6 py-5 th-style">Category</th>
             <th class="px-6 py-5 th-style">Copy Type</th>
@@ -62,38 +60,38 @@
           </tr>
         </thead>
 
-        <tbody class="divide-y divide-slate-50">
-          <tr v-for="book in paginatedCatalog" :key="book.name" class="hover:bg-slate-50/30 transition-colors group">
+        <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50">
+          <tr v-for="book in paginatedCatalog" :key="book.name" class="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors group">
             <td class="px-6 py-5">
               <div class="flex items-center gap-4">
                 <div
-                  class="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 group-hover:bg-slate-900 group-hover:text-white transition-all">
+                  class="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-100 dark:border-indigo-900/30 group-hover:bg-slate-900 dark:group-hover:bg-slate-700 group-hover:text-white transition-all">
                   <i :class="book.copy_type === 'Online' ? 'fa fa-laptop' : 'fa fa-book'" class="text-xs"></i>
                 </div>
                 <div class="flex flex-col">
-                  <span class="text-sm font-black text-slate-700 group-hover:text-indigo-600 transition-colors">{{
+                  <span class="text-sm font-black text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{
                     book.title }}</span>
-                  <span class="text-[10px] font-bold text-slate-400 uppercase">By {{ book.author }}</span>
+                  <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase transition-colors">By {{ book.author }}</span>
                 </div>
               </div>
             </td>
             <td class="px-6 py-5">
-              <span class="text-[9px] font-black text-indigo-400 uppercase tracking-widest ml-1">{{ book.category ||
+              <span class="text-[9px] font-black text-indigo-400 dark:text-indigo-500 uppercase tracking-widest ml-1 transition-colors">{{ book.category ||
                 'General' }}</span>
             </td>
             <td class="px-6 py-5">
               <span
-                :class="['type-badge', book.copy_type === 'Online' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-blue-50 text-blue-600 border-blue-100']">
+                :class="['type-badge', book.copy_type === 'Online' ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border-purple-100 dark:border-purple-900/30' : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-900/30']">
                 {{ book.copy_type }}
               </span>
             </td>
             <td class="px-6 py-5 text-center">
               <div class="flex flex-col items-center justify-center gap-1.5">
                 <span
-                  :class="['status-badge', isAvailable(book) ? 'bg-green-50 text-green-600 border-green-100' : 'bg-rose-50 text-rose-600 border-rose-100']">
+                  :class="['status-badge', isAvailable(book) ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-100 dark:border-green-900/30' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-900/30']">
                   {{ isAvailable(book) ? 'Available' : 'Issued Out' }}
                 </span>
-                <span v-if="book.copy_type !== 'Online'" class="text-[9px] font-bold text-slate-400 tracking-wider">
+                <span v-if="book.copy_type !== 'Online'" class="text-[9px] font-bold text-slate-400 dark:text-slate-500 tracking-wider transition-colors">
                   {{ book.available_copies }} / {{ book.total_copies }} copies
                 </span>
               </div>
@@ -147,8 +145,8 @@
       </table>
 
       <div v-if="!loading && filteredCatalog.length === 0" class="p-20 text-center">
-        <i class="fa fa-folder-open-o text-slate-200 text-3xl mb-4"></i>
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No books found matching your criteria
+        <i class="fa fa-folder-open-o text-slate-200 dark:text-slate-700 text-3xl mb-4 transition-colors"></i>
+        <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-colors">No books found matching your criteria
         </p>
       </div>
     </div>
@@ -282,40 +280,40 @@ watch(
 
 <style scoped>
 .filter-label {
-  @apply text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1;
+  @apply text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5 block ml-1 transition-colors;
 }
 
 .filter-input {
-  @apply w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all pl-12;
+  @apply w-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all pl-12;
 }
 
 .th-style {
-  @apply text-[10px] font-black uppercase text-slate-400 tracking-widest;
+  @apply text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest transition-colors;
 }
 
 .type-badge {
-  @apply px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border shadow-sm;
+  @apply px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border shadow-sm dark:shadow-none transition-colors;
 }
 
 .status-badge {
-  @apply px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter shadow-sm border;
+  @apply px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter shadow-sm dark:shadow-none border transition-colors;
 }
 
 .btn-action-active {
-  @apply px-5 py-3 rounded-xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 shadow-sm transition-all active:scale-95;
+  @apply px-5 py-3 rounded-xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 dark:hover:bg-indigo-500 shadow-sm dark:shadow-none transition-all active:scale-95;
 }
 
 .btn-reserve {
-  @apply px-5 py-3 rounded-xl bg-purple-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 shadow-sm transition-all active:scale-95;
+  @apply px-5 py-3 rounded-xl bg-purple-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 dark:hover:bg-purple-500 shadow-sm dark:shadow-none transition-all active:scale-95;
 }
 
 .btn-cancel {
-  @apply px-5 py-3 rounded-xl bg-red-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-700 shadow-sm transition-all active:scale-95;
+  @apply px-5 py-3 rounded-xl bg-red-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-700 dark:hover:bg-red-500 shadow-sm dark:shadow-none transition-all active:scale-95;
 }
 .btn-approved {
-  @apply px-5 py-3 rounded-xl bg-slate-400 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 shadow-sm transition-all active:scale-95;
+  @apply px-5 py-3 rounded-xl bg-slate-400 dark:bg-slate-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 dark:hover:bg-slate-500 shadow-sm dark:shadow-none transition-all active:scale-95;
 }
 .page-btn-fixed {
-  @apply p-2 w-10 h-10 rounded-xl bg-white border border-slate-200 disabled:opacity-30 disabled:cursor-not-allowed hover:border-indigo-500 transition-all shadow-sm flex items-center justify-center text-slate-400;
+  @apply p-2 w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:border-indigo-500 transition-all shadow-sm dark:shadow-none flex items-center justify-center text-slate-400 dark:text-slate-500;
 }
 </style>

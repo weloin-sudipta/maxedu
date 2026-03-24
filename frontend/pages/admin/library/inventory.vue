@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-[#f8fafc] p-4 lg:p-8 font-sans text-slate-900">
+    <div class="min-h-screen bg-[#f8fafc] dark:bg-slate-950 p-4 lg:p-8 font-sans text-slate-900 dark:text-slate-100 transition-colors">
         <div class="max-w-[1440px] mx-auto space-y-6">
 
             <!-- HEADER -->
@@ -22,7 +22,7 @@
 
             <!-- STATS -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-white rounded-[2rem] p-6 border border-slate-200/60 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors">
                     <div class="flex items-center justify-between mb-4">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Books</span>
                         <i class="fa fa-book text-indigo-500 text-xl"></i>
@@ -32,7 +32,7 @@
                         uniqueTitles }} titles</p>
                 </div>
 
-                <div class="bg-white rounded-[2rem] p-6 border border-slate-200/60 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors">
                     <div class="flex items-center justify-between mb-4">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Available</span>
                         <i class="fa fa-check-circle text-green-500 text-xl"></i>
@@ -41,7 +41,7 @@
                     <p class="text-[10px] font-bold text-slate-300 uppercase tracking-tighter mt-2">ready to issue</p>
                 </div>
 
-                <div class="bg-white rounded-[2rem] p-6 border border-slate-200/60 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors">
                     <div class="flex items-center justify-between mb-4">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Issued</span>
                         <i class="fa fa-hand-paper-o text-amber-500 text-xl"></i>
@@ -50,7 +50,7 @@
                     <p class="text-[10px] font-bold text-slate-300 uppercase tracking-tighter mt-2">currently out</p>
                 </div>
 
-                <div class="bg-white rounded-[2rem] p-6 border border-slate-200/60 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors">
                     <div class="flex items-center justify-between mb-4">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Low Stock</span>
                         <i class="fa fa-warning text-red-500 text-xl"></i>
@@ -61,7 +61,7 @@
             </div>
 
             <!-- FILTERS & SEARCH -->
-            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60 p-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm dark:shadow-none border border-slate-200/60 dark:border-slate-800 p-6 transition-colors">
                 <div class="space-y-4">
                     <div class="flex flex-col lg:flex-row gap-4">
                         <div class="flex-1">
@@ -104,9 +104,9 @@
             </div>
 
             <!-- BOOKS TABLE -->
-            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60 overflow-hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm dark:shadow-none border border-slate-200/60 dark:border-slate-800 overflow-hidden transition-colors">
                 <div
-                    class="p-8 border-b border-slate-50 flex justify-between items-center backdrop-blur-xl bg-gradient-to-r from-slate-50 to-transparent">
+                    class="p-8 border-b border-slate-50 dark:border-slate-800 flex justify-between items-center backdrop-blur-xl bg-gradient-to-r from-slate-50 dark:from-slate-800/50 to-transparent transition-colors">
                     <div>
                         <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Book Inventory</h3>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-1">{{

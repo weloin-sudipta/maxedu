@@ -41,7 +41,7 @@ useHead({
 </script>
 
 <template>
-  <div class="flex h-screen w-full overflow-hidden bg-[#f5f5f9] font-sans">
+  <div class="flex h-screen w-full overflow-hidden bg-[#f5f5f9] dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
 
     <!-- Sidebar -->
     <AppSideBar />

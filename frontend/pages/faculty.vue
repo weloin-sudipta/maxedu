@@ -26,8 +26,8 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex items-center justify-center py-20">
-        <div class="text-slate-400 text-base font-bold animate-pulse">Loading faculty...</div>
+      <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <UiSkeleton height="h-64" v-for="i in 8" :key="i" class="rounded-[2.2rem]" />
       </div>
 
       <!-- Error State -->
@@ -167,13 +167,3 @@ onMounted(async () => {
   }
 });
 </script>
-
-<style scoped>
-.animate-in {
-  animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-</style>

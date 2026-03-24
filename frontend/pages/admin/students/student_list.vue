@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60 overflow-hidden animate-in fade-in duration-500">
+  <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm dark:shadow-none border border-slate-200/60 dark:border-slate-800 overflow-hidden animate-in fade-in duration-500 transition-colors">
     
-    <div class="flex flex-col lg:flex-row justify-between items-center p-8 gap-6 border-b border-slate-50">
+    <div class="flex flex-col lg:flex-row justify-between items-center p-8 gap-6 border-b border-slate-50 dark:border-slate-800 transition-colors">
       <div class="flex items-center gap-4">
         <div class="flex flex-col">
           <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">View Count</span>

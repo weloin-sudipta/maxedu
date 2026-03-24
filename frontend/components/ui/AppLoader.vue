@@ -1,6 +1,6 @@
 <template>
   <div v-if="visible"
-       class="flex items-center justify-center h-screen bg-[#f5f5f9] overflow-hidden">
+       class="flex items-center justify-center h-screen bg-[#f5f5f9] dark:bg-slate-950 overflow-hidden transition-colors">
 
     <!-- Background Blobs -->
     <div class="absolute top-[-10%] left-[-10%] w-72 h-72 bg-indigo-200/50 rounded-full blur-3xl animate-pulse"></div>
@@ -9,8 +9,8 @@
 
     <!-- Loader Card -->
     <div
-      class="relative z-10 text-center p-12 bg-white/40 backdrop-blur-md rounded-[3rem]
-      border border-white/60 shadow-2xl shadow-indigo-100/50 max-w-xs w-full">
+      class="relative z-10 text-center p-12 bg-white/40 dark:bg-slate-900/60 backdrop-blur-md rounded-[3rem]
+      border border-white/60 dark:border-slate-800 shadow-2xl shadow-indigo-100/50 dark:shadow-none max-w-xs w-full transition-colors">
 
       <div class="relative w-24 h-24 mx-auto mb-8">
 
@@ -38,7 +38,7 @@
 
       </div>
 
-      <h2 class="text-xs font-black text-slate-800 uppercase tracking-[0.3em] mb-2">
+      <h2 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-[0.3em] mb-2 transition-colors">
         Authenticating
       </h2>
 
@@ -48,7 +48,7 @@
         </div>
       </div>
 
-      <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">
+      <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest animate-pulse transition-colors">
         Setting up your workspace...
       </p>
 

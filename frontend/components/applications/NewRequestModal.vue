@@ -89,6 +89,9 @@
 import { ref, watch, onMounted } from 'vue'
 import AppModal from '@/components/ui/AppModal.vue'
 import { call } from '~/composable/useFrappeFetch'
+import { useToast } from '~/composable/useToast'
+
+const { addToast } = useToast()
 
 const props = defineProps({
   modelValue: {
@@ -129,7 +132,7 @@ const submitForm = async () => {
   // Basic validation check
   for (const field of selectedType.value.fields) {
     if (field.is_required && !formData.value[field.field_name]) {
-      alert(`${field.field_label} is required`)
+      addToast(`${field.field_label} is required`, 'error')
       return
     }
   }
@@ -142,7 +145,9 @@ const submitForm = async () => {
     })
     emit('submitted')
     emit('update:modelValue', false)
+    addToast('Request submitted successfully!', 'success')
   } catch (err) {
+    addToast(err.message || 'Failed to submit request', 'error')
     console.error(err)
   } finally {
     isSubmitting.value = false

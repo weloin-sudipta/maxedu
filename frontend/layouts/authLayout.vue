@@ -1,5 +1,5 @@
 <template>
-<div>
+<div class="bg-[#f8fafc] dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen">
   <slot />
 </div>
 </template>

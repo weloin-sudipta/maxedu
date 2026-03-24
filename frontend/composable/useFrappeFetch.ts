@@ -34,6 +34,7 @@ export function createResource<T = any>(options: ResourceOptions<T>): Resource<T
     error.value = null
 
     try {
+      await new Promise(resolve => setTimeout(resolve, 800)); // Smooth skeleton visibility delay
       const result = await $fetch<{ message: T }>(`/api/method/${options.url}`, {
         method: 'POST',
         body: currentParams,
@@ -90,6 +91,7 @@ export function createListResource<T = any>(options: {
     error.value = null
 
     try {
+      await new Promise(resolve => setTimeout(resolve, 800)); // Smooth skeleton visibility delay
       const params: Record<string, any> = {}
       if (options.fields) params.fields = JSON.stringify(options.fields)
       if (options.filters) params.filters = JSON.stringify(options.filters)
@@ -142,6 +144,7 @@ export function createDocumentResource<T = any>(options: {
     error.value = null
 
     try {
+      await new Promise(resolve => setTimeout(resolve, 800)); // Smooth skeleton visibility delay
       const params: Record<string, any> = {}
       if (options.fields) params.fields = JSON.stringify(options.fields)
 

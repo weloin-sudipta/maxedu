@@ -3,9 +3,9 @@
     <TransitionGroup name="toast">
       <div v-for="toast in toasts" :key="toast.id" 
            :class="['pointer-events-auto flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl border backdrop-blur-md transition-all min-w-[300px] max-w-sm', 
-                    toast.type === 'error' ? 'bg-red-50/95 border-red-100 text-red-600' : 
-                    toast.type === 'success' ? 'bg-emerald-50/95 border-emerald-100 text-emerald-600' : 
-                    'bg-white/95 border-slate-100 text-slate-700']">
+                    toast.type === 'error' ? 'bg-red-50/95 dark:bg-red-900/20 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400' : 
+                    toast.type === 'success' ? 'bg-emerald-50/95 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 
+                    'bg-white/95 dark:bg-slate-800/95 border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-100']">
         <i :class="toast.type === 'error' ? 'fa fa-exclamation-circle text-lg' : 'fa fa-check-circle text-lg'"></i>
         <div class="flex flex-col">
             <span class="text-xs font-black uppercase tracking-widest opacity-80 mb-0.5">

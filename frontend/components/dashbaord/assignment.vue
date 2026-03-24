@@ -1,49 +1,33 @@
 <template>
-  <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 flex flex-col gap-5">
+  <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors">
 
-    <!-- HEADER -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-400 rounded-[0.85rem] flex items-center justify-center text-white text-sm shadow-lg shadow-amber-200">
-          <i class="fa fa-pencil-square-o"></i>
-        </div>
-        <div>
-          <h6 class="text-sm font-black text-slate-800 leading-tight tracking-tight">Assignments</h6>
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ assignments.length }} tasks</span>
-        </div>
-      </div>
-      <NuxtLink to="/academics/assignments"
-        class="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 hover:bg-indigo-100 transition-colors px-3 py-1.5 rounded-full flex items-center gap-1.5">
-        View all <i class="fa fa-arrow-right text-[9px]"></i>
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xs font-black uppercase tracking-wide text-slate-400 dark:text-slate-500">Assignments</h3>
+      <NuxtLink to="/academics/assignments" class="text-indigo-500 dark:text-indigo-400 text-xs font-bold hover:underline transition-colors">
+        View All
       </NuxtLink>
     </div>
 
-    <!-- LIST -->
-    <div v-if="assignments && assignments.length > 0" class="flex flex-col">
-      <div v-for="(assignment, index) in assignments" :key="assignment.name"
-        class="flex items-start gap-3 py-3 group cursor-pointer">
+    <!-- Assignment List -->
+    <div class="space-y-4">
+      <div
+        v-for="assignment in assignments"
+        :key="assignment.name"
+        class="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 transition-colors"
+      >
 
-        <!-- DOT + LINE -->
-        <div class="flex flex-col items-center flex-shrink-0 w-4 pt-1">
-          <div class="relative w-3.5 h-3.5 flex-shrink-0">
-            <div class="absolute inset-0 rounded-full border-2 border-slate-200"></div>
-            <div class="absolute inset-[3px] rounded-full" :class="getDotColor(assignment.status)"></div>
-          </div>
-          <div v-if="index < assignments.length - 1"
-            class="w-px flex-1 min-h-[20px] mt-1 bg-gradient-to-b from-slate-200 to-transparent"></div>
-        </div>
-
-        <!-- CONTENT -->
-        <div class="flex-1 min-w-0">
-          <p class="text-[13px] font-black text-slate-800 group-hover:text-indigo-600 transition-colors truncate leading-tight mb-0.5">
-            {{ assignment.title }}
+        <!-- Info Section -->
+        <div class="flex-1">
+          <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ assignment.title }}</p>
+          <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+            Topic: {{ assignment.topic_name || 'N/A' }}
           </p>
-          <p class="text-[11px] text-slate-400 leading-relaxed">
-            {{ assignment.course_name || assignment.course || 'N/A' }}
-            <span v-if="assignment.topic_name"> · {{ assignment.topic_name }}</span>
+          <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+            Course: {{ assignment.course_name || assignment.course || 'N/A' }}
           </p>
-          <p class="text-[10px] text-slate-400 mt-0.5">
-            Due: <span class="font-bold text-slate-500">{{ formatDate(assignment.due_date) }}</span>
+          <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+            Due: {{ formatDate(assignment.due_date) }}
           </p>
         </div>
 
@@ -54,12 +38,10 @@
         </span>
 
       </div>
-    </div>
 
-    <!-- EMPTY STATE -->
-    <div v-else class="flex flex-col items-center gap-2 py-8 text-slate-300">
-      <i class="fa fa-check-circle-o text-2xl"></i>
-      <p class="text-[10px] font-black uppercase tracking-widest">No upcoming assignments</p>
+      <div v-if="assignments.length === 0" class="text-center text-sm text-slate-400 dark:text-slate-500 py-6">
+        No upcoming assignments
+      </div>
     </div>
 
   </div>
@@ -89,10 +71,10 @@ const getDotColor = (status) => {
 
 const getStatusBadgeClass = (status) => {
   switch ((status || '').toLowerCase()) {
-    case 'submitted': return 'bg-green-50 text-green-600'
-    case 'active':    return 'bg-amber-50 text-amber-600'
-    case 'pending':   return 'bg-slate-100 text-slate-500'
-    default:          return 'bg-slate-100 text-slate-500'
+    case 'submitted': return 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
+    case 'active': return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400'
+    case 'pending': return 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+    default: return 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
   }
 }
 </script>

@@ -1,5 +1,8 @@
 <script setup>
 import { ref, reactive } from 'vue';
+import { useToast } from '~/composable/useToast';
+
+const { addToast } = useToast();
 
 definePageMeta({
     layout: 'authLayout'
@@ -30,6 +33,7 @@ const handleSendOTP = async () => {
     setTimeout(() => {
         loading.value = false;
         step.value = 2;
+        addToast('Verification code sent!', 'success');
         startTimer();
     }, 1500);
 };

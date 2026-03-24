@@ -108,6 +108,11 @@ definePageMeta({
 })
 
 import {login} from '~/composable/useAuth'
+import { useRouter } from 'vue-router'
+import { useToast } from '~/composable/useToast'
+
+const router = useRouter()
+const { addToast } = useToast()
 
 const email = ref('')
 const password = ref('')
@@ -116,7 +121,10 @@ const handlelogin=async()=>{
   try {
     console.log(email.value, password.value);
     await login(email.value, password.value)
+    addToast('Welcome back!', 'success')
+    router.push('/')
   } catch (error) {
+    addToast('Invalid login credentials', 'error')
     console.log(error);
     
     throw error

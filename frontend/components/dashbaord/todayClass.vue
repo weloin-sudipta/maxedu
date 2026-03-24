@@ -1,76 +1,36 @@
 <template>
-  <div class="space-y-6">
-    <div class="flex items-center justify-between px-2">
-      <h3 class="text-xl font-black text-slate-800 tracking-tight">Today's Schedule</h3>
-      <NuxtLink to="/academics/timetable"
-        class="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 hover:bg-indigo-100 transition-colors px-3 py-1.5 rounded-full flex items-center gap-1.5">
-        Full Schedule <i class="fa fa-arrow-right text-[9px]"></i>
-      </NuxtLink>
-    </div>
+    <div class="space-y-6">
 
-    <div v-if="todayClasses && todayClasses.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div v-for="(cls, i) in todayClasses" :key="i"
-        class="relative p-5 rounded-[2rem] border flex items-center gap-4 transition-all overflow-hidden"
-        :class="{
-          'bg-green-50 border-green-200 shadow-sm shadow-green-100': getStatus(cls) === 'live',
-          'bg-slate-50 border-slate-100 opacity-60':                 getStatus(cls) === 'done',
-          'bg-white border-slate-100 hover:shadow-xl':               getStatus(cls) === 'upcoming',
-        }">
+        <div class="flex items-center justify-between px-2">
+            <h3 class="text-xl font-black text-slate-800 dark:text-white tracking-tight">
+                Today's Schedule
+            </h3>
+        </div>
 
-        <!-- ICON BOX -->
-        <div class="w-12 h-12 rounded-2xl flex flex-col items-center justify-center flex-shrink-0"
-          :class="{
-            'bg-green-500 shadow-lg shadow-green-200': getStatus(cls) === 'live',
-            'bg-slate-200':                            getStatus(cls) === 'done',
-            'bg-slate-50':                             getStatus(cls) === 'upcoming',
-          }">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          <!-- LIVE -->
-          <template v-if="getStatus(cls) === 'live'">
-            <i class="fa fa-clock-o text-white text-sm"></i>
-            <span class="text-[7px] font-black uppercase text-white flex items-center gap-0.5 mt-0.5">
-              <span class="w-1 h-1 rounded-full bg-white animate-pulse"></span> Live
-            </span>
-          </template>
+            <div v-for="(cls, i) in todayClasses" :key="i"
+                class="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex items-center gap-4 hover:shadow-xl dark:shadow-none transition-all">
 
-          <!-- DONE -->
-          <template v-else-if="getStatus(cls) === 'done'">
-            <i class="fa fa-check text-slate-400 text-sm"></i>
-            <span class="text-[7px] font-black uppercase text-slate-400 mt-0.5">Done</span>
-          </template>
+                <div class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex flex-col items-center justify-center">
 
-          <!-- UPCOMING -->
-          <template v-else>
-            <i class="fa fa-clock-o text-violet-400 text-sm"></i>
-            <span class="text-[7px] font-black uppercase text-violet-400 mt-0.5">Soon</span>
-          </template>
+                    <i class="fa fa-clock-o text-xs text-slate-500 dark:text-slate-400"></i>
+                    <span class="text-[8px] font-black uppercase text-slate-500 dark:text-slate-400">
+                        Live
+                    </span>
 
         </div>
 
-        <!-- CONTENT -->
-        <div class="flex-1 min-w-0">
-          <h4 class="text-sm font-black truncate"
-            :class="{
-              'text-green-700':                                        getStatus(cls) === 'live',
-              'text-slate-400 line-through':                           getStatus(cls) === 'done',
-              'text-slate-800':                                        getStatus(cls) === 'upcoming',
-            }">
-            {{ cls.subject }}
-          </h4>
-          <p class="text-[10px] font-bold text-slate-400 uppercase mt-0.5">
-            {{ cls.startTime || cls.time }}
-            <span v-if="cls.endTime"> – {{ cls.endTime }}</span>
-            <span v-if="cls.room"> • Room {{ cls.room }}</span>
-          </p>
-          <span v-if="cls.teacher" class="text-[9px] font-bold mt-1 block truncate"
-            :class="{
-              'text-green-500': getStatus(cls) === 'live',
-              'text-slate-300': getStatus(cls) === 'done',
-              'text-violet-400': getStatus(cls) === 'upcoming',
-            }">
-            <i class="fa fa-user mr-1 opacity-60"></i>{{ cls.teacher }}
-          </span>
-        </div>
+                <div>
+                    <h4 class="text-sm font-black text-slate-800 dark:text-slate-200">
+                        {{ cls.subject }}
+                    </h4>
+
+                    <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">
+                        {{ cls.time }} • Room {{ cls.room }}
+                    </p>
+
+                </div>
 
         <!-- LIVE PING DECORATION -->
         <div v-if="getStatus(cls) === 'live'"

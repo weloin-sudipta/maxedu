@@ -1,25 +1,25 @@
 <template>
-  <div class="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-sm overflow-hidden">
+  <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none overflow-hidden transition-colors">
 
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
       <div>
-        <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-1">
+        <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500 mb-1">
           Academic Timeline
         </h3>
-        <p class="text-xl font-black text-slate-800 tracking-tight">
+        <p class="text-xl font-black text-slate-800 dark:text-white tracking-tight">
           {{ monthYear }}
         </p>
       </div>
 
       <div class="flex gap-2">
         <button @click="prevMonth"
-          class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-indigo-600 hover:text-white">
+          class="w-8 h-8 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-indigo-600 dark:hover:bg-indigo-500 hover:text-white transition-colors">
           <i class="fa fa-chevron-left text-[10px]"></i>
         </button>
 
         <button @click="nextMonth"
-          class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-indigo-600 hover:text-white">
+          class="w-8 h-8 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-indigo-600 dark:hover:bg-indigo-500 hover:text-white transition-colors">
           <i class="fa fa-chevron-right text-[10px]"></i>
         </button>
       </div>
@@ -28,7 +28,7 @@
     <!-- Week Days -->
     <div class="grid grid-cols-7 gap-2 mb-6">
       <div v-for="day in weekDays" :key="day"
-        class="text-center text-[10px] font-black text-slate-300 uppercase py-2">
+        class="text-center text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase py-2">
         {{ day }}
       </div>
 
@@ -36,9 +36,9 @@
       <div v-for="date in calendarDays"
         :key="date.date || Math.random()"
         @click="selectDate(date)"
-        class="relative aspect-square flex flex-col items-center justify-center rounded-2xl cursor-pointer border"
+        class="relative aspect-square flex flex-col items-center justify-center rounded-2xl cursor-pointer border border-transparent dark:border-slate-800 text-slate-700 dark:text-slate-300"
         :class="[
-          date.isToday ? 'bg-indigo-600 text-white scale-110' : 'hover:bg-slate-50',
+          date.isToday ? 'bg-indigo-600 text-white scale-110 !border-none' : 'hover:bg-slate-50 dark:hover:bg-slate-800',
           selectedDate === date.date ? 'ring-2 ring-indigo-400' : '',
           date.events.length ? 'font-bold' : ''
         ]"
@@ -64,12 +64,12 @@
     </div>
 
     <!-- Selected Day -->
-    <div class="border-t pt-6">
-      <p class="text-[10px] font-black text-slate-400 uppercase mb-4">
+    <div class="border-t dark:border-slate-800 pt-6">
+      <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase mb-4">
         Selected Day Events
       </p>
 
-      <div v-if="selectedEvents.length === 0" class="text-xs text-slate-400">
+      <div v-if="selectedEvents.length === 0" class="text-xs text-slate-400 dark:text-slate-500">
         No events for this day
       </div>
 
@@ -83,8 +83,8 @@
         </div>
 
         <div>
-          <h4 class="text-xs font-bold text-slate-800">{{ item.title }}</h4>
-          <p class="text-[10px] text-slate-400 uppercase">{{ item.type }}</p>
+          <h4 class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ item.title }}</h4>
+          <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase">{{ item.type }}</p>
         </div>
       </div>
     </div>
@@ -217,10 +217,10 @@ const nextMonth = () => {
 }
 
 const getTypeStyles = (type) => {
-  if(type==="exam") return "bg-red-50 text-red-500"
-  if(type==="holiday") return "bg-green-50 text-green-500"
-  if(type==="assignment") return "bg-amber-50 text-amber-500"
-  return "bg-indigo-50 text-indigo-500"
+  if(type==="exam") return "bg-rose-50 dark:bg-rose-900/20 text-rose-500 dark:text-rose-400"
+  if(type==="holiday") return "bg-amber-50 dark:bg-amber-900/20 text-amber-500 dark:text-amber-400"
+  if(type==="assignment") return "bg-green-50 dark:bg-green-900/20 text-green-500 dark:text-green-400"
+  return "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 dark:text-indigo-400"
 }
 
 /* ---------------- FETCH ---------------- */

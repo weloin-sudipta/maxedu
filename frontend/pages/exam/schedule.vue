@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#f8fafc] p-4 lg:p-8 font-sans text-slate-900">
+  <div class="min-h-screen bg-[#f8fafc] dark:bg-slate-950 p-4 lg:p-8 font-sans text-slate-900 dark:text-slate-100 transition-colors">
     <div class="max-w-[1440px] mx-auto space-y-6">
 
       <HeroHeader
@@ -8,30 +8,34 @@
         icon="fa fa-calendar-check-o"
       />
 
-      <div class="space-y-4 animate-in">
+      <div v-if="loading" class="space-y-4">
+        <UiSkeleton height="h-24" v-for="i in 3" :key="i" class="rounded-[2rem]" />
+      </div>
+
+      <div v-else class="space-y-4 animate-in">
 
         <div v-for="(group, type) in groupedExams" :key="type">
 
           <!-- GROUP HEADER -->
           <div
             @click="toggleGroup(type)"
-            class="cursor-pointer bg-white rounded-[2rem] p-4 border border-slate-200/60 shadow-sm hover:border-rose-300 transition-all flex items-center justify-between group"
+            class="cursor-pointer bg-white dark:bg-slate-900 rounded-[2rem] p-4 border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none hover:border-rose-300 dark:hover:border-rose-500/50 transition-all flex items-center justify-between group"
           >
 
             <div class="flex items-center gap-4">
 
               <div
-                class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center text-xl transition-colors group-hover:bg-rose-600 group-hover:text-white"
+                class="w-12 h-12 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-2xl flex items-center justify-center text-xl transition-colors group-hover:bg-rose-600 group-hover:text-white dark:group-hover:bg-rose-500"
               >
                 <i :class="expandedGroups.includes(type) ? 'fa fa-folder-open' : 'fa fa-folder'"></i>
               </div>
 
               <div>
-                <h2 class="text-xl font-black text-slate-800 tracking-tight">
+                <h2 class="text-xl font-black text-slate-800 dark:text-slate-200 tracking-tight transition-colors">
                   {{ type }} <span>{{ group.exams.length }} Subjects Scheduled</span>
                 </h2>
 
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-colors">
                   {{ group.start_date }} - {{ group.end_date }}
                 </p>
               </div>
@@ -40,7 +44,7 @@
                 <button
                   @click.stop="downloadHallTicket(type)"
                   :disabled="pdfLoading"
-                  class="hidden md:flex px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-md items-center gap-2 disabled:opacity-60 disabled:cursor-wait"
+                  class="hidden md:flex px-5 py-2.5 bg-slate-900 dark:bg-rose-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-600 dark:hover:bg-rose-500 transition-all shadow-md dark:shadow-none items-center gap-2 disabled:opacity-60 disabled:cursor-wait"
                 >
                   <i :class="pdfLoading ? 'fa fa-spinner fa-spin' : 'fa fa-download'"></i>
                   {{ pdfLoading ? 'Generating…' : 'Hall Ticket' }}
@@ -51,7 +55,7 @@
 
             <div class="flex items-center gap-4">
               <div
-                class="text-slate-300 transition-transform duration-300"
+                class="text-slate-300 dark:text-slate-600 transition-transform duration-300"
                 :class="{ 'rotate-180': expandedGroups.includes(type) }"
               >
                 <i class="fa fa-chevron-down"></i>
@@ -65,38 +69,38 @@
             <div v-if="expandedGroups.includes(type)" class="overflow-hidden">
 
               <div
-                class="grid grid-cols-1 gap-3 mt-3 ml-4 md:ml-12 border-l-2 border-slate-100 pl-4 md:pl-8 pb-4"
+                class="grid grid-cols-1 gap-3 mt-3 ml-4 md:ml-12 border-l-2 border-slate-100 dark:border-slate-800 pl-4 md:pl-8 pb-4 transition-colors"
               >
 
                 <div
                   v-for="exam in group.exams"
                   :key="exam.id"
-                  class="bg-white/50 backdrop-blur-sm rounded-[1.5rem] p-5 border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-all"
+                  class="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-[1.5rem] p-5 border border-slate-100 dark:border-slate-700/50 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md dark:hover:shadow-none transition-all"
                 >
 
                   <div class="flex items-center gap-4">
 
                     <div class="text-center min-w-[50px]">
-                      <span class="block text-xs font-black text-rose-500 uppercase">
+                      <span class="block text-xs font-black text-rose-500 dark:text-rose-400 uppercase transition-colors">
                         {{ exam.month }}
                       </span>
 
-                      <span class="text-2xl font-black text-slate-800">
+                      <span class="text-2xl font-black text-slate-800 dark:text-slate-200 transition-colors">
                         {{ exam.day }}
                       </span>
                     </div>
 
                     <div>
-                      <h4 class="font-black text-slate-700 text-base">
+                      <h4 class="font-black text-slate-700 dark:text-slate-300 text-base transition-colors">
                         {{ exam.subject }}
                       </h4>
 
                       <div class="flex gap-4 mt-1">
-                        <span class="text-xs font-bold text-slate-400 uppercase">
+                        <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase transition-colors">
                           <i class="fa fa-clock-o mr-1"></i>{{ exam.time }}
                         </span>
 
-                        <span class="text-xs font-bold text-slate-400 uppercase">
+                        <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase transition-colors">
                           <i class="fa fa-map-marker mr-1"></i>{{ exam.room }}
                         </span>
                       </div>
@@ -105,7 +109,7 @@
                   </div>
 
                   <span
-                    class="text-[10px] font-black px-3 py-1 bg-slate-100 text-slate-500 rounded-full uppercase self-start md:self-center"
+                    class="text-[10px] font-black px-3 py-1 bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 rounded-full uppercase self-start md:self-center transition-colors"
                   >
                     {{ exam.dayName }}
                   </span>
@@ -121,7 +125,7 @@
 
         <div
           v-if="Object.keys(groupedExams).length === 0"
-          class="text-center py-20 text-slate-400 font-bold uppercase text-sm tracking-widest"
+          class="text-center py-20 text-slate-400 dark:text-slate-500 font-bold uppercase text-sm tracking-widest transition-colors"
         >
           No scheduled exams found.
         </div>
@@ -195,7 +199,9 @@ import { ref, computed, onMounted } from "vue";
 import HeroHeader from "~/components/ui/HeroHeader.vue";
 import { useExams } from "~/composable/useExaminations";
 import { usePdf } from "~/composable/usePdf";
+import { useToast } from "~/composable/useToast";
 
+const { addToast } = useToast();
 const { generateAdmitCard, loading: pdfLoading, error: pdfError } = usePdf();
 const config = useRuntimeConfig();
 
@@ -206,6 +212,7 @@ useSeoMeta({
 const studentYear = ref("2025-26");
 const confirmedExams = ref([]);
 const expandedGroups = ref([]);
+const loading = ref(true);
 
 /* PDF modal state */
 const pdfModal = ref({ show: false, fileUrl: "", blobUrl: "", examType: "" });
@@ -253,7 +260,7 @@ const downloadHallTicket = async (type) => {
   const result = await generateAdmitCard(type);
 
   if (!result?.file_url) {
-    if (pdfError.value) alert(`Failed to generate Hall Ticket: ${pdfError.value}`);
+    if (pdfError.value) addToast(`Failed to generate Hall Ticket: ${pdfError.value}`, 'error');
     return;
   }
 
@@ -349,6 +356,8 @@ onMounted(async () => {
     if (firstGroup) expandedGroups.value.push(firstGroup);
   } catch (error) {
     console.error("Error loading exams:", error);
+  } finally {
+    loading.value = false;
   }
 });
 </script>
@@ -392,7 +401,7 @@ onMounted(async () => {
 
 /* Modal panel */
 .pdf-panel {
-  background: #0f172a;
+  @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 shadow-2xl;
   border-radius: 20px;
   overflow: hidden;
   width: 100%;
@@ -400,36 +409,32 @@ onMounted(async () => {
   height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255,255,255,0.08);
 }
 
 /* Panel top bar */
 .pdf-panel-header {
+  @apply bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-white/10;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 14px 20px;
-  background: #0f172a;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
   flex-shrink: 0;
 }
 
 .pdf-panel-title {
+  @apply text-slate-800 dark:text-slate-100;
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 14px;
   font-weight: 700;
-  color: #f1f5f9;
 }
 
 .pdf-panel-subtitle {
+  @apply text-slate-500 dark:text-slate-400 bg-slate-200/50 dark:bg-white/5;
   font-size: 11px;
   font-weight: 600;
-  color: #64748b;
   padding: 2px 8px;
-  background: rgba(255,255,255,0.05);
   border-radius: 6px;
   margin-left: 4px;
 }
@@ -463,23 +468,18 @@ onMounted(async () => {
 }
 
 .pdf-btn-close {
-  background: rgba(255,255,255,0.06);
-  color: #94a3b8;
+  @apply bg-slate-200 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-rose-500 hover:text-white transition-colors;
   font-size: 14px;
   width: 32px;
   height: 32px;
   padding: 0;
   justify-content: center;
 }
-.pdf-btn-close:hover {
-  background: #ef4444;
-  color: white;
-}
 
 /* iframe fills the rest */
 .pdf-viewer-wrap {
+  @apply bg-slate-100 dark:bg-slate-800 border-none;
   flex: 1;
-  background: #1e293b;
   overflow: hidden;
 }
 

@@ -1,14 +1,14 @@
 <template>
     <div v-if="isLoading">
-    <div class="flex items-center justify-center h-screen bg-[#f5f5f9] overflow-hidden">
+    <div class="flex items-center justify-center h-screen bg-[#f5f5f9] dark:bg-slate-950 overflow-hidden transition-colors duration-300">
 
-        <div class="absolute top-[-10%] left-[-10%] w-72 h-72 bg-indigo-200/50 rounded-full blur-3xl animate-pulse">
+        <div class="absolute top-[-10%] left-[-10%] w-72 h-72 bg-indigo-200/50 dark:bg-indigo-900/30 rounded-full blur-3xl animate-pulse">
         </div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-72 h-72 bg-rose-200/50 rounded-full blur-3xl animate-pulse"
+        <div class="absolute bottom-[-10%] right-[-10%] w-72 h-72 bg-rose-200/50 dark:bg-rose-900/20 rounded-full blur-3xl animate-pulse"
             style="animation-delay: 1s"></div>
 
         <div
-            class="relative z-10 text-center p-12 bg-white/40 backdrop-blur-md rounded-[3rem] border border-white/60 shadow-2xl shadow-indigo-100/50 max-w-xs w-full">
+            class="relative z-10 text-center p-12 bg-white/40 dark:bg-slate-900/60 backdrop-blur-md rounded-[3rem] border border-white/60 dark:border-slate-800 shadow-2xl shadow-indigo-100/50 dark:shadow-none max-w-xs w-full">
 
             <div class="relative w-24 h-24 mx-auto mb-8">
                 <div
@@ -30,16 +30,16 @@
                     style="animation-delay: 0.5s"></div>
             </div>
 
-            <h2 class="text-xs font-black text-slate-800 uppercase tracking-[0.3em] mb-2">
+            <h2 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-[0.3em] mb-2">
                 Authenticating
             </h2>
 
-            <div class="w-full bg-indigo-100 h-1 rounded-full overflow-hidden mb-4">
-                <div class="bg-indigo-600 h-full transition-all duration-300 ease-out"
+            <div class="w-full bg-indigo-100 dark:bg-indigo-950 h-1 rounded-full overflow-hidden mb-4">
+                <div class="bg-indigo-600 dark:bg-indigo-500 h-full transition-all duration-300 ease-out"
                     :style="{ width: loadingStep + '%' }"></div>
             </div>
 
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">
+            <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest animate-pulse">
                 Setting up your workspace...
             </p>
 

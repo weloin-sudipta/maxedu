@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-[#f8fafc] p-4 lg:p-8 font-sans text-slate-900">
+    <div class="min-h-screen bg-[#f8fafc] dark:bg-slate-950 p-4 lg:p-8 font-sans text-slate-900 dark:text-slate-100 transition-colors">
         <div class="max-w-[1440px] mx-auto space-y-6">
 
             <!-- HEADER -->
@@ -22,7 +22,7 @@
 
             <!-- STATS -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-white rounded-[2rem] p-6 border border-slate-200/60 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors">
                     <div class="flex items-center justify-between mb-4">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active
                             Loans</span>
@@ -33,7 +33,7 @@
                         !l.returned).length }} in circulation</p>
                 </div>
 
-                <div class="bg-white rounded-[2rem] p-6 border border-slate-200/60 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors">
                     <div class="flex items-center justify-between mb-4">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Overdue</span>
                         <i class="fa fa-exclamation-triangle text-red-500 text-xl"></i>
@@ -43,7 +43,7 @@
                     </p>
                 </div>
 
-                <div class="bg-white rounded-[2rem] p-6 border border-slate-200/60 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors">
                     <div class="flex items-center justify-between mb-4">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fine
                             Pending</span>
@@ -53,7 +53,7 @@
                     <p class="text-[10px] font-bold text-slate-300 uppercase tracking-tighter mt-2">collected so far</p>
                 </div>
 
-                <div class="bg-white rounded-[2rem] p-6 border border-slate-200/60 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors">
                     <div class="flex items-center justify-between mb-4">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Returned</span>
                         <i class="fa fa-check-circle text-green-500 text-xl"></i>
@@ -76,9 +76,9 @@
             </div>
 
             <!-- ACTIVE LOANS TABLE -->
-            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60 overflow-hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm dark:shadow-none border border-slate-200/60 dark:border-slate-800 overflow-hidden transition-colors">
                 <div
-                    class="p-8 border-b border-slate-50 flex justify-between items-center backdrop-blur-xl bg-gradient-to-r from-slate-50 to-transparent">
+                    class="p-8 border-b border-slate-50 dark:border-slate-800 flex justify-between items-center backdrop-blur-xl bg-gradient-to-r from-slate-50 dark:from-slate-800/50 to-transparent transition-colors">
                     <div>
                         <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Active Loans</h3>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-1">{{
@@ -174,6 +174,9 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useToast } from '~/composable/useToast'
+
+const { addToast } = useToast()
 
 const scanInput = ref('');
 const activeFilter = ref('all');
@@ -340,7 +343,7 @@ const totalFine = computed(() => {
 
 const processScanned = () => {
     if (scanInput.value.trim()) {
-        alert(`Processing: ${scanInput.value}`);
+        addToast(`Processing: ${scanInput.value}`, "success");
         scanInput.value = '';
     }
 };

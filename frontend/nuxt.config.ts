@@ -3,7 +3,10 @@ import { webserver_port } from '../../../sites/common_site_config.json'
 // webserver_port = 8000
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  modules: ['@nuxtjs/tailwindcss'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode'],
+  colorMode: {
+    classSuffix: ''
+  },
   devtools: { enabled: true },
 
   app: {
