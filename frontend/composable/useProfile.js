@@ -53,10 +53,27 @@ export const updateProfile = async (payload) => {
 }
 
 export const getFees = async () => {
-  const feesResource = createResource({
-    url: 'maxedu.api_folder.fees.get_my_fee',
-  })
-  const fees = await feesResource.submit()
-  return fees
+  try {
+    const feesResource = createResource({
+      url: 'maxedu.api_folder.fees.get_my_fee',
+    })
+
+    const res = await feesResource.submit()
+
+    const data = res?.message || res?.data || res
+
+    return {
+      success: true,
+      data
+    }
+
+  } catch (error) {
+    console.error('getFees error:', error)
+
+    return {
+      success: false,
+      data: null
+    }
+  }
 }
 
