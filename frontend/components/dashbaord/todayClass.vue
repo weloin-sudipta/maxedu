@@ -1,40 +1,40 @@
 <template>
-    <div class="space-y-6">
+  <div class="space-y-6">
 
-        <div class="flex items-center justify-between px-2">
-            <h3 class="text-xl font-black text-slate-800 dark:text-white tracking-tight">
-                Today's Schedule
-            </h3>
+    <div class="flex items-center justify-between px-2">
+      <h3 class="text-xl font-black text-slate-800 dark:text-white tracking-tight">
+        Today's Schedule
+      </h3>
+    </div>
+
+    <!-- IF CLASSES EXIST -->
+    <div v-if="todayClasses && todayClasses.length"
+         class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div v-for="(cls, i) in todayClasses"
+           :key="i"
+           class="relative bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex items-center gap-4 hover:shadow-xl dark:shadow-none transition-all">
+
+        <div class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex flex-col items-center justify-center">
+          <i class="fa fa-clock-o text-xs text-slate-500 dark:text-slate-400"></i>
+          <span class="text-[8px] font-black uppercase text-slate-500 dark:text-slate-400">
+            Live
+          </span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h4 class="text-sm font-black text-slate-800 dark:text-slate-200">
+            {{ cls.subject }}
+          </h4>
 
-            <div v-for="(cls, i) in todayClasses" :key="i"
-                class="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex items-center gap-4 hover:shadow-xl dark:shadow-none transition-all">
-
-                <div class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex flex-col items-center justify-center">
-
-                    <i class="fa fa-clock-o text-xs text-slate-500 dark:text-slate-400"></i>
-                    <span class="text-[8px] font-black uppercase text-slate-500 dark:text-slate-400">
-                        Live
-                    </span>
-
+          <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">
+            {{ cls.time }} • Room {{ cls.room }}
+          </p>
         </div>
 
-                <div>
-                    <h4 class="text-sm font-black text-slate-800 dark:text-slate-200">
-                        {{ cls.subject }}
-                    </h4>
-
-                    <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">
-                        {{ cls.time }} • Room {{ cls.room }}
-                    </p>
-
-                </div>
-
-        <!-- LIVE PING DECORATION -->
+        <!-- LIVE PING -->
         <div v-if="getStatus(cls) === 'live'"
-          class="absolute top-3 right-3 w-2 h-2">
+             class="absolute top-3 right-3 w-2 h-2">
           <span class="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"></span>
           <span class="absolute inset-0 rounded-full bg-green-500"></span>
         </div>
@@ -43,9 +43,12 @@
     </div>
 
     <!-- EMPTY STATE -->
-    <div v-else class="bg-white rounded-[2rem] border border-dashed border-slate-200 p-12 flex flex-col items-center gap-2 text-slate-300">
+    <div v-else
+         class="bg-white rounded-[2rem] border border-dashed border-slate-200 p-12 flex flex-col items-center gap-2 text-slate-300">
       <i class="fa fa-coffee text-2xl"></i>
-      <p class="text-[10px] font-black uppercase tracking-widest">No classes today</p>
+      <p class="text-[10px] font-black uppercase tracking-widest">
+        No classes today
+      </p>
     </div>
 
   </div>

@@ -24,7 +24,6 @@
           />
           <!-- Progress Circle -->
           <circle
-            class="text-green-500"
             cx="18"
             cy="18"
             r="16"
