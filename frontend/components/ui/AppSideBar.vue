@@ -10,7 +10,8 @@
         </div>
 
         <transition name="fade">
-          <span v-show="isExpanded" class="font-bold text-xl text-gray-800 dark:text-white whitespace-nowrap tracking-wide">
+          <span v-show="isExpanded"
+            class="font-bold text-xl text-gray-800 dark:text-white whitespace-nowrap tracking-wide">
             {{ $config.public.appName }}
           </span>
         </transition>
@@ -108,6 +109,7 @@ const isCollapsed = ref(false)
 const isHovered = ref(false)
 const isLoggingOut = ref(false)
 let hoverTimeout = null
+const userRole = ref('instructor')
 
 const isExpanded = computed(() => {
   return !isCollapsed.value || isHovered.value
@@ -137,61 +139,85 @@ const handleLogout = async () => {
   }
 }
 
-const navItems = reactive([
-  // MAIN SECTION
-  { header: 'Main Menu' },
-  { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
-  { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
-  { name: 'Events', icon: 'fa fa-calendar', route: '/events' },
+const navItems = computed(() => {
+  if (userRole.value === 'instructor') {
+    return [
+      { header: 'Main Menu' },
+      { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
+      { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
+      { name: 'Events', icon: 'fa fa-calendar', route: '/events' },
+      { header: 'Academic Life' }, 
+      {
+        name: 'Academics',
+        icon: 'fa fa-graduation-cap',
+        isOpen: false,
+        children: [
+          { name: 'Academics', route: '/teacher/academics/attendance' },
+          { name: 'Assignments', route: '/teacher/academics/assignments' },
+          { name: 'Subjects', route: '/teacher/academics/lesson-planning' },
+          { name: 'Study Materials', route: '/teacher/academics/my-classes' }
+        ]
+      },
+      { header: 'Grading' }, 
+      {
+        name: 'Grading',
+        icon: 'fa fa-graduation-cap',
+        isOpen: false,
+        children: [
+          { name: 'Mark Entry', route: '/teacher/grading/mark-entry' },
+          { name: 'Performance', route: '/teacher/grading/performance' },
+          { name: 'Report Cards', route: '/teacher/grading/report-cards' }
+        ]
+      },
+      { name: 'Students', icon: 'fa fa-user-circle-o', route: '/teacher/students' },
+      { name: 'My Profile', icon: 'fa fa-user-circle-o', route: '/profile' },
 
-  // ACADEMIC SECTION
-  { header: 'Academic Life' },
-  {
-    name: 'Academics',
-    icon: 'fa fa-graduation-cap',
-    isOpen: false,
-    children: [
-      { name: 'Subjects', route: '/academics/subjects' },
-      { name: 'Study Materials', route: '/academics/study-materials' },
-      { name: 'Timetable', route: '/academics/timetable' },
-      { name: 'Assignments', route: '/academics/assignments' },
     ]
-  },
-  { name: 'Attendance', icon: 'fa fa-calendar-check-o', route: '/attendance' },
-  {
-    name: 'Examination',
-    icon: 'fa fa-file-text-o',
-    isOpen: false,
-    children: [
-      { name: 'Schedule', route: '/exam/schedule' },
-      { name: 'Results', route: '/exam/result' },
-    ]
-  },
+  }
 
-  // ADMINISTRATIVE SECTION
-  { header: 'Administrative Services' },
-  {
-    name: 'Applications',
-    icon: 'fa fa-file-pen', // Better icon for "requesting"
-     route: '/applications/'
-  },
-  // {
-  //   name: 'Documents',
-  //   icon: 'fa fa-folder-open',
-  //   isOpen: false,
-  //   children: [
-  //     { name: 'Certificates', route: '/documents/personal' },
-  //     { name: 'Fee Receipts', route: '/documents/fees' },
-  //     { name: 'ID Card', route: '/documents/id-card' },
-  //   ]
-  // },
-  { name: 'Library', icon: 'fa fa-book', route: '/library' },
+  // default (all items for other roles)
+  return [
+    { header: 'Main Menu' },
+    { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
+    { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
+    { name: 'Events', icon: 'fa fa-calendar', route: '/events' },
 
-  // PERSONAL SECTION
-  { header: 'Personal' },
-  { name: 'Faculty', icon: 'fa-solid fa-book-open-reader', route: '/faculty' },
-  { name: 'My Profile', icon: 'fa fa-user-circle-o', route: '/profile' },
-])
+    { header: 'Academic Life' },
+    {
+      name: 'Academics',
+      icon: 'fa fa-graduation-cap',
+      isOpen: false,
+      children: [
+        { name: 'Subjects', route: '/academics/subjects' },
+        { name: 'Study Materials', route: '/academics/study-materials' },
+        { name: 'Timetable', route: '/academics/timetable' },
+        { name: 'Assignments', route: '/academics/assignments' },
+      ]
+    },
+    { name: 'Attendance', icon: 'fa fa-calendar-check-o', route: '/attendance' },
+    {
+      name: 'Examination',
+      icon: 'fa fa-file-text-o',
+      isOpen: false,
+      children: [
+        { name: 'Schedule', route: '/exam/schedule' },
+        { name: 'Results', route: '/exam/result' },
+      ]
+    },
+
+    { header: 'Administrative Services' },
+    {
+      name: 'Applications',
+      icon: 'fa fa-file-pen',
+      route: '/applications/'
+    },
+    { name: 'Library', icon: 'fa fa-book', route: '/library' },
+
+    { header: 'Personal' },
+    { name: 'Faculty', icon: 'fa-solid fa-book-open-reader', route: '/faculty' },
+    { name: 'My Profile', icon: 'fa fa-user-circle-o', route: '/profile' },
+  ]
+})
 
 const isActive = (item) => {
   if (item.route && item.route === route.path) return true
@@ -199,8 +225,16 @@ const isActive = (item) => {
   return false
 }
 
+// onMounted(() => {
+//   navItems.forEach(item => {
+//     if (item.children && isActive(item)) {
+//       item.isOpen = true
+//     }
+//   })
+// })
+
 onMounted(() => {
-  navItems.forEach(item => {
+  navItems.value.forEach(item => {
     if (item.children && isActive(item)) {
       item.isOpen = true
     }
