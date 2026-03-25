@@ -1,6 +1,6 @@
 import frappe
 
-
+@frappe.whitelist()
 def get_student_group():
     user = frappe.session.user
 
@@ -14,3 +14,9 @@ def get_student_group():
     )
 
     return student_groups
+
+@frappe.whitelist(allow_guest=True)
+def get_student_by_institute():
+   return frappe.get_all("Student",fields="*")
+   
+    

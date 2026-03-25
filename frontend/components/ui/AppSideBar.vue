@@ -143,35 +143,84 @@ const navItems = computed(() => {
   if (userRole.value === 'instructor') {
     return [
       { header: 'Main Menu' },
-      { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
-      { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
-      { name: 'Events', icon: 'fa fa-calendar', route: '/events' },
-      { header: 'Academic Life' }, 
+
+      {
+        name: 'Dashboard',
+        icon: 'fa fa-th-large',
+        route: '/'
+      },
+
+      {
+        name: 'Notice & News',
+        icon: 'fa fa-bullhorn',
+        route: '/notices'
+      },
+
+      {
+        name: 'Events',
+        icon: 'fa fa-calendar-alt',
+        route: '/events'
+      },
+
+      { header: 'Academic Life' },
+
       {
         name: 'Academics',
-        icon: 'fa fa-graduation-cap',
+        icon: 'fa fa-book-open',
         isOpen: false,
         children: [
-          { name: 'Academics', route: '/teacher/academics/attendance' },
-          { name: 'Assignments', route: '/teacher/academics/assignments' },
-          { name: 'Subjects', route: '/teacher/academics/lesson-planning' },
-          { name: 'Study Materials', route: '/teacher/academics/my-classes' }
+          {
+            name: 'Attendance',
+            route: '/teacher/academics/attendance'
+          },
+          {
+            name: 'Assignments',
+            route: '/teacher/academics/assignments'
+          },
+          {
+            name: 'Lesson Planning',
+            route: '/teacher/academics/lesson-planning'
+          },
+          {
+            name: 'My Classes',
+            route: '/teacher/academics/my-classes'
+          }
         ]
       },
-      { header: 'Grading' }, 
+
+      { header: 'Grading' },
+
       {
         name: 'Grading',
-        icon: 'fa fa-graduation-cap',
+        icon: 'fa fa-chart-line',
         isOpen: false,
         children: [
-          { name: 'Mark Entry', route: '/teacher/grading/mark-entry' },
-          { name: 'Performance', route: '/teacher/grading/performance' },
-          { name: 'Report Cards', route: '/teacher/grading/report-cards' }
+          {
+            name: 'Mark Entry',
+            route: '/teacher/grading/mark-entry'
+          },
+          {
+            name: 'Performance',
+            route: '/teacher/grading/performance'
+          },
+          {
+            name: 'Report Cards',
+            route: '/teacher/grading/report-cards'
+          }
         ]
       },
-      { name: 'Students', icon: 'fa fa-user-circle-o', route: '/teacher/students' },
-      { name: 'My Profile', icon: 'fa fa-user-circle-o', route: '/profile' },
 
+      {
+        name: 'Students',
+        icon: 'fa fa-users',
+        route: '/teacher/students'
+      },
+
+      {
+        name: 'My Profile',
+        icon: 'fa fa-user-circle',
+        route: '/profile'
+      },
     ]
   }
 

@@ -140,6 +140,8 @@ const fetchApplications = async () => {
   loading.value = true
   try {
     const res = await call('maxedu.desk_approval.doctype.application.application.get_user_applications')
+    console.log("res",res)
+    
     myApplications.value = res || []
   } catch (err) {
     console.error(err)
@@ -147,6 +149,7 @@ const fetchApplications = async () => {
     loading.value = false
   }
 }
+
 
 onMounted(() => {
   fetchApplications()

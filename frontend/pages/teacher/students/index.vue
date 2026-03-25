@@ -50,21 +50,45 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import HeroHeader from '~/components/ui/HeroHeader.vue'
+import { fetchStudents } from '~/composable/useStudent'
 
 const loading = ref(true)
+const students = ref([])
 
-const students = ref([
-  { id: 1, name: 'Alice Smith', roll: 'CS01', avatar: 'https://i.pravatar.cc/150?u=1', status: 'Excellent', attendance: 95, grade: 88 },
-  { id: 2, name: 'Bob Jones', roll: 'CS02', avatar: 'https://i.pravatar.cc/150?u=2', status: 'Good', attendance: 82, grade: 75 },
-  { id: 3, name: 'Charlie Brown', roll: 'CS03', avatar: 'https://i.pravatar.cc/150?u=3', status: 'At Risk', attendance: 65, grade: 45 },
-  { id: 4, name: 'Diana Prince', roll: 'CS04', avatar: 'https://i.pravatar.cc/150?u=4', status: 'Excellent', attendance: 98, grade: 92 },
-  { id: 5, name: 'Evan Wright', roll: 'CS05', avatar: 'https://i.pravatar.cc/150?u=5', status: 'Good', attendance: 88, grade: 78 },
-  { id: 6, name: 'Fiona Gallagher', roll: 'CS06', avatar: 'https://i.pravatar.cc/150?u=6', status: 'Good', attendance: 78, grade: 70 },
-  { id: 7, name: 'Greg House', roll: 'CS07', avatar: 'https://i.pravatar.cc/150?u=12', status: 'At Risk', attendance: 50, grade: 35 },
-  { id: 8, name: 'Hannah Abbott', roll: 'CS08', avatar: 'https://i.pravatar.cc/150?u=8', status: 'Excellent', attendance: 92, grade: 85 },
-])
+onMounted(async () => {
+  try {
+    const res = await fetchStudents()
+    console.log('API Data:', res)
 
-onMounted(() => {
-  setTimeout(() => loading.value = false, 700)
+    // ✅ handle frappe response (array OR { message: [] })
+    const list = res?.message || res || []
+
+    // ✅ map API → your UI format
+    students.value = list.map((s, index) => ({
+      id: s.name || index,
+      name: s.student_name || `${s.first_name || ''} ${s.last_name || ''}`,
+      roll: s.name || 'N/A',
+
+      avatar: s.image
+        ? s.image
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(s.student_name || 'Student')}`,
+
+      // 🔥 temporary values (until you connect real APIs)
+      attendance: Math.floor(Math.random() * 40) + 60,
+      grade: Math.floor(Math.random() * 40) + 60,
+
+      status:
+        (Math.random() * 100) > 75
+          ? 'Excellent'
+          : (Math.random() * 100) < 50
+          ? 'At Risk'
+          : 'Good'
+    }))
+
+  } catch (error) {
+    console.error('Error: Please check the path and all things properly.', error)
+  } finally {
+    loading.value = false
+  }
 })
 </script>
