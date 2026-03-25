@@ -15,7 +15,7 @@ export const useAssignments = () => {
       })
       const res = await resource.submit()
       console.log(res);
-      
+
       assignments.value = res || []
       return res
     } catch (err) {
