@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { call } from '~/composable/useFrappeFetch';
 
 export function useTimetable() {
-    const activeDay = ref('Monday');
+  const activeDay = ref('');
     const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
     const categoryStyles = {
@@ -12,6 +12,15 @@ export function useTimetable() {
         'Break': 'bg-slate-50 text-slate-400 border-slate-100',
         'Activity': 'bg-amber-50 text-amber-600 border-amber-100'
     };
+
+  function setToday() {
+    const today = new Date().getDay();
+    const index = today === 0 ? 6 : today - 1;
+    activeDay.value = weekDays[index];
+  }
+  onMounted(() => {
+    setToday();
+  });
 
     const timetableData = ref({});
     const isLoading = ref(true);
