@@ -100,16 +100,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { logout } from '~/composable/useAuth'
+import { useUserProfile } from '~/composable/useUserProfile'
+
+const { userRole, loadProfile } = useUserProfile() // userRole is already a reactive ref
 
 const route = useRoute()
 const isCollapsed = ref(false)
 const isHovered = ref(false)
 const isLoggingOut = ref(false)
 let hoverTimeout = null
-const userRole = ref('instructor')
 
 const isExpanded = computed(() => {
   return !isCollapsed.value || isHovered.value
@@ -140,91 +142,43 @@ const handleLogout = async () => {
 }
 
 const navItems = computed(() => {
-  if (userRole.value === 'instructor') {
+  if (userRole.value === 'Instructor') { // capital I to match Python return value
     return [
       { header: 'Main Menu' },
-
-      {
-        name: 'Dashboard',
-        icon: 'fa fa-th-large',
-        route: '/'
-      },
-
-      {
-        name: 'Notice & News',
-        icon: 'fa fa-bullhorn',
-        route: '/notices'
-      },
-
-      {
-        name: 'Events',
-        icon: 'fa fa-calendar-alt',
-        route: '/events'
-      },
+      { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
+      { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
+      { name: 'Events', icon: 'fa fa-calendar-alt', route: '/events' },
 
       { header: 'Academic Life' },
-
       {
         name: 'Academics',
         icon: 'fa fa-book-open',
         isOpen: false,
         children: [
-          {
-            name: 'Attendance',
-            route: '/teacher/academics/attendance'
-          },
-          {
-            name: 'Assignments',
-            route: '/teacher/academics/assignments'
-          },
-          {
-            name: 'Lesson Planning',
-            route: '/teacher/academics/lesson-planning'
-          },
-          {
-            name: 'My Classes',
-            route: '/teacher/academics/my-classes'
-          }
+          { name: 'Attendance', route: '/teacher/academics/attendance' },
+          { name: 'Assignments', route: '/teacher/academics/assignments' },
+          { name: 'Lesson Planning', route: '/teacher/academics/lesson-planning' },
+          { name: 'My Classes', route: '/teacher/academics/my-classes' }
         ]
       },
 
       { header: 'Grading' },
-
       {
         name: 'Grading',
         icon: 'fa fa-chart-line',
         isOpen: false,
         children: [
-          {
-            name: 'Mark Entry',
-            route: '/teacher/grading/mark-entry'
-          },
-          {
-            name: 'Performance',
-            route: '/teacher/grading/performance'
-          },
-          {
-            name: 'Report Cards',
-            route: '/teacher/grading/report-cards'
-          }
+          { name: 'Mark Entry', route: '/teacher/grading/mark-entry' },
+          { name: 'Performance', route: '/teacher/grading/performance' },
+          { name: 'Report Cards', route: '/teacher/grading/report-cards' }
         ]
       },
-
-      {
-        name: 'Students',
-        icon: 'fa fa-users',
-        route: '/teacher/students'
-      },
-
-      {
-        name: 'My Profile',
-        icon: 'fa fa-user-circle',
-        route: '/profile'
-      },
+      { name: 'Students', icon: 'fa fa-users', route: '/teacher/students' },
+      { name: 'My Profile', icon: 'fa fa-user-circle', route: '/profile' },
     ]
   }
 
-  // default (all items for other roles)
+  // default (Student / other roles)
   return [
     { header: 'Main Menu' },
     { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
@@ -255,11 +209,7 @@ const navItems = computed(() => {
     },
 
     { header: 'Administrative Services' },
-    {
-      name: 'Applications',
-      icon: 'fa fa-file-pen',
-      route: '/applications/'
-    },
+    { name: 'Applications', icon: 'fa fa-file-pen', route: '/applications/' },
     { name: 'Library', icon: 'fa fa-book', route: '/library' },
 
     { header: 'Personal' },
@@ -274,20 +224,13 @@ const isActive = (item) => {
   return false
 }
 
-// onMounted(() => {
-//   navItems.forEach(item => {
-//     if (item.children && isActive(item)) {
-//       item.isOpen = true
-//     }
-//   })
-// })
-
 onMounted(() => {
   navItems.value.forEach(item => {
     if (item.children && isActive(item)) {
       item.isOpen = true
     }
   })
+  loadProfile()
 })
 </script>
 

@@ -17,12 +17,14 @@ def user_is_guest():
 def get_user_role():
     if user_is_guest():
         return "Guest"
-    elif user_has_role("Student"):
+    
+    roles = frappe.get_roles(frappe.session.user)
+    
+    if "Student" in roles:
         return "Student"
-    elif user_has_role("Teacher"):
-        return "Teacher"
-    elif user_has_role("Parent"):
-        return "Parent"
+    elif "Instructor" in roles:
+        return "Instructor"
+    
     return None
 
 @frappe.whitelist()
