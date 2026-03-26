@@ -42,5 +42,23 @@ export const useAssignments = () => {
     }
   }
 
-  return { assignments, loading, error, fetchAssignments, submitAssignment }
+  const uploadFile = async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('is_private', 1)
+
+    try {
+      const res = await $fetch('/api/method/upload_file', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      })
+      return res.message
+    } catch (err) {
+      console.error('Upload failed:', err)
+      return { error: err.message }
+    }
+  }
+
+  return { assignments, loading, error, fetchAssignments, submitAssignment, uploadFile }
 }

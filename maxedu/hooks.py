@@ -139,13 +139,11 @@ after_install = "maxedu.setup.install.after_install"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Program Enrollment": {
+		"on_submit": "maxedu.api_folder.assignments.on_enrollment"
+	}
+}
 
 # Scheduled Tasks
 # ---------------

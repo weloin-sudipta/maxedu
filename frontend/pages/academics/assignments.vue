@@ -91,7 +91,7 @@
 
         </div>
 
-        <!-- EMPTY STATE -->
+      <!-- EMPTY STATE -->
         <div v-if="filteredAssignments.length === 0"
           class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-20 border border-dashed border-slate-200 dark:border-slate-800 text-center transition-colors">
           <i class="fa fa-check-circle text-green-200 dark:text-green-900 text-5xl mb-4 transition-colors"></i>
@@ -102,12 +102,53 @@
       </div>
 
     </div>
+
+    <!-- Submit Modal -->
+    <AppModal v-model="showSubmitModal" title="Submit Assignment" maxWidth="max-w-md">
+      <div v-if="activeTask" class="space-y-6">
+        <div class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+          <p class="text-[10px] font-black uppercase text-indigo-500 tracking-widest mb-1">{{ activeTask.course_name }}</p>
+          <h4 class="text-lg font-black text-slate-800 dark:text-white leading-tight">{{ activeTask.title }}</h4>
+        </div>
+
+        <div class="space-y-3">
+          <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Your Submission File</label>
+          <div class="relative w-full border-2 border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-2xl p-8 flex flex-col items-center justify-center hover:border-indigo-500 transition-all cursor-pointer group/upload">
+             <div v-if="!selectedFile" class="text-center">
+               <i class="fa fa-cloud-upload text-3xl text-slate-300 group-hover/upload:scale-110 transition-transform mb-2"></i>
+               <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Click to select file</p>
+             </div>
+             <div v-else class="flex items-center gap-3">
+               <i class="fa fa-file-text-o text-indigo-500 text-xl"></i>
+               <p class="text-xs font-black text-slate-700 dark:text-slate-200 truncate max-w-[200px]">{{ selectedFile.name }}</p>
+               <button @click.stop="selectedFile = null" class="text-rose-500 hover:scale-110 transition-transform">
+                 <i class="fa fa-times-circle"></i>
+               </button>
+             </div>
+             <input type="file" @change="onFileChange" class="absolute inset-0 opacity-0 cursor-pointer" />
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <button @click="showSubmitModal = false" class="px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl">Cancel</button>
+        <button 
+          @click="performSubmit" 
+          :disabled="submitting || !selectedFile" 
+          class="px-8 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-indigo-700 transition-all flex items-center gap-2 disabled:opacity-50"
+        >
+          <i v-if="submitting" class="fa fa-spinner fa-spin"></i>
+          {{ submitting ? 'Submitting...' : 'Upload & Submit' }}
+        </button>
+      </template>
+    </AppModal>
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import HeroHeader from '~/components/ui/HeroHeader.vue'
+import AppModal from '~/components/ui/AppModal.vue'
 import { useAssignments } from '~/composable/useAssignments'
 import { useAdmitCard } from '~/composable/useAdmitCard'
 
@@ -118,9 +159,13 @@ useSeoMeta({
   title: `Assignments - ${config.public.appName}`,
 })
 
-const { assignments, loading, fetchAssignments, submitAssignment } = useAssignments()
+const { assignments, loading, fetchAssignments, submitAssignment, uploadFile } = useAssignments()
 
 const activeTab = ref('Active')
+const showSubmitModal = ref(false)
+const activeTask = ref(null)
+const selectedFile = ref(null)
+const submitting = ref(false)
 
 onMounted(() => {
   fetchAssignments()
@@ -141,15 +186,40 @@ const completionRate = computed(() => {
   return Math.round((done / total) * 100)
 })
 
-const handleSubmit = async (task) => {
-  if (confirm(`Submit "${task.title}"?`)) {
-    const res = await submitAssignment(task.name)
-    if (res?.status === 'success') {
-      task.status = 'Submitted'
-      alert('Assignment submitted successfully!')
-    } else {
-      alert('Failed to submit: ' + (res?.error || 'Unknown error'))
-    }
+const handleSubmit = (task) => {
+  activeTask.value = task
+  selectedFile.value = null
+  showSubmitModal.value = true
+}
+
+const onFileChange = (e) => {
+  const file = e.target.files[0]
+  if (file) selectedFile.value = file
+}
+
+const performSubmit = async () => {
+  if (!selectedFile.value) return
+  
+  submitting.value = true
+  
+  // 1. Upload file
+  const uploaded = await uploadFile(selectedFile.value)
+  if (uploaded.error || !uploaded.file_url) {
+    alert('File upload failed: ' + (uploaded.error || 'Unknown error'))
+    submitting.value = false
+    return
+  }
+  
+  // 2. Submit assignment
+  const res = await submitAssignment(activeTask.value.name, uploaded.file_url)
+  submitting.value = false
+  
+  if (res?.status === 'success') {
+    showSubmitModal.value = false
+    alert('Assignment submitted successfully!')
+    await fetchAssignments()
+  } else {
+    alert('Failed to submit: ' + (res?.error || 'Unknown error'))
   }
 }
 

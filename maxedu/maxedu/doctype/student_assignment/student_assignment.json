@@ -8,6 +8,7 @@
   "title",
   "course",
   "topic",
+  "assignment_template",
   "column_break_1",
   "student",
   "student_name",
@@ -44,6 +45,13 @@
    "fieldtype": "Link",
    "label": "Topic",
    "options": "Topic"
+  },
+  {
+   "fieldname": "assignment_template",
+   "fieldtype": "Link",
+   "label": "Assignment Template",
+   "options": "Assignment Template",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_1",
