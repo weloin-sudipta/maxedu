@@ -142,6 +142,9 @@ after_install = "maxedu.setup.install.after_install"
 doc_events = {
 	"Program Enrollment": {
 		"on_submit": "maxedu.api_folder.assignments.on_enrollment"
+	},
+	"Instructor": {
+		"before_save": "maxedu.api_folder.instructor.create_user_for_instructor"
 	}
 }
 
