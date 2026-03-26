@@ -7,7 +7,9 @@ export const fetchStudents = async (userEmail) => {
       userEmail ? { user_email: userEmail } : {}
     )
 
-    return response
+    const list = response?.message ?? response ?? []
+    return Array.isArray(list) ? list : []
+
   } catch (error) {
     console.error('Error fetching students:', error)
     throw error
