@@ -145,7 +145,7 @@ const navItems = computed(() => {
   if (userRole.value === 'Instructor') { // capital I to match Python return value
     return [
       { header: 'Main Menu' },
-      { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
+      { name: 'Dashboard', icon: 'fa fa-th-large', route: '/dashboard/teacher' },
       { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
       { name: 'Events', icon: 'fa fa-calendar-alt', route: '/events' },
 
@@ -170,11 +170,11 @@ const navItems = computed(() => {
         children: [
           { name: 'Mark Entry', route: '/teacher/grading/mark-entry' },
           { name: 'Performance', route: '/teacher/grading/performance' },
-          { name: 'Report Cards', route: '/teacher/grading/report-cards' }
+          // { name: 'Report Cards', route: '/teacher/grading/report-cards' }
         ]
       },
       { name: 'Students', icon: 'fa fa-users', route: '/teacher/students' },
-      { name: 'My Profile', icon: 'fa fa-user-circle', route: '/profile' },
+      { name: 'My Profile', icon: 'fa fa-user-circle', route: '/teacher/profile' },
     ]
   }
 

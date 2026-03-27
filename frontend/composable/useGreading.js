@@ -20,7 +20,7 @@ export const useGrading = () => {
 
         try {
             const resource = createResource({
-                url: 'maxedu.api_folder.teacher-greading.get_exam_students',
+                url: 'maxedu.api_folder.teacher_greading.get_exam_students',
             })
 
             const res = await resource.submit({ assessment_plan: assessmentPlan })
@@ -54,7 +54,7 @@ export const useGrading = () => {
 
         try {
             const resource = createResource({
-                url: 'maxedu.api_folder.teacher-greading.submit_exam_results',
+                url: 'maxedu.api_folder.teacher_greading.submit_exam_results',
             })
 
             const payload = students.value.map(s => ({

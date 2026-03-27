@@ -45,7 +45,7 @@ export const useTeacherExams = () => {
     error.value = null
     try {
       const resource = createResource({
-        url: 'maxedu.api_folder.teacher-greading.get_my_exams',
+        url: 'maxedu.api_folder.teacher_greading.get_my_exams',
       })
       const res = await resource.submit()
       console.log(res);
