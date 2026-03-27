@@ -1,144 +1,93 @@
 <template>
-    <div v-if="isLoading">
-    <div class="flex items-center justify-center h-screen bg-[#f5f5f9] dark:bg-slate-950 overflow-hidden transition-colors duration-300">
+  <!-- LOADING SCREEN -->
+  <div v-if="isLoading">
+    <div class="flex items-center justify-center h-screen bg-[#f5f5f9] dark:bg-slate-950 transition-colors duration-300">
 
-        <div class="absolute top-[-10%] left-[-10%] w-72 h-72 bg-indigo-200/50 dark:bg-indigo-900/30 rounded-full blur-3xl animate-pulse">
+      <div class="relative text-center">
+
+        <!-- Loader Ring -->
+        <div class="w-24 h-24 mx-auto mb-6 relative">
+          <div class="absolute inset-0 border-4 border-dashed border-indigo-300 rounded-full animate-spin"></div>
+          <div class="absolute inset-0 border-4 border-transparent border-t-indigo-600 border-r-indigo-600 rounded-full animate-spin"></div>
         </div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-72 h-72 bg-rose-200/50 dark:bg-rose-900/20 rounded-full blur-3xl animate-pulse"
-            style="animation-delay: 1s"></div>
 
-        <div
-            class="relative z-10 text-center p-12 bg-white/40 dark:bg-slate-900/60 backdrop-blur-md rounded-[3rem] border border-white/60 dark:border-slate-800 shadow-2xl shadow-indigo-100/50 dark:shadow-none max-w-xs w-full">
+        <!-- Role Info -->
+        <p class="text-sm font-bold text-slate-600 dark:text-slate-300 mb-3">
+          Loading {{ userRole || '...' }} Dashboard
+        </p>
 
-            <div class="relative w-24 h-24 mx-auto mb-8">
-                <div
-                    class="absolute inset-0 border-[3px] border-dashed border-indigo-200 rounded-full animate-[spin_8s_linear_infinite]">
-                </div>
-
-                <div
-                    class="absolute inset-0 border-[3px] border-transparent border-t-indigo-600 border-r-indigo-600 rounded-full animate-spin">
-                </div>
-
-                <div
-                    class="absolute inset-4 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-200 animate-bounce-slow">
-                    <i v-if="loadingStep < 50" class="fa fa-graduation-cap text-2xl animate-in fade-in"></i>
-                    <i v-else class="fa fa-book text-2xl animate-in zoom-in"></i>
-                </div>
-
-                <div class="absolute -top-2 left-1/2 w-2 h-2 bg-rose-500 rounded-full animate-ping"></div>
-                <div class="absolute -bottom-2 left-1/3 w-1.5 h-1.5 bg-indigo-400 rounded-full animate-ping"
-                    style="animation-delay: 0.5s"></div>
-            </div>
-
-            <h2 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-[0.3em] mb-2">
-                Authenticating
-            </h2>
-
-            <div class="w-full bg-indigo-100 dark:bg-indigo-950 h-1 rounded-full overflow-hidden mb-4">
-                <div class="bg-indigo-600 dark:bg-indigo-500 h-full transition-all duration-300 ease-out"
-                    :style="{ width: loadingStep + '%' }"></div>
-            </div>
-
-            <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest animate-pulse">
-                Setting up your workspace...
-            </p>
-
+        <!-- Progress Bar -->
+        <div class="w-64 h-1 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden mx-auto">
+          <div
+            class="h-full bg-indigo-600 transition-all duration-300"
+            :style="{ width: loadingStep + '%' }"
+          ></div>
         </div>
-    </div>
-    </div>
 
-    <component v-else :is="currentComponent" />
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <component v-else :is="currentComponent" />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 
-// Import pages you want to load
-import AdminDashboard from '~/pages/dashboard/admin.vue'
+// Dashboards
 import StudentDashboard from '~/pages/dashboard/student.vue'
+import TeacherDashboard from '~/pages/dashboard/teacher.vue'
 
-const loadingStep = ref(0)
-const is_admin = false   // change dynamically later
+// Composable
+import { useUserProfile } from '~/composable/useUserProfile'
+
+const { userRole, loadProfile } = useUserProfile()
+
 const isLoading = ref(true)
-
+const loadingStep = ref(0)
 const currentComponent = ref(null)
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    // Step 1: Load user role from API
+    await loadProfile()
 
-  const interval = setInterval(() => {
-    if (loadingStep.value < 100) {
-      loadingStep.value += 2
-    } else {
-      clearInterval(interval)
-    }
-  }, 40)
+    // Step 2: Animate loader progress
+    const interval = setInterval(() => {
+      if (loadingStep.value < 100) {
+        loadingStep.value += 5
+      } else {
+        clearInterval(interval)
+      }
+    }, 50)
 
-  setTimeout(() => {
+    // Step 3: Wait for UX + ensure role is available
+    setTimeout(() => {
+      isLoading.value = false
+
+      // Step 4: Role-based dashboard selection
+      if (userRole.value === 'Student') {
+        currentComponent.value = StudentDashboard
+      } 
+      else if (userRole.value === 'Instructor') {
+        currentComponent.value = TeacherDashboard
+      } 
+      else {
+        console.warn('Unknown role:', userRole.value)
+        currentComponent.value = StudentDashboard // fallback
+      }
+
+    }, 500)
+
+  } catch (err) {
+    console.error('Error loading profile:', err)
     isLoading.value = false
-
-    if (is_admin) {
-      currentComponent.value = AdminDashboard
-    } else {
-      currentComponent.value = StudentDashboard
-    }
-
-  })
+    currentComponent.value = StudentDashboard // safe fallback
+  }
 })
 </script>
 
 <style scoped>
-.animate-bounce-slow {
-    animation: bounceCustom 2s infinite ease-in-out;
-}
-
-@keyframes bounceCustom {
-
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-8px);
-    }
-}
-
-/* Custom spin for the dashed ring */
-@keyframes spin-slow {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
-
-.zoom-in {
-    animation: zoomIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes zoomIn {
-    from {
-        transform: scale(0);
-    }
-
-    to {
-        transform: scale(1);
-    }
-}
 </style>

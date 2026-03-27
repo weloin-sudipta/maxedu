@@ -105,7 +105,7 @@ import { useRoute } from 'vue-router'
 import { logout } from '~/composable/useAuth'
 import { useUserProfile } from '~/composable/useUserProfile'
 
-const { userRole, loadProfile } = useUserProfile() // userRole is already a reactive ref
+const { userRole, loadProfile } = useUserProfile() 
 
 const route = useRoute()
 const isCollapsed = ref(false)
@@ -145,7 +145,7 @@ const navItems = computed(() => {
   if (userRole.value === 'Instructor') { // capital I to match Python return value
     return [
       { header: 'Main Menu' },
-      { name: 'Dashboard', icon: 'fa fa-th-large', route: '/dashboard/teacher' },
+      { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
       { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
       { name: 'Events', icon: 'fa fa-calendar-alt', route: '/events' },
 
