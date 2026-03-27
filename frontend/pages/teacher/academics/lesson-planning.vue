@@ -1,3 +1,5 @@
+<!-- pages/lesson-planning.vue -->
+
 <template>
   <div class="p-6 lg:p-10 max-w-7xl mx-auto custom-scrollbar animate-in fade-in slide-in-from-bottom-4 duration-500">
 
@@ -7,6 +9,7 @@
         <!-- Dynamic Course Dropdown -->
         <select
           v-model="selectedCourse"
+          @change="onCourseChange"
           class="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-800 outline-none"
         >
           <option
@@ -18,7 +21,10 @@
           </option>
         </select>
 
-        <button class="bg-indigo-600 dark:bg-indigo-500 text-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none flex items-center gap-2">
+        <button 
+          @click="openModal"
+          class="bg-indigo-600 dark:bg-indigo-500 text-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none flex items-center gap-2"
+        >
           <i class="fa fa-upload"></i> Upload Material
         </button>
 
@@ -61,7 +67,7 @@
               </div>
 
               <!-- Topic Card -->
-              <div class="flex-1 bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-700/50 group-hover:border-indigo-200 dark:group-hover:border-indigo-500/30 transition-all cursor-pointer">
+              <div class="flex-1 bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-700/50 group-hover:border-indigo-200 dark:group-hover:border-indigo-500/30 transition-all">
 
                 <div class="flex justify-between items-start mb-2">
                   <div>
@@ -73,21 +79,32 @@
                       {{ topic.topic_name }}
                     </h4>
                   </div>
+                  <span class="text-xs text-slate-400">{{ getMaterialsForTopic(topic.name).length }} materials</span>
                 </div>
 
                 <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg mb-4">
-                  {{ topic.topic }}
+                  {{ topic.topic || topic.topic_name }}
                 </p>
 
-                <div class="flex gap-2">
-                  <button class="flex items-center gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg hover:text-indigo-600 hover:border-indigo-200 transition-colors shadow-sm">
-                    <i class="fa fa-file-pdf-o text-red-400"></i> Reference.pdf
-                  </button>
-
-                  <button class="flex items-center gap-2 text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-dashed px-3 py-1.5 rounded-lg hover:text-indigo-600 hover:border-indigo-200 transition-colors">
-                    <i class="fa fa-plus"></i> Add Material
-                  </button>
+                <!-- Display existing materials -->
+                <div v-if="getMaterialsForTopic(topic.name).length > 0" class="flex flex-wrap gap-2 mb-3">
+                  <div 
+                    v-for="material in getMaterialsForTopic(topic.name)"
+                    :key="material.name"
+                    class="flex items-center gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg shadow-sm"
+                  >
+                    <i class="fa" :class="getFileIcon(material.file)"></i> 
+                    <span class="truncate max-w-[150px]">{{ material.title }}</span>
+                  </div>
                 </div>
+
+                <!-- Add Material Button -->
+                <button 
+                  @click="openModalWithTopic(topic.name)"
+                  class="flex items-center gap-2 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 px-3 py-1.5 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
+                >
+                  <i class="fa fa-plus"></i> Add Material to {{ topic.topic_name }}
+                </button>
 
               </div>
             </div>
@@ -97,31 +114,81 @@
       </div>
 
     </div>
+
+    <!-- Success Toast -->
+    <div v-if="showSuccess" class="fixed bottom-4 right-4 z-50 animate-in slide-in-from-right-4 duration-300">
+      <div class="bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2">
+        <i class="fa fa-check-circle"></i>
+        <span class="text-sm font-medium">Study material uploaded successfully!</span>
+      </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div v-if="showError" class="fixed bottom-4 right-4 z-50 animate-in slide-in-from-right-4 duration-300">
+      <div class="bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2">
+        <i class="fa fa-exclamation-circle"></i>
+        <span class="text-sm font-medium">{{ errorMessage }}</span>
+      </div>
+    </div>
+
+    <!-- Study Material Modal -->
+    <StudyMaterialModal
+      :is-open="modalOpen"
+      :preselected-course="selectedCourse"
+      :preselected-topic="preselectedTopic"
+      :courses="courses"
+      :topics="topics"
+      @close="closeModal"
+      @success="onMaterialUploaded"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import HeroHeader from '~/components/ui/HeroHeader.vue'
+import StudyMaterialModal from '~/components/StudyMaterialModal.vue'
 import { useCourseTopics } from '~/composable/useCourseTopics'
+import { useStudyMaterials } from '~/composable/useStudyMaterials'
 
 const { fetchCourseTopics } = useCourseTopics()
+const { materials, fetchMaterials, loading: materialsLoading } = useStudyMaterials()
 
 const loading = ref(true)
 const courses = ref([])
 const selectedCourse = ref(null)
+const modalOpen = ref(false)
+const preselectedTopic = ref(null)
+const showSuccess = ref(false)
+const showError = ref(false)
+const errorMessage = ref('')
 
 /**
  * Fetch data
  */
 const loadData = async () => {
-  const res = await fetchCourseTopics()
-  courses.value = res || []
+  try {
+    const res = await fetchCourseTopics()
+    courses.value = res || []
 
-  if (courses.value.length > 0) {
-    selectedCourse.value = courses.value[0].name
+    if (courses.value.length > 0) {
+      selectedCourse.value = courses.value[0].name
+      // Fetch materials for the selected course
+      await fetchMaterials({ course: selectedCourse.value })
+    }
+  } catch (error) {
+    console.error('Error loading data:', error)
+  } finally {
+    loading.value = false
   }
+}
 
+/**
+ * Handle course change
+ */
+const onCourseChange = async () => {
+  loading.value = true
+  await fetchMaterials({ course: selectedCourse.value })
   loading.value = false
 }
 
@@ -139,7 +206,147 @@ const topics = computed(() => {
   return selectedCourseData.value?.topics || []
 })
 
+/**
+ * Get materials for a specific topic
+ */
+const getMaterialsForTopic = (topicName) => {
+  return materials.value.filter(m => m.topic === topicName)
+}
+
+/**
+ * Get file icon based on file type
+ */
+const getFileIcon = (fileUrl) => {
+  if (!fileUrl) return 'fa-file-o'
+  const ext = fileUrl.split('.').pop().toLowerCase()
+  const iconMap = {
+    pdf: 'fa-file-pdf-o',
+    doc: 'fa-file-word-o',
+    docx: 'fa-file-word-o',
+    ppt: 'fa-file-powerpoint-o',
+    pptx: 'fa-file-powerpoint-o',
+    xls: 'fa-file-excel-o',
+    xlsx: 'fa-file-excel-o',
+    jpg: 'fa-file-image-o',
+    jpeg: 'fa-file-image-o',
+    png: 'fa-file-image-o',
+    mp4: 'fa-file-video-o',
+    zip: 'fa-file-archive-o'
+  }
+  return iconMap[ext] || 'fa-file-o'
+}
+
+/**
+ * Open modal (without topic pre-selection)
+ */
+const openModal = () => {
+  preselectedTopic.value = null
+  modalOpen.value = true
+}
+
+/**
+ * Open modal with specific topic pre-selected
+ * This is called when clicking the "Add Material" button on a topic
+ */
+const openModalWithTopic = (topicName) => {
+  preselectedTopic.value = topicName
+  modalOpen.value = true
+}
+
+/**
+ * Close modal
+ */
+const closeModal = () => {
+  modalOpen.value = false
+  // Don't reset preselectedTopic immediately to allow modal to use it
+  setTimeout(() => {
+    preselectedTopic.value = null
+  }, 300)
+}
+
+/**
+ * Handle successful material upload
+ */
+const onMaterialUploaded = async (materialData) => {
+  // Show success message
+  showSuccess.value = true
+  setTimeout(() => {
+    showSuccess.value = false
+  }, 3000)
+  
+  // Refresh materials list
+  await fetchMaterials({ course: selectedCourse.value })
+}
+
+/**
+ * Handle error
+ */
+const handleError = (message) => {
+  errorMessage.value = message
+  showError.value = true
+  setTimeout(() => {
+    showError.value = false
+  }, 3000)
+}
+
 onMounted(() => {
   loadData()
 })
 </script>
+
+<style scoped>
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Smooth animations */
+.animate-in {
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+.slide-in-from-bottom-4 {
+  animation-name: slideInFromBottom;
+}
+
+.slide-in-from-right-4 {
+  animation-name: slideInFromRight;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(1rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(1rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+</style>

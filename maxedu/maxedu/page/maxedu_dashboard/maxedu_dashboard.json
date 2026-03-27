@@ -1,0 +1,26 @@
+{
+ "content": null,
+ "creation": "2026-03-27 18:00:30.714662",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-03-27 18:01:13.318750",
+ "modified_by": "Administrator",
+ "module": "Maxedu",
+ "name": "maxedu-dashboard",
+ "owner": "Administrator",
+ "page_name": "maxedu-dashboard",
+ "roles": [
+  {
+   "role": "Administrator"
+  },
+  {
+   "role": "Institute Admin"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Maxedu Dashboard"
+}

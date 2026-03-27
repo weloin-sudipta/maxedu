@@ -17,7 +17,7 @@
     </div>
 
     <!-- Quick Post Box -->
-    <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-700/50 transition-colors focus-within:ring-2 focus-within:ring-rose-200 dark:focus-within:ring-rose-900/50">
+    <!-- <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-700/50 transition-colors focus-within:ring-2 focus-within:ring-rose-200 dark:focus-within:ring-rose-900/50">
        <textarea class="w-full bg-transparent text-xs text-slate-700 dark:text-slate-300 placeholder-slate-400 dark:placeholder-slate-500 resize-none outline-none border-none focus:ring-0" rows="2" placeholder="Post a quick announcement to your classes..."></textarea>
        <div class="flex justify-between items-center mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
           <div class="flex gap-2">
@@ -25,7 +25,7 @@
           </div>
           <button class="px-5 py-2 bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black dark:hover:bg-white transition-colors shadow-sm">Post Notice</button>
        </div>
-    </div>
+    </div> -->
 
     <!-- Recent Posts -->
     <div class="space-y-4 mt-2">

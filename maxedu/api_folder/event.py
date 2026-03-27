@@ -6,7 +6,8 @@ from maxedu.api import format_time
 def get_all_events():
     """
     Get calendar events for the currently logged-in student.
-    Filters events where the student belongs to one of the event's student groups.
+    If student exists, filters events where the student belongs to one of the event's student groups.
+    If no student record found, returns all events without any filtering.
     Returns structured event data with child table info (tags, programs, student groups).
     """
     try:
@@ -20,27 +21,36 @@ def get_all_events():
             # Also try matching by user field
             student = frappe.db.get_value("Student", {"user": frappe.session.user}, "name")
 
-        if not student:
-            return {"success": False, "events": [], "tags": [], "message": "No student record found"}
-
-        # Fetch events where the student is in one of the linked student groups
-        events = frappe.db.sql(
-            """
-            SELECT DISTINCT ce.name, ce.event_name, ce.date, ce.start_time,
-                   ce.end_time, ce.room, ce.description
-            FROM `tabCalendar event` ce
-            LEFT JOIN `tabCalendar Student Group` csg ON csg.parent = ce.name
-            LEFT JOIN `tabStudent Group Student` sgs ON sgs.parent = csg.student_group
-            WHERE sgs.student = %s
-               OR NOT EXISTS (
-                   SELECT 1 FROM `tabCalendar Student Group` csg2
-                   WHERE csg2.parent = ce.name
-               )
-            ORDER BY ce.date ASC
-            """,
-            student,
-            as_dict=True
-        )
+        if student:
+            # Fetch events where the student is in one of the linked student groups
+            events = frappe.db.sql(
+                """
+                SELECT DISTINCT ce.name, ce.event_name, ce.date, ce.start_time,
+                       ce.end_time, ce.room, ce.description
+                FROM `tabCalendar event` ce
+                LEFT JOIN `tabCalendar Student Group` csg ON csg.parent = ce.name
+                LEFT JOIN `tabStudent Group Student` sgs ON sgs.parent = csg.student_group
+                WHERE sgs.student = %s
+                   OR NOT EXISTS (
+                       SELECT 1 FROM `tabCalendar Student Group` csg2
+                       WHERE csg2.parent = ce.name
+                   )
+                ORDER BY ce.date ASC
+                """,
+                student,
+                as_dict=True
+            )
+        else:
+            # No student found - return all events without filtering
+            events = frappe.db.sql(
+                """
+                SELECT DISTINCT ce.name, ce.event_name, ce.date, ce.start_time,
+                       ce.end_time, ce.room, ce.description
+                FROM `tabCalendar event` ce
+                ORDER BY ce.date ASC
+                """,
+                as_dict=True
+            )
 
         if not events:
             return {"success": True, "events": [], "tags": []}
@@ -116,7 +126,6 @@ def get_all_events():
     except Exception as e:
         frappe.log_error(f"Error in get_all_events: {str(e)}", "Calendar Events API Error")
         return {"success": False, "events": [], "tags": [], "error": str(e)}
-
 
 @frappe.whitelist()
 def get_all_event_tags():
