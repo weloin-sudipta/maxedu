@@ -172,6 +172,20 @@ def _create_instructor():
         "doctype": "Instructor",
         "instructor_name": "Prof. Sharma",
         "user": instructor_user,
+        "instructor_log": [
+            {
+                "academic_year": "2025-2026",
+                "academic_term": "2025-2026 (Term 1)",
+                "program": "Class 12 Science",
+                "course": "Advanced Mathematics",
+            },
+            {
+                "academic_year": "2025-2026",
+                "academic_term": "2025-2026 (Term 1)",
+                "program": "Class 12 Science",
+                "course": "Physics",
+            }
+        ]
     }).insert()
     print("Created Instructor: Prof. Sharma")
 

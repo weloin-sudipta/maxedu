@@ -14,7 +14,7 @@ def create_doctypes():
                 "doctype": "DocType",
                 "name": name,
                 "module": "Maxedu",
-                "custom": 1,
+                "custom": 0,
                 "istable": 1,
                 "fields": fields
             }).insert(ignore_permissions=True)
@@ -56,7 +56,7 @@ def create_doctypes():
             "doctype": "DocType",
             "name": "Routine Generator",
             "module": "Maxedu",
-            "custom": 1,
+            "custom": 0,
             "autoname": "format:RT-{YYYY}-{MM}-{####}",
             "fields": [
                 {"fieldname": "status", "label": "Status", "fieldtype": "Select", "options": "Draft\nCompleted\nFailed", "default": "Draft", "read_only": 1},

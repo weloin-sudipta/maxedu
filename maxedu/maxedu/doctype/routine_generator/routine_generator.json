@@ -1,0 +1,157 @@
+{
+    "actions": [],
+    "creation": "2026-03-29 00:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "status",
+        "academic_term",
+        "constants_tab",
+        "max_classes_per_instructor_per_day",
+        "max_classes_per_subject_per_day",
+        "min_classes_per_instructor_per_week",
+        "max_classes_per_instructor_per_week",
+        "structure_tab",
+        "days",
+        "periods",
+        "student_groups",
+        "instructors_tab",
+        "instructor_map",
+        "constraints_tab",
+        "hard_locks",
+        "preferences"
+    ],
+    "fields": [
+        {
+            "fieldname": "status",
+            "label": "Status",
+            "fieldtype": "Select",
+            "options": "Draft\nCompleted\nFailed",
+            "default": "Draft",
+            "read_only": 1
+        },
+        {
+            "fieldname": "academic_term",
+            "label": "Academic Term",
+            "fieldtype": "Link",
+            "options": "Academic Term"
+        },
+        {
+            "fieldname": "constants_tab",
+            "label": "Constants",
+            "fieldtype": "Tab Break"
+        },
+        {
+            "fieldname": "max_classes_per_instructor_per_day",
+            "label": "Max Classes / Instructor / Day",
+            "fieldtype": "Int",
+            "default": "2"
+        },
+        {
+            "fieldname": "max_classes_per_subject_per_day",
+            "label": "Max Classes / Subject / Day",
+            "fieldtype": "Int",
+            "default": "2"
+        },
+        {
+            "fieldname": "min_classes_per_instructor_per_week",
+            "label": "Min Classes / Instructor / Week",
+            "fieldtype": "Int",
+            "default": "8"
+        },
+        {
+            "fieldname": "max_classes_per_instructor_per_week",
+            "label": "Max Classes / Instructor / Week",
+            "fieldtype": "Int",
+            "default": "12"
+        },
+        {
+            "fieldname": "structure_tab",
+            "label": "Structure",
+            "fieldtype": "Tab Break"
+        },
+        {
+            "fieldname": "days",
+            "label": "Days",
+            "fieldtype": "Table",
+            "options": "Routine Day"
+        },
+        {
+            "fieldname": "periods",
+            "label": "Periods",
+            "fieldtype": "Table",
+            "options": "Routine Period"
+        },
+        {
+            "fieldname": "student_groups",
+            "label": "Student Groups",
+            "fieldtype": "Table",
+            "options": "Routine Class"
+        },
+        {
+            "fieldname": "instructors_tab",
+            "label": "Instructors Mapping",
+            "fieldtype": "Tab Break"
+        },
+        {
+            "fieldname": "instructor_map",
+            "label": "Instructor Map",
+            "fieldtype": "Table",
+            "options": "Routine Instructor Map"
+        },
+        {
+            "fieldname": "constraints_tab",
+            "label": "Constraints",
+            "fieldtype": "Tab Break"
+        },
+        {
+            "fieldname": "hard_locks",
+            "label": "Hard Locks",
+            "fieldtype": "Table",
+            "options": "Routine Hard Lock"
+        },
+        {
+            "fieldname": "preferences",
+            "label": "Instructor Preferences (Soft)",
+            "fieldtype": "Table",
+            "options": "Routine Preference"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2026-03-29 00:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Maxedu",
+    "name": "Routine Generator",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1
+        },
+        {
+            "role": "Institute Admin",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1
+        },
+        {
+            "role": "Administrator",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1
+        }
+    ],
+    "sort_field": "creation",
+    "sort_order": "DESC",
+    "states": [],
+    "istable": 0,
+    "custom": 0,
+    "autoname": "format:RT-{YYYY}-{MM}-{####}",
+    "naming_rule": "Expression"
+}

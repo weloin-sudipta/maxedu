@@ -1,0 +1,62 @@
+{
+    "actions": [],
+    "creation": "2026-03-29 00:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "student_group",
+        "day",
+        "period",
+        "instructor",
+        "course"
+    ],
+    "fields": [
+        {
+            "fieldname": "student_group",
+            "label": "Student Group",
+            "fieldtype": "Link",
+            "options": "Student Group",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "day",
+            "label": "Day",
+            "fieldtype": "Select",
+            "options": "Mon\nTue\nWed\nThu\nFri\nSat\nSun",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "period",
+            "label": "Period",
+            "fieldtype": "Int",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "instructor",
+            "label": "Instructor",
+            "fieldtype": "Link",
+            "options": "Instructor",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "course",
+            "label": "Course",
+            "fieldtype": "Link",
+            "options": "Course",
+            "in_list_view": 1
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2026-03-29 00:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Maxedu",
+    "name": "Routine Hard Lock",
+    "owner": "Administrator",
+    "permissions": [],
+    "sort_field": "creation",
+    "sort_order": "DESC",
+    "states": [],
+    "istable": 1,
+    "custom": 0
+}
