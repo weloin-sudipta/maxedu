@@ -67,11 +67,11 @@ onMounted(async () => {
     setTimeout(() => {
       isLoading.value = false
 
-      // Step 4: Role-based dashboard selection
-      if (userRole.value === 'Student') {
+      // Step 4: Role-based dashboard selection (roles are normalized to lowercase)
+      if (userRole.value === 'student') {
         currentComponent.value = StudentDashboard
       } 
-      else if (userRole.value === 'Instructor') {
+      else if (userRole.value === 'teacher') {
         currentComponent.value = TeacherDashboard
       } 
       else {

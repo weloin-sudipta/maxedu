@@ -1,4 +1,9 @@
+import { useUserProfile } from './useUserProfile'
+
 export const logout = async () => {
+    const { clearProfile } = useUserProfile()
+    const router = useRouter()
+    
     try {
         const response = await fetch('/api/method/logout', {
             method: 'GET',
@@ -6,18 +11,31 @@ export const logout = async () => {
         });
 
         if (response.ok) {
-            window.location.href = '/auth/login';
+            clearProfile()
+            // Use router for client-side navigation, fallback to window for total reset if needed
+            if (process.client) {
+                router.push('/auth/login')
+            }
         } else {
             const data = await response.json();
             throw new Error(data.message || 'Logout failed');
         }
     } catch (error) {
         console.error('Error during logout:', error);
+        // Even if API fails, we should clear local state and redirect
+        clearProfile()
+        if (process.client) {
+            router.push('/auth/login')
+        }
         throw error;
     }
 };
 
 export const login = async (usr, pwd) => {
+    const { loadProfile, userRole } = useUserProfile()
+    const router = useRouter()
+    const route = useRoute()
+
     try {
         const response = await fetch('/api/method/login', {
             method: 'POST',
@@ -34,8 +52,14 @@ export const login = async (usr, pwd) => {
         const data = await response.json();
 
         if (response.ok) {
-            window.location.href = '/';
-            console.log('Logged in successfully:', data);
+            await loadProfile()
+            
+            if (process.client) {
+                // Use redirect query param if present, otherwise always go to / (index.vue handles role-based dashboard)
+                const redirectTo = route.query.redirect || '/'
+                router.push(redirectTo)
+            }
+            console.log('Logged in successfully');
         } else {
             throw new Error(data.message || 'Login failed');
         }

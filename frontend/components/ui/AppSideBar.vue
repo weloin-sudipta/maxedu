@@ -191,10 +191,10 @@ const handleLogout = async () => {
 const navItems = ref([])
 
 const updateNavItems = () => {
-  if (userRole.value === 'Instructor') {
+  if (userRole.value === 'teacher') {
     navItems.value = [
       { header: 'Main Menu' },
-      { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
+      { name: 'Dashboard', icon: 'fa fa-th-large', route: '/teacher/dashboard' },
       { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
       { name: 'Events', icon: 'fa fa-calendar-alt', route: '/events' },
 
@@ -265,6 +265,7 @@ const updateNavItems = () => {
     ]
   }
 }
+
 
 const isActive = (item) => {
   if (item.route && item.route === route.path) return true
