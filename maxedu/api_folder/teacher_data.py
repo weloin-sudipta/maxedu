@@ -148,6 +148,129 @@ def get_teacher_full_info():
         "department": department_info,
         "institute": institute_info,
         "courses": courses_with_details,
-        "assessment_plans": assessment_plans,
         "assignments": assignments
+    }
+
+@frappe.whitelist()
+def get_teacher_pending_tasks():
+    """Get pending tasks (attendance, mark entry, review) for the dashboard"""
+    user_email = frappe.session.user
+    from frappe.utils import today, getdate
+    
+    try:
+        instructor_doc = frappe.get_doc("Instructor", {"instructor_email": user_email})
+        instructor = instructor_doc.name
+    except Exception:
+        return {"attendance_pending": [], "mark_entry_pending": [], "review_pending": [], "error": "Instructor not found"}
+    
+    attendance_pending = []
+    mark_entry_pending = []
+    review_pending = []
+    
+    # 1. Attendance Pending
+    try:
+        # Get course schedules up to today that might not have attendance
+        schedules = frappe.get_all(
+            "Course Schedule", 
+            filters={
+                "instructor": instructor,
+                "schedule_date": ("<=", today())
+            },
+            fields=[
+                "name", "course", "course_name", "student_group", "schedule_date",
+                "from_time", "to_time", "student_group"
+            ],
+            order_by="schedule_date desc",
+            limit=20
+        )
+        
+        for sch in schedules:
+            # Check if attendance is already taken (assuming Student Attendance records would exist)
+            attendance_count = frappe.db.count("Student Attendance", {"course_schedule": sch.name})
+            if attendance_count == 0:
+                # Find total students for this group
+                total_students = frappe.db.count("Student Group Student", {"parent": sch.student_group}) if sch.student_group else 0
+                
+                attendance_pending.append({
+                    "schedule_id": sch.name,
+                    "course_name": sch.course_name or sch.course,
+                    "batch": sch.student_group or "N/A",
+                    "schedule_date": sch.schedule_date,
+                    "start_time": sch.from_time,
+                    "end_time": sch.to_time,
+                    "total_students": total_students
+                })
+                
+                if len(attendance_pending) >= 5:
+                    break
+    except Exception as e:
+        frappe.log_error(f"Error fetching attendance pending: {str(e)}")
+        
+    # 2. Mark Entry Pending
+    try:
+        # In Frappe Education, Assessment Plan has supervisor or we use instructor courses
+        assessment_plans = frappe.get_all(
+            "Assessment Plan",
+            filters={"supervisor": instructor},
+            fields=["name", "assessment_name", "course", "academic_term", "schedule_date", "student_group"],
+            order_by="schedule_date desc",
+            limit=20
+        )
+        for plan in assessment_plans:
+            # Rough estimation of total students enrolled
+            total_students = frappe.db.count("Student Group Student", {"parent": plan.student_group}) if plan.student_group else 0
+            if total_students == 0 and plan.course:
+                total_students = frappe.db.count("Course Enrollment", {"course": plan.course, "academic_term": plan.academic_term})
+                
+            marks_entered_count = frappe.db.count("Assessment Result", {"assessment_plan": plan.name})
+            
+            # If not all marks are entered
+            if total_students > 0 and marks_entered_count < total_students:
+                mark_entry_pending.append({
+                    "assessment_id": plan.name,
+                    "assessment_title": plan.assessment_name or plan.name,
+                    "course": plan.course,
+                    "academic_term": plan.academic_term or "N/A",
+                    "assessment_date": plan.schedule_date,
+                    "total_students": total_students,
+                    "marks_entered_count": marks_entered_count,
+                    "pending_count": total_students - marks_entered_count
+                })
+                
+                if len(mark_entry_pending) >= 5:
+                    break
+    except Exception as e:
+        frappe.log_error(f"Error fetching mark entry pending: {str(e)}")
+        
+    # 3. Review Pending
+    try:
+        # Assuming Maxedu uses 'Assignment Template' and 'Student Assignment'
+        templates = frappe.get_all("Assignment Template", filters={"instructor": instructor}, pluck="name")
+        if templates:
+            submissions = frappe.get_all(
+                "Student Assignment",
+                filters={
+                    "assignment_template": ("in", templates),
+                    "status": "Submitted"
+                },
+                fields=["name", "student_name", "assignment_template", "course", "creation", "title"],
+                order_by="creation desc",
+                limit=5
+            )
+            for sub in submissions:
+                review_pending.append({
+                    "submission_id": sub.name,
+                    "student_name": sub.student_name or "Unknown Student",
+                    "assignment_title": sub.title or sub.assignment_template,
+                    "course": sub.course,
+                    "submission_date": sub.creation
+                })
+    except Exception as e:
+        frappe.log_error(f"Error fetching review pending: {str(e)}")
+        
+    return {
+        "success": True,
+        "attendance_pending": attendance_pending,
+        "mark_entry_pending": mark_entry_pending,
+        "review_pending": review_pending
     }

@@ -52,7 +52,7 @@
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
        <div class="xl:col-span-8 space-y-8">
           <DailyRoutine :classes="todayClasses" :loading="loading" />
-          <GradingQueue :pendingItems="pendingGrading" />
+          <TeacherDashboardPendingTasks />
        </div>
        
        <div class="xl:col-span-4 space-y-8">
@@ -67,7 +67,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import DailyRoutine from '~/components/dashboard/teacher/DailyRoutine.vue'
-import GradingQueue from '~/components/dashboard/teacher/GradingQueue.vue'
+import TeacherDashboardPendingTasks from '~/components/dashboard/teacher/TeacherDashboardPendingTasks.vue'
 import Announcements from '~/components/dashboard/teacher/Announcements.vue'
 import AcademicCalendar from '~/components/dashbaord/academicCalendar.vue'
 import { useTeacherClasses } from '~/composable/useTeacherClasses'

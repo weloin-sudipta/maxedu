@@ -30,18 +30,8 @@ export const useStudyMaterials = () => {
     error.value = null
 
     try {
-      // Debug: check what file actually is before anything
-      const rawFile = toRaw(formData.file)
-      console.log('=== FILE DEBUG ===')
-      console.log('formData.file:', formData.file)
-      console.log('rawFile:', rawFile)
-      console.log('rawFile instanceof File:', rawFile instanceof File)
-      console.log('rawFile type:', Object.prototype.toString.call(rawFile))
-      if (rawFile instanceof File) {
-        console.log('File name:', rawFile.name)
-        console.log('File size:', rawFile.size)
-        console.log('File type:', rawFile.type)
-      }
+      console.log("form data comming from ",formData);
+      
 
       const fd = new FormData()
       fd.append('title', formData.title)

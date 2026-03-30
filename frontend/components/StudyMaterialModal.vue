@@ -1,5 +1,3 @@
-<!-- components/StudyMaterialModal.vue -->
-
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <!-- Backdrop -->
