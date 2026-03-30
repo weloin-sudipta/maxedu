@@ -1,6 +1,4 @@
-// composables/useStudyMaterials.js
-
-import { ref } from 'vue'
+import { ref, toRaw } from 'vue'
 import { createResource } from '~/composable/useFrappeFetch'
 
 export const useStudyMaterials = () => {
@@ -8,10 +6,6 @@ export const useStudyMaterials = () => {
   const loading = ref(false)
   const error = ref(null)
 
-  /**
-   * Fetch study materials with optional filters
-   * @param {Object} filters - { course, topic }
-   */
   const fetchMaterials = async (filters = {}) => {
     loading.value = true
     error.value = null
@@ -31,15 +25,24 @@ export const useStudyMaterials = () => {
     }
   }
 
-  /**
-   * Create a new study material with file upload
-   * @param {Object} formData - Form data object
-   */
   const createMaterial = async (formData) => {
     loading.value = true
     error.value = null
+
     try {
-      // Create FormData for file upload
+      // Debug: check what file actually is before anything
+      const rawFile = toRaw(formData.file)
+      console.log('=== FILE DEBUG ===')
+      console.log('formData.file:', formData.file)
+      console.log('rawFile:', rawFile)
+      console.log('rawFile instanceof File:', rawFile instanceof File)
+      console.log('rawFile type:', Object.prototype.toString.call(rawFile))
+      if (rawFile instanceof File) {
+        console.log('File name:', rawFile.name)
+        console.log('File size:', rawFile.size)
+        console.log('File type:', rawFile.type)
+      }
+
       const fd = new FormData()
       fd.append('title', formData.title)
       fd.append('course', formData.course)
@@ -47,18 +50,22 @@ export const useStudyMaterials = () => {
       if (formData.category) fd.append('category', formData.category)
       if (formData.upload_date) fd.append('upload_date', formData.upload_date)
       if (formData.description) fd.append('description', formData.description)
-      if (formData.file) fd.append('file', formData.file)
+      if (rawFile instanceof File) fd.append('file', rawFile)
 
-      const resource = createResource({
-        url: 'maxedu.api_folder.study_materials.create_study_material',
+      // Debug: check FormData entries after appending
+      console.log('=== FORMDATA ENTRIES ===')
+      for (const [key, value] of fd.entries()) {
+        console.log(key, ':', value)
+      }
+
+      const response = await fetch('/api/method/maxedu.api_folder.teacher_course.create_study_material', {
         method: 'POST',
-        data: fd,
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+        body: fd,
+        credentials: 'include',
       })
 
-      const res = await resource.submit()
+      const json = await response.json()
+      const res = json?.message ?? json
 
       if (res?.success) {
         return res

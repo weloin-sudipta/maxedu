@@ -2,16 +2,24 @@ import frappe
 
 @frappe.whitelist()
 def get_my_courses():
-    instructor = frappe.get_all(
-        "Instructor",
-        filters={"instructor_email": frappe.session.user},
-        fields=["*"]
-    )
+    user = frappe.session.user
+    full_name = frappe.db.get_value("User", user, "full_name")
 
-    if not instructor:
+    # Try finding instructor by name matching full_name (user's ID or full_name)
+    instructor_name = frappe.db.get_value("Instructor", {"name": full_name}, "name")
+
+    if not instructor_name:
+        # Fallback 1: instructor_email matching session user
+        instructor_name = frappe.db.get_value("Instructor", {"instructor_email": user}, "name")
+
+    if not instructor_name:
+        # Fallback 2: instructor_name matching user full_name
+        instructor_name = frappe.db.get_value("Instructor", {"instructor_name": full_name}, "name")
+
+    if not instructor_name:
         return {"error": "Instructor not found for this user"}
 
-    instructor = instructor[0]
+    instructor = frappe.get_doc("Instructor", instructor_name).as_dict()
 
     instructor_logs = frappe.get_all(
         "Instructor Log",

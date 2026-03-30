@@ -114,7 +114,7 @@
                     <TodayClass :todayClasses="todayClasses" />
                     <UpcomingExams :upcomingExams="upcomingExams" />
                     <Assignment :assignments="assignments" />
-                    <PaymentHistory />
+                    <PaymentHistory :fees="dashboardData?.fees" />
                 </template>
             </div>
 

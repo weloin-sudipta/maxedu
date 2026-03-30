@@ -27,7 +27,7 @@
             <th class="px-8 py-5 th-style">Date</th>
             <th class="px-8 py-5 th-style text-center">Status</th>
             <th class="px-8 py-5 th-style text-right">Amount</th>
-            <th class="px-8 py-5 th-style text-right">Action</th>
+            <!-- <th class="px-8 py-5 th-style text-right">Action</th> -->
           </tr>
         </thead>
 
@@ -43,13 +43,6 @@
               </div>
             </td>
 
-            <!-- <td class="px-8 py-6">
-              <div class="flex flex-col">
-                <span class="text-sm font-black text-slate-800">{{ slip.title }}</span>
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ slip.method }}</span>
-              </div>
-            </td> -->
-
             <td class="px-8 py-6">
               <span class="text-xs font-bold text-slate-500">{{ slip.date }}</span>
             </td>
@@ -61,7 +54,9 @@
             </td>
 
             <td class="px-8 py-6 text-right">
-              <span class="text-sm font-black text-slate-900 dark:text-slate-100">${{ slip.amount.toLocaleString() }}</span>
+              <span class="text-sm font-black text-slate-900 dark:text-slate-100">
+                {{ slip.amount.toLocaleString() }} {{ currency }}
+              </span>
             </td>
 
             <td class="px-8 py-6 text-right">
@@ -76,28 +71,59 @@
     </div>
 
     <div class="p-8 bg-slate-50/30 dark:bg-slate-800/20 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center transition-colors">
-      <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Showing last 5 transactions</p>
-      <button class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em] hover:text-slate-900 dark:hover:text-white transition-colors">
+      <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+        Total Outstanding: {{ totalOutstanding }} {{ currency }}
+      </p>
+      <!-- <button class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em] hover:text-slate-900 dark:hover:text-white transition-colors">
         Statement of Account <i class="fa fa-arrow-right ml-2"></i>
-      </button>
+      </button> -->
     </div>
   </div>
 </template>
 
 <script setup>
-const paymentHistory = [
-  { id: 'PAY-8829-102', title: 'Tuition Fee - Semester 3', method: 'Online Banking', date: 'Mar 10, 2026', status: 'Completed', amount: 4500.00 },
-  { id: 'PAY-8829-098', title: 'Library Membership Renewal', method: 'Credit Card', date: 'Feb 28, 2026', status: 'Completed', amount: 50.00 },
-];
+import { computed } from "vue";
 
+/* PROPS FROM PARENT */
+const props = defineProps({
+  fees: {
+    type: Object,
+    default: () => ({
+      fees: [],
+      total_outstanding: 0,
+      currency: "INR",
+    }),
+  },
+});
+
+/* EXTRACT DATA */
+const paymentHistory = computed(() => {
+  const list = props.fees?.fees || [];
+
+  return list.map((fee) => ({
+    id: fee.name,
+    date: fee.posting_date,
+    status: fee.status,
+    amount: fee.grand_total,
+  }));
+});
+
+const totalOutstanding = computed(() => props.fees?.total_outstanding || 0);
+const currency = computed(() => props.fees?.currency || "INR");
+
+/* STATUS STYLES */
 const getStatusStyles = (status) => {
   switch (status) {
-    case 'Completed': return 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-100 dark:border-green-900/30';
-    case 'Pending': return 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/30';
-    case 'Refunded': return 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-900/30';
-    default: return 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-slate-100 dark:border-slate-700/50';
+    case 'Completed':
+      return 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-100 dark:border-green-900/30';
+    case 'Unpaid':
+      return 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/30';
+    case 'Refunded':
+      return 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-900/30';
+    default:
+      return 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-slate-100 dark:border-slate-700/50';
   }
-}
+};
 </script>
 
 <style scoped>

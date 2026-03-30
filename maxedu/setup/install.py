@@ -28,15 +28,17 @@ def setup_institute_dependencies():
             {"fieldname": "institute", "label": "Institute", "fieldtype": "Link", "options": "Institute"}
         ],
         "Instructor": [
-            {"fieldname": "institute", "label": "Institute", "fieldtype": "Link", "options": "Institute"}
+            {"fieldname": "institute", "label": "Institute", "fieldtype": "Link", "options": "Institute", "reqd": 1},
+            {"fieldname": "instructor_email", "label": "Instructor Email", "fieldtype": "Data", "options": "Email", "insert_after": "instructor_name", "unique": 1, "reqd": 1},
+            {"fieldname": "user", "label": "User", "fieldtype": "Link", "options": "User", "insert_after": "instructor_email", "read_only": 1}
         ],
         "User": [
             {"fieldname": "institute", "label": "Institute", "fieldtype": "Link", "options": "Institute"}
         ]
     }
-    
+
     create_custom_fields(custom_fields, ignore_validate=True)
-    
+
     # 3. Create testing data
     if not frappe.db.exists("Institute", {"institute_name": "MaxEdu Global Academy"}):
         inst = frappe.get_doc({
@@ -51,15 +53,15 @@ def setup_institute_dependencies():
         inst_name = inst.name
     else:
         inst_name = frappe.db.get_value("Institute", {"institute_name": "MaxEdu Global Academy"}, "name")
-        
+
     # Tag an existing program if any
     programs = frappe.get_all("Program", limit=1)
     if programs:
         frappe.db.set_value("Program", programs[0].name, "institute", inst_name)
-        
+
     courses = frappe.get_all("Course", limit=1)
     if courses:
         frappe.db.set_value("Course", courses[0].name, "institute", inst_name)
-    
+
     frappe.db.commit()
     print("Maxedu Institute Flow Setup After Install Successfully!")
