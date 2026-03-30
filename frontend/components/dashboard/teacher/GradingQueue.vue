@@ -11,9 +11,9 @@
           <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{{ pendingItems.length }} Pending Tasks</span>
         </div>
       </div>
-      <button class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+      <!-- <button class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors px-3 py-1.5 rounded-xl flex items-center gap-1.5">
         View all <i class="fa fa-arrow-right text-[9px]"></i>
-      </button>
+      </button> -->
     </div>
 
     <!-- List -->

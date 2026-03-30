@@ -11,9 +11,9 @@
           <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{{ classes.length }} Classes Today</span>
         </div>
       </div>
-      <button class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+      <!-- <button class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors px-3 py-1.5 rounded-xl flex items-center gap-1.5">
         Manage Schedule <i class="fa fa-arrow-right text-[9px]"></i>
-      </button>
+      </button> -->
     </div>
 
     <!-- Timeline List -->
