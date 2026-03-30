@@ -120,6 +120,9 @@ onMounted(async () => {
                 color: cls.color || '#F1F5F9'
             }))
         }
+        
+        // Fetch notices for campus notice component
+        await fetchNotices()
     } catch (error) {
         console.error("Dashboard Load Error:", error)
     } finally {

@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { createResource } from './useFrappeFetch'
 
 export const useTeacherDashboard = () => {
-    const user = ref(null)
+    const data = ref(null)
     const loading = ref(false)
     const error = ref(null)
 
@@ -16,10 +16,9 @@ export const useTeacherDashboard = () => {
             })
 
             const res = await resource.submit()
+            console.log('Teacher Data:', res)
 
-            console.log('RAW API:', res)
-
-            user.value = res || null
+            data.value = res || null
             return res
         } catch (err) {
             console.error('Failed to load teacher data:', err)
@@ -29,5 +28,5 @@ export const useTeacherDashboard = () => {
         }
     }
 
-    return { user, loading, error, fetchTeacherData }
+    return { data, loading, error, fetchTeacherData }
 }
