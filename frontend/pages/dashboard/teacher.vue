@@ -20,7 +20,7 @@
           <h1 class="text-3xl lg:text-5xl font-black text-slate-900 dark:text-white leading-tight mb-4 transition-colors">
             Hello, <br />
             <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">
-                Prof. {{ teacherInfo?.name.split(' ')[0] || 'Educator' }}!
+                Prof. {{ instructorName || 'Educator' }}!
             </span>
           </h1>
 
@@ -78,7 +78,8 @@ const { fetchclassSchedule } = useTeacherClasses()
 
 // UI States
 const loading = ref(true)
-const teacherInfo = ref({ name: 'Sudipta Ghosh', department: 'Computer Science' })
+// const teacherInfo = ref({ name: 'Sudipta Ghosh', department: 'Computer Science' })
+const instructorName = ref('')
 
 // Data Stores
 const todayClasses = ref([])
@@ -108,6 +109,7 @@ onMounted(async () => {
         const response = await fetchclassSchedule()
         
         if (response && response.success) {
+          instructorName.value = response.instructor || ''
             // Mapping your specific JSON data structure
             todayClasses.value = response.classes.map(cls => ({
                 id: cls.name,

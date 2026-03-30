@@ -88,7 +88,7 @@ def get_my_classes():
             "total_students": len(students_list)
         })
 
-    return {"success": True, "classes": result}
+    return {"success": True, "classes": result,"instructor": instructor_name}
 
 
 @frappe.whitelist()

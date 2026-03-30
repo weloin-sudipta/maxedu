@@ -2,6 +2,7 @@
   <aside
     class="relative flex flex-col h-full transition-all duration-500 ease-in-out bg-gradient-to-b from-white dark:from-slate-900 via-white dark:via-slate-900 to-indigo-50/40 dark:to-indigo-900/10 backdrop-blur-xl border-r border-gray-200/60 dark:border-slate-800 shadow-xl shadow-indigo-100/40 dark:shadow-none z-50 group flex-shrink-0"
     :class="[isExpanded ? 'w-[270px]' : 'w-[85px]']" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
+    
     <div class="flex items-center justify-between px-6 h-20 flex-shrink-0">
       <div class="flex items-center gap-3 overflow-hidden">
         <div
@@ -17,9 +18,9 @@
         </transition>
       </div>
 
-      <button v-show="isExpanded" @click="isCollapsed = !isCollapsed"
+      <button v-show="isExpanded" @click="toggleSidebar"
         class="p-2 text-gray-400 dark:text-gray-500 transition rounded-full hover:bg-indigo-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 duration-300">
-        <i class="fa fa-angle-double-left text-xl"></i>
+        <i class="fa fa-angle-double-left text-xl" :class="{ 'rotate-180': isCollapsed }"></i>
       </button>
     </div>
 
@@ -34,8 +35,35 @@
         <div v-if="!item.header" class="relative group/item">
           <div v-if="isActive(item)" class="absolute left-0 top-2 h-8 w-1 rounded-r-full bg-indigo-600 shadow-md"></div>
 
-          <NuxtLink :to="item.children ? '#' : item.route"
-            @click.prevent="item.children ? item.isOpen = !item.isOpen : null" :class="[
+          <!-- Parent item with children -->
+          <div v-if="item.children" 
+            @click="toggleDropdown(item)"
+            :class="[
+              isActive(item)
+                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-md shadow-indigo-100/60 dark:shadow-none'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md hover:shadow-indigo-100/40 dark:hover:shadow-none hover:text-indigo-600 dark:hover:text-indigo-300',
+              'flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer'
+            ]">
+            <div class="flex items-center gap-4">
+              <span
+                class="w-6 text-center text-lg transition-all duration-300 group-hover/item:scale-110 group-hover/item:text-indigo-600">
+                <i :class="item.icon"></i>
+              </span>
+
+              <span v-show="isExpanded" class="font-medium whitespace-nowrap tracking-wide">
+                {{ item.name }}
+              </span>
+            </div>
+
+            <i v-if="isExpanded"
+              class="fa fa-angle-down transition-transform duration-300 text-xs text-gray-400"
+              :class="{ 'rotate-180 text-indigo-600': item.isOpen }"></i>
+          </div>
+
+          <!-- Parent item without children (direct link) -->
+          <NuxtLink v-else
+            :to="item.route"
+            :class="[
               isActive(item)
                 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-md shadow-indigo-100/60 dark:shadow-none'
                 : 'text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md hover:shadow-indigo-100/40 dark:hover:shadow-none hover:text-indigo-600 dark:hover:text-indigo-300',
@@ -51,21 +79,23 @@
                 {{ item.name }}
               </span>
             </div>
-
-            <i v-if="item.children && isExpanded"
-              class="fa fa-angle-down transition-transform duration-300 text-xs text-gray-400"
-              :class="{ 'rotate-180 text-indigo-600': item.isOpen }"></i>
           </NuxtLink>
 
+          <!-- Dropdown children -->
           <transition name="expand">
             <div v-if="item.children && item.isOpen && isExpanded" class="overflow-hidden">
               <div class="mt-2 ml-4 pl-6 border-l border-indigo-100 space-y-1 my-2">
-                <NuxtLink v-for="sub in item.children" :key="sub.name" :to="sub.route" :class="[
-                  route.path === sub.route
-                    ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50/60 dark:hover:bg-slate-800',
-                  'block px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 hover:translate-x-1'
-                ]">
+                <NuxtLink 
+                  v-for="sub in item.children" 
+                  :key="sub.name" 
+                  :to="sub.route" 
+                  @click="handleChildClick(item)"
+                  :class="[
+                    route.path === sub.route
+                      ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50/60 dark:hover:bg-slate-800',
+                    'block px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 hover:translate-x-1'
+                  ]">
                   {{ sub.name }}
                 </NuxtLink>
               </div>
@@ -100,14 +130,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { logout } from '~/composable/useAuth'
 import { useUserProfile } from '~/composable/useUserProfile'
 
 const { userRole, loadProfile } = useUserProfile() 
-
 const route = useRoute()
+const router = useRouter()
 const isCollapsed = ref(false)
 const isHovered = ref(false)
 const isLoggingOut = ref(false)
@@ -117,15 +147,31 @@ const isExpanded = computed(() => {
   return !isCollapsed.value || isHovered.value
 })
 
+const toggleSidebar = () => {
+  isCollapsed.value = !isCollapsed.value
+}
+
 const handleMouseEnter = () => {
+  if (hoverTimeout) clearTimeout(hoverTimeout)
   hoverTimeout = setTimeout(() => {
     isHovered.value = true
   }, 50)
 }
 
 const handleMouseLeave = () => {
-  clearTimeout(hoverTimeout)
+  if (hoverTimeout) clearTimeout(hoverTimeout)
   isHovered.value = false
+}
+
+const toggleDropdown = (item) => {
+  if (item.children) {
+    item.isOpen = !item.isOpen
+  }
+}
+
+const handleChildClick = (parentItem) => {
+  // Optional: Keep parent dropdown open after clicking child
+  // parentItem.isOpen = true
 }
 
 const handleLogout = async () => {
@@ -133,7 +179,7 @@ const handleLogout = async () => {
   try {
     isLoggingOut.value = true
     await logout()
-    navigateTo('/login')
+    router.push('/login')
   } catch (error) {
     console.error('Logout failed:', error)
   } finally {
@@ -141,9 +187,12 @@ const handleLogout = async () => {
   }
 }
 
-const navItems = computed(() => {
-  if (userRole.value === 'Instructor') { // capital I to match Python return value
-    return [
+// Reactive nav items with proper state management
+const navItems = ref([])
+
+const updateNavItems = () => {
+  if (userRole.value === 'Instructor') {
+    navItems.value = [
       { header: 'Main Menu' },
       { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
       { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
@@ -170,66 +219,90 @@ const navItems = computed(() => {
         children: [
           { name: 'Mark Entry', route: '/teacher/grading/mark-entry' },
           { name: 'Performance', route: '/teacher/grading/performance' },
-          // { name: 'Report Cards', route: '/teacher/grading/report-cards' }
         ]
       },
       { name: 'Students', icon: 'fa fa-users', route: '/teacher/students' },
       { name: 'My Profile', icon: 'fa fa-user-circle', route: '/teacher/profile' },
     ]
+  } else {
+    // Student / other roles
+    navItems.value = [
+      { header: 'Main Menu' },
+      { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
+      { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
+      { name: 'Events', icon: 'fa fa-calendar', route: '/events' },
+
+      { header: 'Academic Life' },
+      {
+        name: 'Academics',
+        icon: 'fa fa-graduation-cap',
+        isOpen: false,
+        children: [
+          { name: 'Subjects', route: '/academics/subjects' },
+          { name: 'Study Materials', route: '/academics/study-materials' },
+          { name: 'Timetable', route: '/academics/timetable' },
+          { name: 'Assignments', route: '/academics/assignments' },
+        ]
+      },
+      { name: 'Attendance', icon: 'fa fa-calendar-check-o', route: '/attendance' },
+      {
+        name: 'Examination',
+        icon: 'fa fa-file-text-o',
+        isOpen: false,
+        children: [
+          { name: 'Schedule', route: '/exam/schedule' },
+          { name: 'Results', route: '/exam/result' },
+        ]
+      },
+
+      { header: 'Administrative Services' },
+      { name: 'Applications', icon: 'fa fa-file-pen', route: '/applications/' },
+      { name: 'Library', icon: 'fa fa-book', route: '/library' },
+
+      { header: 'Personal' },
+      { name: 'Faculty', icon: 'fa-solid fa-book-open-reader', route: '/faculty' },
+      { name: 'My Profile', icon: 'fa fa-user-circle-o', route: '/profile' },
+    ]
   }
-
-  // default (Student / other roles)
-  return [
-    { header: 'Main Menu' },
-    { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
-    { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
-    { name: 'Events', icon: 'fa fa-calendar', route: '/events' },
-
-    { header: 'Academic Life' },
-    {
-      name: 'Academics',
-      icon: 'fa fa-graduation-cap',
-      isOpen: false,
-      children: [
-        { name: 'Subjects', route: '/academics/subjects' },
-        { name: 'Study Materials', route: '/academics/study-materials' },
-        { name: 'Timetable', route: '/academics/timetable' },
-        { name: 'Assignments', route: '/academics/assignments' },
-      ]
-    },
-    { name: 'Attendance', icon: 'fa fa-calendar-check-o', route: '/attendance' },
-    {
-      name: 'Examination',
-      icon: 'fa fa-file-text-o',
-      isOpen: false,
-      children: [
-        { name: 'Schedule', route: '/exam/schedule' },
-        { name: 'Results', route: '/exam/result' },
-      ]
-    },
-
-    { header: 'Administrative Services' },
-    { name: 'Applications', icon: 'fa fa-file-pen', route: '/applications/' },
-    { name: 'Library', icon: 'fa fa-book', route: '/library' },
-
-    { header: 'Personal' },
-    { name: 'Faculty', icon: 'fa-solid fa-book-open-reader', route: '/faculty' },
-    { name: 'My Profile', icon: 'fa fa-user-circle-o', route: '/profile' },
-  ]
-})
+}
 
 const isActive = (item) => {
   if (item.route && item.route === route.path) return true
-  if (item.children) return item.children.some(child => child.route === route.path)
+  if (item.children) {
+    return item.children.some(child => {
+      // Exact match
+      if (child.route === route.path) return true
+      // For nested routes (e.g., /teacher/academics/attendance matches /teacher/academics)
+      if (route.path.startsWith(child.route + '/')) return true
+      return false
+    })
+  }
   return false
 }
 
-onMounted(() => {
+// Auto-expand parent items when a child route is active
+const expandActiveParents = () => {
   navItems.value.forEach(item => {
     if (item.children && isActive(item)) {
       item.isOpen = true
     }
   })
+}
+
+// Watch for route changes to update active states
+watch(() => route.path, () => {
+  expandActiveParents()
+}, { immediate: true })
+
+// Watch for userRole changes
+watch(userRole, () => {
+  updateNavItems()
+  expandActiveParents()
+}, { immediate: true })
+
+onMounted(() => {
+  updateNavItems()
+  expandActiveParents()
   loadProfile()
 })
 </script>
@@ -274,5 +347,27 @@ onMounted(() => {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #cbd5e1;
+}
+
+/* Dark mode scrollbar */
+@media (prefers-color-scheme: dark) {
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #334155;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
+}
+
+/* Rotate animation for collapse button */
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Prevent text selection on double click */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
 }
 </style>
