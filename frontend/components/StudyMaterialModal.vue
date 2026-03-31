@@ -12,10 +12,10 @@
           <div class="flex items-start justify-between">
             <div>
               <h3 class="text-lg font-black text-slate-900 dark:text-white" id="modal-title">
-                Upload Study Material
+                {{ props.mode === 'edit' ? 'Edit Study Material' : 'Upload Study Material' }}
               </h3>
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                Add new learning resources to the course
+                {{ props.mode === 'edit' ? 'Update existing learning resource' : 'Add new learning resources to the course' }}
               </p>
             </div>
             <button
@@ -188,7 +188,7 @@
               class="flex-1 px-4 py-2 rounded-xl bg-indigo-600 dark:bg-indigo-500 text-white text-sm font-bold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <i v-if="loading" class="fa fa-spinner fa-spin"></i>
-              {{ loading ? 'Uploading...' : 'Upload Material' }}
+              {{ loading ? (props.mode === 'edit' ? 'Saving...' : 'Uploading...') : (props.mode === 'edit' ? 'Save Changes' : 'Upload Material') }}
             </button>
           </div>
 
@@ -219,6 +219,14 @@ const props = defineProps({
     type: String,
     default: null
   },
+  mode: {
+    type: String,
+    default: 'create'
+  },
+  material: {
+    type: Object,
+    default: null
+  },
   courses: {
     type: Array,
     required: true
@@ -231,7 +239,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'success'])
 
-const { createMaterial, loading: createLoading, error: createError } = useStudyMaterials()
+const { createMaterial, updateMaterial, loading: createLoading, error: createError } = useStudyMaterials()
 const loading = computed(() => createLoading.value)
 const error = ref(null)
 const fileSelected = ref(null)
@@ -316,14 +324,15 @@ const handleSubmit = async () => {
     error.value = 'Course is required'
     return
   }
-  
-  if (!formData.value.file) {
+
+  if (props.mode === 'create' && !formData.value.file) {
     error.value = 'File is required'
     return
   }
   
   try {
     console.log('Submitting form data:', {
+      mode: props.mode,
       title: formData.value.title,
       course: formData.value.course,
       topic: formData.value.topic,
@@ -332,14 +341,19 @@ const handleSubmit = async () => {
       description: formData.value.description,
       file: formData.value.file?.name
     })
-    
-    const result = await createMaterial(formData.value)
-    
+
+    let result
+    if (props.mode === 'edit' && props.material && props.material.name) {
+      result = await updateMaterial(props.material.name, formData.value)
+    } else {
+      result = await createMaterial(formData.value)
+    }
+
     if (result?.success) {
-      emit('success', result.data)
+      emit('success', result.data || result)
       closeModal()
     } else {
-      error.value = result?.message || 'Failed to upload study material'
+      error.value = result?.message || (props.mode === 'edit' ? 'Failed to update study material' : 'Failed to upload study material')
     }
   } catch (err) {
     console.error('Submission error:', err)
@@ -375,28 +389,41 @@ const resetForm = () => {
 // Reset when modal opens with new preselected course/topic
 watch(() => props.isOpen, (isOpen) => {
   if (isOpen) {
-    // Set course
-    formData.value.course = props.preselectedCourse || ''
-    
-    // Handle preselected topic - automatically set the topic
-    if (props.preselectedTopicName) {
-      selectedTopicValue.value = props.preselectedTopicName
-      formData.value.topic = props.preselectedTopicName
-      console.log('Preselected topic set to:', props.preselectedTopicName)
+    if (props.mode === 'edit' && props.material) {
+      formData.value = {
+        title: props.material.title || '',
+        course: props.material.course || props.preselectedCourse || '',
+        topic: props.material.topic || props.preselectedTopicName || '',
+        category: props.material.category || '',
+        file: null, // optional new file
+        upload_date: props.material.upload_date || new Date().toISOString().split('T')[0],
+        description: props.material.description || ''
+      }
+      selectedTopicValue.value = props.material.topic || props.preselectedTopicName || ''
+      fileSelected.value = null
     } else {
-      selectedTopicValue.value = ''
-      formData.value.topic = ''
+      formData.value.course = props.preselectedCourse || ''
+
+      if (props.preselectedTopicName) {
+        selectedTopicValue.value = props.preselectedTopicName
+        formData.value.topic = props.preselectedTopicName
+      } else {
+        selectedTopicValue.value = ''
+        formData.value.topic = ''
+      }
+
+      // Reset other fields but keep course and topic if preselected
+      formData.value.title = ''
+      formData.value.category = ''
+      formData.value.file = null
+      formData.value.upload_date = new Date().toISOString().split('T')[0]
+      formData.value.description = ''
+      fileSelected.value = null
+      if (fileInput.value) {
+        fileInput.value.value = ''
+      }
     }
-    
-    // Reset other fields but keep course and topic if preselected
-    formData.value.title = ''
-    formData.value.category = ''
-    formData.value.file = null
-    formData.value.description = ''
-    fileSelected.value = null
-    if (fileInput.value) {
-      fileInput.value.value = ''
-    }
+
     error.value = null
   }
 })

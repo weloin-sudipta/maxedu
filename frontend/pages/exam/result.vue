@@ -20,119 +20,140 @@
       </HeroHeader>
 
       <!-- LOADING STATE -->
-      <div v-if="loading" class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none space-y-8 animate-in transition-colors">
-        <div class="flex items-center gap-6">
-           <UiSkeleton height="h-14" width="w-14" class="rounded-2xl shrink-0" />
-           <div class="space-y-3 w-full max-w-sm">
-             <UiSkeleton height="h-6" width="w-3/4" />
-             <UiSkeleton height="h-3" width="w-1/2" />
-           </div>
-        </div>
-        <UiSkeleton height="h-64" class="rounded-xl w-full" />
+      <div v-if="loading" class="space-y-4">
+        <UiSkeleton height="h-24" v-for="i in 3" :key="i" class="rounded-[2rem]" />
       </div>
 
-      <!-- CARD -->
-      <div v-else-if="results.length > 0" class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none overflow-hidden animate-in transition-colors">
+      <!-- GROUPED RESULTS -->
+      <div v-else class="space-y-4 animate-in">
 
-        <!-- TOP -->
-        <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6 transition-colors">
+        <div v-for="(group, assessmentGroup) in groupedResults" :key="assessmentGroup">
 
-          <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center transition-colors">
-              <i class="fa fa-graduation-cap text-xl text-slate-800 dark:text-slate-200"></i>
+          <!-- GROUP HEADER -->
+          <div
+            @click="toggleGroup(assessmentGroup)"
+            class="cursor-pointer bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all flex items-center justify-between group"
+          >
+
+            <div class="flex items-center gap-4">
+
+              <div
+                class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center text-xl transition-colors group-hover:bg-indigo-600 group-hover:text-white dark:group-hover:bg-indigo-500"
+              >
+                <i :class="expandedGroups.includes(assessmentGroup) ? 'fa fa-folder-open' : 'fa fa-folder'"></i>
+              </div>
+
+              <div>
+                <h2 class="text-xl font-black text-slate-800 dark:text-slate-200 tracking-tight transition-colors">
+                  {{ assessmentGroup }} <span>{{ group.results.length }} Subjects</span>
+                </h2>
+
+                <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-colors">
+                  {{ group.program }} • {{ group.academic_term }}
+                </p>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <div class="text-center">
+                  <p class="text-[9px] text-slate-400 dark:text-slate-500 uppercase transition-colors">Total Score</p>
+                  <p class="text-lg font-black text-slate-800 dark:text-white transition-colors">
+                    {{ group.total }}
+                    <span class="text-slate-300 dark:text-slate-600 text-sm">/{{ group.max }}</span>
+                  </p>
+                </div>
+
+                <div class="text-center">
+                  <p class="text-[9px] text-slate-400 dark:text-slate-500 uppercase transition-colors">Percentage</p>
+                  <p class="text-lg font-black text-indigo-600 dark:text-indigo-400 transition-colors">
+                    {{ group.percentage }}%
+                  </p>
+                </div>
+              </div>
+
             </div>
 
-            <div>
-              <h2 class="text-lg font-black">
-                {{ studentMeta.program }}
-                <span class="text-slate-400">•</span>
-                {{ studentMeta.assessment_group }}
-              </h2>
-
-              <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">
-                ID: {{ studentMeta.student_id }} • {{ studentMeta.academic_year }}
-              </p>
+            <div class="flex items-center gap-4">
+              <div
+                class="text-slate-300 dark:text-slate-600 transition-transform duration-300"
+                :class="{ 'rotate-180': expandedGroups.includes(assessmentGroup) }"
+              >
+                <i class="fa fa-chevron-down"></i>
+              </div>
             </div>
+
           </div>
 
-          <!-- SUMMARY -->
-          <div class="flex items-center gap-8">
+          <!-- SUBJECT LIST -->
+          <transition name="expand">
+            <div v-if="expandedGroups.includes(assessmentGroup)" class="overflow-hidden">
 
-            <div class="text-center">
-              <p class="text-[9px] text-slate-400 dark:text-slate-500 uppercase transition-colors">Total Score</p>
-              <p class="text-2xl font-black text-slate-800 dark:text-white transition-colors">
-                {{ studentMeta.total }}
-                <span class="text-slate-300 dark:text-slate-600 text-sm">/{{ studentMeta.max }}</span>
-              </p>
+              <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none mt-3 ml-4 md:ml-12 overflow-hidden transition-colors">
+
+                <!-- TABLE -->
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left">
+
+                    <thead>
+                      <tr class="bg-slate-50 dark:bg-slate-800/50 transition-colors">
+                        <th class="p-4 text-xs">Course</th>
+                        <th class="p-4 text-center text-xs">Grade</th>
+                        <th class="p-4 text-xs">Performance</th>
+                        <th class="p-4 text-center text-xs">Scale</th>
+                        <th class="p-4 text-right text-xs">Marks</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      <tr v-for="sub in group.subjects" :key="sub.id" class="border-t border-slate-100 dark:border-slate-800/50 transition-colors">
+
+                        <td class="p-4 font-bold">
+                          {{ sub.name }}
+                        </td>
+
+                        <td class="p-4 text-center">
+                          <span :class="['px-3 py-1 rounded text-white text-xs', sub.color]">
+                            {{ sub.grade }}
+                          </span>
+                        </td>
+
+                        <td class="p-4 w-[200px]">
+                          <div class="h-2 bg-slate-100 dark:bg-slate-800 rounded transition-colors">
+                            <div
+                              class="h-2 rounded"
+                              :class="sub.color"
+                              :style="{ width: sub.percentage + '%' }"
+                            ></div>
+                          </div>
+                        </td>
+
+                        <td class="p-4 text-center text-xs font-bold">
+                          {{ sub.scale }}
+                        </td>
+
+                        <td class="p-4 text-right font-bold">
+                          {{ sub.marks }}/{{ sub.max }}
+                        </td>
+
+                      </tr>
+                    </tbody>
+
+                  </table>
+                </div>
+
+              </div>
+
             </div>
+          </transition>
 
-            <div class="text-center">
-              <p class="text-[9px] text-slate-400 dark:text-slate-500 uppercase transition-colors"> Total Percentage %</p>
-              <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400 transition-colors">
-                {{ studentMeta.percentage }}%
-              </p>
-            </div>
-
-          </div>
         </div>
 
-        <!-- TABLE -->
-        <div class="overflow-x-auto">
-          <table class="w-full text-left">
-
-            <thead>
-              <tr class="bg-slate-50 dark:bg-slate-800/50 transition-colors">
-                <th class="p-4 text-xs">Course</th>
-                <th class="p-4 text-center text-xs">Grade</th>
-                <th class="p-4 text-xs">Performance</th>
-                <th class="p-4 text-center text-xs">Scale</th>
-                <th class="p-4 text-right text-xs">Marks</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr v-for="sub in subjects" :key="sub.id" class="border-t border-slate-100 dark:border-slate-800/50 transition-colors">
-
-                <td class="p-4 font-bold">
-                  {{ sub.name }}
-                </td>
-
-                <td class="p-4 text-center">
-                  <span :class="['px-3 py-1 rounded text-white text-xs', sub.color]">
-                    {{ sub.grade }}
-                  </span>
-                </td>
-
-                <td class="p-4 w-[200px]">
-                  <div class="h-2 bg-slate-100 dark:bg-slate-800 rounded transition-colors">
-                    <div
-                      class="h-2 rounded"
-                      :class="sub.color"
-                      :style="{ width: sub.percentage + '%' }"
-                    ></div>
-                  </div>
-                </td>
-
-                <td class="p-4 text-center text-xs font-bold">
-                  {{ sub.scale }}
-                </td>
-
-                <td class="p-4 text-right font-bold">
-                  {{ sub.marks }}/{{ sub.max }}
-                </td>
-
-              </tr>
-            </tbody>
-
-          </table>
+        <div
+          v-if="Object.keys(groupedResults).length === 0"
+          class="text-center py-20 text-slate-400 dark:text-slate-500 font-bold uppercase text-sm tracking-widest transition-colors"
+        >
+          No results available.
         </div>
 
-      </div>
-
-      <!-- EMPTY STATE -->
-      <div v-else class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-20 text-center border border-dashed border-slate-200 dark:border-slate-800 transition-colors">
-        <i class="fa fa-file-text-o text-slate-100 dark:text-slate-800/50 text-6xl mb-4 block transition-colors"></i>
-        <p class="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-colors">No results available</p>
       </div>
 
       <!-- FOOTER NOTE -->
@@ -168,6 +189,7 @@ const results = ref([])
 const showModal = ref(false)
 const downloadType = ref('')
 const loading = ref(true)
+const expandedGroups = ref([])
 
 /* FETCH */
 onMounted(async () => {
@@ -207,21 +229,52 @@ const studentMeta = computed(() => {
   }
 })
 
-/* SUBJECTS */
-const subjects = computed(() => {
-  return results.value.map(r => ({
-    id: r.name,
-    name: r.course || '-',
-    grade: r.grade || '-',
-    marks: r.total_score || 0,
-    max: r.maximum_score || 0,
-    percentage: r.maximum_score
-      ? Math.round((r.total_score / r.maximum_score) * 100)
-      : 0,
-    scale: r.grading_scale || '-',
-    color: getColor(r.grade)
-  }))
+/* GROUP RESULTS BY ASSESSMENT GROUP */
+const groupedResults = computed(() => {
+  return results.value.reduce((groups, result) => {
+    const assessmentGroup = result.assessment_group || 'Ungrouped'
+
+    if (!groups[assessmentGroup]) {
+      const groupResults = results.value.filter(r => r.assessment_group === assessmentGroup)
+      const total = groupResults.reduce((s, r) => s + (r.total_score || 0), 0)
+      const max = groupResults.reduce((s, r) => s + (r.maximum_score || 0), 0)
+
+      groups[assessmentGroup] = {
+        program: result.program,
+        academic_term: result.academic_term,
+        results: groupResults,
+        total,
+        max,
+        percentage: max ? Math.round((total / max) * 100) : 0,
+        subjects: groupResults.map(r => ({
+          id: r.name,
+          name: r.course || '-',
+          grade: r.grade || '-',
+          marks: r.total_score || 0,
+          max: r.maximum_score || 0,
+          percentage: r.maximum_score
+            ? Math.round((r.total_score / r.maximum_score) * 100)
+            : 0,
+          scale: r.grading_scale || '-',
+          color: getColor(r.grade)
+        }))
+      }
+    }
+
+    return groups
+  }, {})
 })
+
+/* TOGGLE GROUP */
+const toggleGroup = (assessmentGroup) => {
+  const index = expandedGroups.value.indexOf(assessmentGroup)
+
+  if (index > -1) {
+    expandedGroups.value.splice(index, 1)
+  } else {
+    expandedGroups.value.push(assessmentGroup)
+  }
+}
 
 /* COLOR */
 const getColor = (g) => {
@@ -246,3 +299,16 @@ const handleDownload = () => {
   showModal.value = false
 }
 </script>
+
+<style scoped>
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+</style>

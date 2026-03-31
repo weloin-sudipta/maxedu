@@ -56,7 +56,7 @@ def get_my_exams():
                 "course":        log["course"],
                 "program":       log["program"],
                 "academic_year": log["academic_year"],
-                "academic_term": log["academic_term"],
+                # "academic_term": log["academic_term"],
             },
             fields="*"
         )

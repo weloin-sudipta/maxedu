@@ -131,8 +131,7 @@ def create_study_material():
             "upload_date": upload_date or nowdate(),
             "description": description,
             "file": file_doc.file_url,  # Now file field has a value
-            "file_name": uploaded_file.filename,
-            "status": "Active"
+            "file_name": uploaded_file.filename
         })
         study_material.insert()
         
@@ -158,11 +157,117 @@ def create_study_material():
                 "status": study_material.status
             }
         }
-        
     except Exception as e:
         frappe.db.rollback()
         frappe.log_error(f"Error creating study material: {str(e)}", "Study Material API")
         return {"success": False, "message": str(e)}
+
+
+@frappe.whitelist()
+def update_study_material():
+    try:
+        name = frappe.form_dict.get('name')
+        if not name or not frappe.db.exists('Study Material', name):
+            return { 'success': False, 'message': 'Study material not found' }
+
+        study_material = frappe.get_doc('Study Material', name)
+
+        # Accept updates if fields provided
+        title = frappe.form_dict.get('title')
+        if title:
+            study_material.title = title
+
+        course = frappe.form_dict.get('course')
+        if course:
+            if not frappe.db.exists('Course', course):
+                return { 'success': False, 'message': f"Course '{course}' does not exist" }
+            study_material.course = course
+
+        topic = frappe.form_dict.get('topic')
+        if topic:
+            topic_list = frappe.get_all('Topic', filters={'topic_name': topic}, fields=['name'])
+            if topic_list:
+                study_material.topic = topic_list[0].name
+            elif frappe.db.exists('Topic', topic):
+                study_material.topic = topic
+            else:
+                return { 'success': False, 'message': f"Topic '{topic}' does not exist" }
+
+        category = frappe.form_dict.get('category')
+        if category:
+            study_material.category = category
+
+        upload_date = frappe.form_dict.get('upload_date')
+        if upload_date:
+            study_material.upload_date = upload_date
+
+        description = frappe.form_dict.get('description')
+        if description is not None:
+            study_material.description = description
+
+        uploaded_file = frappe.request.files.get('file')
+        if uploaded_file:
+            file_doc = frappe.get_doc({
+                'doctype': 'File',
+                'file_name': uploaded_file.filename,
+                'folder': 'Home/Attachments',
+                'is_private': 0,
+                'content': uploaded_file.read()
+            })
+            file_doc.insert()
+            file_doc.db_set('attached_to_doctype', 'Study Material')
+            file_doc.db_set('attached_to_name', study_material.name)
+            study_material.file = file_doc.file_url
+            study_material.file_name = uploaded_file.filename
+
+        study_material.save()
+        frappe.db.commit()
+
+        return {
+            'success': True,
+            'message': 'Study material updated successfully',
+            'data': {
+                'name': study_material.name,
+                'title': study_material.title,
+                'course': study_material.course,
+                'topic': study_material.topic,
+                'category': study_material.category,
+                'file': study_material.file,
+                'file_name': study_material.file_name,
+                'upload_date': str(study_material.upload_date),
+                'description': study_material.description,
+                'status': getattr(study_material, 'status', None)
+            }
+        }
+    except Exception as e:
+        frappe.db.rollback()
+        frappe.log_error(f"Error updating study material: {str(e)}", "Study Material API")
+        return {'success': False, 'message': str(e)}
+
+@frappe.whitelist()
+def delete_study_material():
+    try:
+        name = frappe.form_dict.get('name')
+        if not name or not frappe.db.exists('Study Material', name):
+            return {'success': False, 'message': 'Study material not found'}
+
+        study_material = frappe.get_doc('Study Material', name)
+
+        # Delete associated file if exists
+        if study_material.file:
+            file_docs = frappe.get_all('File', filters={'file_url': study_material.file}, fields=['name'])
+            for file_doc in file_docs:
+                frappe.delete_doc('File', file_doc.name)
+
+        # Delete the study material
+        frappe.delete_doc('Study Material', name)
+        frappe.db.commit()
+
+        return {'success': True, 'message': 'Study material deleted successfully'}
+    except Exception as e:
+        frappe.db.rollback()
+        frappe.log_error(f"Error deleting study material: {str(e)}", "Study Material API")
+        return {'success': False, 'message': str(e)}
 
 @frappe.whitelist()
 def get_materials_by_teacher():

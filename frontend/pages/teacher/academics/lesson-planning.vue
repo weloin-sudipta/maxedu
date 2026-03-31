@@ -79,8 +79,16 @@
                       {{ topic.topic_name }}
                     </h4>
                   </div>
+                  <div class="flex items-center gap-2">
                   <span class="text-xs text-slate-400">{{ getMaterialsForTopic(topic.topic_name).length }} materials</span>
+                  <button
+                    @click="openTopicMaterials(topic.topic_name)"
+                    class="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 px-2 py-1 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
+                  >
+                    Show Materials
+                  </button>
                 </div>
+              </div> <!-- close .flex.justify-between -->
 
                 <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg mb-4">
                   {{ topic.topic || topic.topic_name }}
@@ -131,9 +139,55 @@
       </div>
     </div>
 
+    <!-- Topic Materials Preview Modal -->
+    <div v-if="materialsDialogOpen" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+      <div class="w-full max-w-4xl bg-white dark:bg-slate-900 rounded-2xl p-6 overflow-y-auto max-h-[90vh] shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-black text-slate-900 dark:text-slate-100">Materials for {{ selectedTopicTitle }}</h3>
+          <button @click="closeTopicMaterials" class="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">✕</button>
+        </div>
+
+        <div v-if="selectedTopicMaterials.length === 0" class="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+          No materials found for this topic.
+        </div>
+
+        <div v-else class="space-y-4">
+          <div
+            v-for="material in selectedTopicMaterials"
+            :key="material.name"
+            class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700"
+          >
+            <div class="flex flex-wrap justify-between gap-4 items-start">
+              <div>
+                <h4 class="font-black text-sm text-slate-800 dark:text-slate-200">{{ material.title }}</h4>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400">{{ material.course }} • {{ material.category }}</p>
+                <p class="text-[10px] text-slate-400 dark:text-slate-500">{{ material.topic || 'No topic' }}</p>
+              </div>
+              <div class="flex gap-2">
+                <button @click="editMaterial(material)" class="text-[10px] font-black uppercase tracking-widest bg-yellow-200 text-yellow-700 px-2 py-1 rounded">Edit</button>
+                <button @click="deleteMaterial(material)" class="text-[10px] font-black uppercase tracking-widest bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+              </div>
+            </div>
+            <div class="mt-2 flex flex-wrap gap-2 text-[10px] text-slate-500 dark:text-slate-400">
+              <span>{{ material.file_type || 'FILE' }}</span>
+              <span>{{ material.file_size || '-' }}</span>
+              <span>{{ material.upload_date || '-' }}</span>
+            </div>
+            <div class="mt-2 flex items-center gap-2">
+              <a :href="getFileUrl(material.file)" target="_blank" class="text-xs font-black text-indigo-600 dark:text-indigo-400">Preview</a>
+              <a :href="getFileUrl(material.file, true)" class="text-xs font-black text-indigo-600 dark:text-indigo-400">Download</a>
+            </div>
+            <p v-if="material.description" class="mt-2 text-[10px] text-slate-400 dark:text-slate-500">{{ material.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Study Material Modal -->
     <StudyMaterialModal
       :is-open="modalOpen"
+      :mode="modalMode"
+      :material="materialToEdit"
       :preselected-course="selectedCourse"
       :preselected-topic-name="preselectedTopicName"
       :courses="courses"
@@ -152,13 +206,18 @@ import { useCourseTopics } from '~/composable/useCourseTopics'
 import { useStudyMaterials } from '~/composable/useStudyMaterials'
 
 const { fetchCourseTopics } = useCourseTopics()
-const { materials, fetchMaterials, loading: materialsLoading,fetchMaterialsByTeacher } = useStudyMaterials()
+const { materials, teacherMaterials, fetchMaterials, fetchMaterialsByTeacher, deleteMaterial: deleteMaterialAPI, loading: materialsLoading } = useStudyMaterials()
 
 const loading = ref(true)
 const courses = ref([])
 const selectedCourse = ref(null)
 const modalOpen = ref(false)
+const modalMode = ref('create')
+const materialToEdit = ref(null)
 const preselectedTopicName = ref(null)
+const materialsDialogOpen = ref(false)
+const selectedTopicTitle = ref('')
+const selectedTopicMaterials = ref([])
 const showSuccess = ref(false)
 const showError = ref(false)
 const errorMessage = ref('')
@@ -207,10 +266,36 @@ const topics = computed(() => {
 })
 
 /**
- * Get materials for a specific topic
+ * Get materials for a specific topic (teacher data source)
  */
 const getMaterialsForTopic = (topicName) => {
-  return materials.value.filter(m => m.topic === topicName)
+  if (!topicName) return teacherMaterials.value.filter(m => !m.topic)
+  return teacherMaterials.value.filter(m => m.topic === topicName)
+}
+
+const openTopicMaterials = (topicName) => {
+  selectedTopicTitle.value = topicName || 'Uncategorized'
+  selectedTopicMaterials.value = getMaterialsForTopic(topicName)
+  materialsDialogOpen.value = true
+}
+
+const closeTopicMaterials = () => {
+  materialsDialogOpen.value = false
+  selectedTopicTitle.value = ''
+  selectedTopicMaterials.value = []
+}
+
+const deleteMaterial = async (material) => {
+  if (!confirm(`Delete study material '${material.title}'?`)) return
+  try {
+    await deleteMaterialAPI(material.name)
+    teacherMaterials.value = teacherMaterials.value.filter(m => m.name !== material.name)
+    selectedTopicMaterials.value = selectedTopicMaterials.value.filter(m => m.name !== material.name)
+    // No need to refetch since we updated locally
+  } catch (err) {
+    console.error('Failed to delete material', err)
+    handleError('Could not delete material.')
+  }
 }
 
 /**
@@ -236,10 +321,23 @@ const getFileIcon = (fileUrl) => {
   return iconMap[ext] || 'fa-file-o'
 }
 
+const getFileUrl = (filePath, isDownload = false) => {
+  if (!filePath) return ''
+  if (filePath.startsWith('http')) return filePath
+
+  if (isDownload) {
+    return `/api/method/frappe.utils.file_manager.download_file?file_url=${encodeURIComponent(filePath)}`
+  }
+
+  return filePath
+}
+
 /**
  * Open modal (without topic pre-selection)
  */
 const openModal = () => {
+  modalMode.value = 'create'
+  materialToEdit.value = null
   preselectedTopicName.value = null
   modalOpen.value = true
 }
@@ -249,7 +347,16 @@ const openModal = () => {
  * This is called when clicking the "Add Material" button on a topic
  */
 const openModalWithTopic = (topicName) => {
+  modalMode.value = 'create'
+  materialToEdit.value = null
   preselectedTopicName.value = topicName
+  modalOpen.value = true
+}
+
+const editMaterial = (material) => {
+  modalMode.value = 'edit'
+  materialToEdit.value = material
+  preselectedTopicName.value = material.topic || null
   modalOpen.value = true
 }
 
@@ -273,9 +380,17 @@ const onMaterialUploaded = async (materialData) => {
   setTimeout(() => {
     showSuccess.value = false
   }, 3000)
-  
-  // Refresh materials list
-  await fetchMaterials({ course: selectedCourse.value })
+
+  // Refresh materials lists
+  await Promise.all([
+    fetchMaterials({ course: selectedCourse.value }),
+    fetchMaterialsByTeacher()
+  ])
+
+  // Close edit context if any
+  modalMode.value = 'create'
+  materialToEdit.value = null
+  preselectedTopicName.value = null
 }
 
 /**
