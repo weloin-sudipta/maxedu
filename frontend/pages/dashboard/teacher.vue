@@ -51,13 +51,13 @@
 
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
        <div class="xl:col-span-8 space-y-8">
-          <DailyRoutine :classes="todayClasses" :loading="loading" />
+          <DailyRoutine v-if="todayClasses && todayClasses.length > 0" :classes="todayClasses.slice(0, 2)" :loading="loading" />
           <TeacherDashboardPendingTasks />
        </div>
        
        <div class="xl:col-span-4 space-y-8">
+         <CampusNotice v-if="notices && notices.length > 0" :notices="notices" />
           <AcademicCalendar />
-          <CampusNotice :notices="notices" />
        </div>
     </div>
 
@@ -95,7 +95,7 @@ const recentNotices = ref([
 ])
 
 const { notices: allNotices, fetchNotices } = useNotices();
-const notices = computed(() => allNotices.value.slice(0, 3));
+const notices = computed(() => allNotices.value.slice(0, 2));
 
 // Calculated Properties
 const totalStudentsCount = computed(() => {

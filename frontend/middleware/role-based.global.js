@@ -5,8 +5,13 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   // Skip during SSR — profile is only loaded on the client
   if (process.server) return
 
-  const { userRole, isAuthenticated } = useUserProfile()
+  const { userRole, isAuthenticated, loadProfile } = useUserProfile()
   const { addToast } = useToast()
+
+  // Ensure role is loaded if user is authenticated but state is missing
+  if (isAuthenticated.value && !userRole.value) {
+    await loadProfile()
+  }
 
   // Use already loaded state (auth middleware handles loading for protected routes)
   if (!isAuthenticated.value) return

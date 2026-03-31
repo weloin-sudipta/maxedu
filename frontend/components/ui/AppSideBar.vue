@@ -25,84 +25,86 @@
     </div>
 
     <nav class="flex-1 px-4 mt-4 space-y-1 overflow-y-auto custom-scrollbar">
-      <template v-for="(item, index) in navItems" :key="item.name || item.header">
+      <ClientOnly>
+        <template v-for="(item, index) in navItems" :key="item.name || item.header">
 
-        <div v-if="item.header && isExpanded"
-          class="px-4 mt-6 mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400/80 dark:text-indigo-400/50">
-          {{ item.header }}
-        </div>
-
-        <div v-if="!item.header" class="relative group/item">
-          <div v-if="isActive(item)" class="absolute left-0 top-2 h-8 w-1 rounded-r-full bg-indigo-600 shadow-md"></div>
-
-          <!-- Parent item with children -->
-          <div v-if="item.children" 
-            @click="toggleDropdown(item)"
-            :class="[
-              isActive(item)
-                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-md shadow-indigo-100/60 dark:shadow-none'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md hover:shadow-indigo-100/40 dark:hover:shadow-none hover:text-indigo-600 dark:hover:text-indigo-300',
-              'flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer'
-            ]">
-            <div class="flex items-center gap-4">
-              <span
-                class="w-6 text-center text-lg transition-all duration-300 group-hover/item:scale-110 group-hover/item:text-indigo-600">
-                <i :class="item.icon"></i>
-              </span>
-
-              <span v-show="isExpanded" class="font-medium whitespace-nowrap tracking-wide">
-                {{ item.name }}
-              </span>
-            </div>
-
-            <i v-if="isExpanded"
-              class="fa fa-angle-down transition-transform duration-300 text-xs text-gray-400"
-              :class="{ 'rotate-180 text-indigo-600': item.isOpen }"></i>
+          <div v-if="item.header && isExpanded"
+            class="px-4 mt-6 mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400/80 dark:text-indigo-400/50">
+            {{ item.header }}
           </div>
 
-          <!-- Parent item without children (direct link) -->
-          <NuxtLink v-else
-            :to="item.route"
-            :class="[
-              isActive(item)
-                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-md shadow-indigo-100/60 dark:shadow-none'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md hover:shadow-indigo-100/40 dark:hover:shadow-none hover:text-indigo-600 dark:hover:text-indigo-300',
-              'flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 hover:-translate-y-0.5'
-            ]">
-            <div class="flex items-center gap-4">
-              <span
-                class="w-6 text-center text-lg transition-all duration-300 group-hover/item:scale-110 group-hover/item:text-indigo-600">
-                <i :class="item.icon"></i>
-              </span>
+          <div v-if="!item.header" class="relative group/item">
+            <div v-if="isActive(item)" class="absolute left-0 top-2 h-8 w-1 rounded-r-full bg-indigo-600 shadow-md"></div>
 
-              <span v-show="isExpanded" class="font-medium whitespace-nowrap tracking-wide">
-                {{ item.name }}
-              </span>
-            </div>
-          </NuxtLink>
+            <!-- Parent item with children -->
+            <div v-if="item.children" 
+              @click="toggleDropdown(item)"
+              :class="[
+                isActive(item)
+                  ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-md shadow-indigo-100/60 dark:shadow-none'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md hover:shadow-indigo-100/40 dark:hover:shadow-none hover:text-indigo-600 dark:hover:text-indigo-300',
+                'flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer'
+              ]">
+              <div class="flex items-center gap-4">
+                <span
+                  class="w-6 text-center text-lg transition-all duration-300 group-hover/item:scale-110 group-hover/item:text-indigo-600">
+                  <i :class="item.icon"></i>
+                </span>
 
-          <!-- Dropdown children -->
-          <transition name="expand">
-            <div v-if="item.children && item.isOpen && isExpanded" class="overflow-hidden">
-              <div class="mt-2 ml-4 pl-6 border-l border-indigo-100 space-y-1 my-2">
-                <NuxtLink 
-                  v-for="sub in item.children" 
-                  :key="sub.name" 
-                  :to="sub.route" 
-                  @click="handleChildClick(item)"
-                  :class="[
-                    route.path === sub.route
-                      ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50/60 dark:hover:bg-slate-800',
-                    'block px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 hover:translate-x-1'
-                  ]">
-                  {{ sub.name }}
-                </NuxtLink>
+                <span v-show="isExpanded" class="font-medium whitespace-nowrap tracking-wide">
+                  {{ item.name }}
+                </span>
               </div>
+
+              <i v-if="isExpanded"
+                class="fa fa-angle-down transition-transform duration-300 text-xs text-gray-400"
+                :class="{ 'rotate-180 text-indigo-600': item.isOpen }"></i>
             </div>
-          </transition>
-        </div>
-      </template>
+
+            <!-- Parent item without children (direct link) -->
+            <NuxtLink v-else
+              :to="item.route"
+              :class="[
+                isActive(item)
+                  ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-md shadow-indigo-100/60 dark:shadow-none'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md hover:shadow-indigo-100/40 dark:hover:shadow-none hover:text-indigo-600 dark:hover:text-indigo-300',
+                'flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 hover:-translate-y-0.5'
+              ]">
+              <div class="flex items-center gap-4">
+                <span
+                  class="w-6 text-center text-lg transition-all duration-300 group-hover/item:scale-110 group-hover/item:text-indigo-600">
+                  <i :class="item.icon"></i>
+                </span>
+
+                <span v-show="isExpanded" class="font-medium whitespace-nowrap tracking-wide">
+                  {{ item.name }}
+                </span>
+              </div>
+            </NuxtLink>
+
+            <!-- Dropdown children -->
+            <transition name="expand">
+              <div v-if="item.children && item.isOpen && isExpanded" class="overflow-hidden">
+                <div class="mt-2 ml-4 pl-6 border-l border-indigo-100 space-y-1 my-2">
+                  <NuxtLink 
+                    v-for="sub in item.children" 
+                    :key="sub.name" 
+                    :to="sub.route" 
+                    @click="handleChildClick(item)"
+                    :class="[
+                      route.path === sub.route
+                        ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50/60 dark:hover:bg-slate-800',
+                      'block px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 hover:translate-x-1'
+                    ]">
+                    {{ sub.name }}
+                  </NuxtLink>
+                </div>
+              </div>
+            </transition>
+          </div>
+        </template>
+      </ClientOnly>
 
       <div class="pt-4 mt-4 border-t border-gray-100 dark:border-slate-800">
         <div class="relative group/item">
@@ -194,7 +196,7 @@ const updateNavItems = () => {
   if (userRole.value === 'teacher') {
     navItems.value = [
       { header: 'Main Menu' },
-      { name: 'Dashboard', icon: 'fa fa-th-large', route: '/teacher/dashboard' },
+      { name: 'Dashboard', icon: 'fa fa-th-large', route: '/' },
       { name: 'Notice & News', icon: 'fa fa-bullhorn', route: '/notices' },
       { name: 'Events', icon: 'fa fa-calendar-alt', route: '/events' },
 
@@ -207,7 +209,8 @@ const updateNavItems = () => {
           { name: 'Attendance', route: '/teacher/academics/attendance' },
           { name: 'Assignments', route: '/teacher/academics/assignments' },
           { name: 'Lesson Planning', route: '/teacher/academics/lesson-planning' },
-          { name: 'My Classes', route: '/teacher/academics/my-classes' }
+          { name: 'My Classes', route: '/teacher/academics/my-classes' },
+          // { name: 'Study Materials', route: '/academics/study-materials' }
         ]
       },
 

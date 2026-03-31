@@ -3,7 +3,7 @@ import { createResource } from './useFrappeFetch'
 
 export const useTeacherDashboard = () => {
     const data = ref(null)
-    const loading = ref(false)
+    const loading = ref(true)
     const error = ref(null)
 
     // Pending Tasks state

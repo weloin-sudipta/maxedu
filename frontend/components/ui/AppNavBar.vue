@@ -88,13 +88,26 @@
 
       <!-- Profile -->
       <div class="flex items-center gap-3 pl-2">
-        <div class="flex-col items-end hidden sm:flex">
-          <span class="text-sm font-semibold text-gray-700 dark:text-slate-200 transition-colors">{{ profileData.fullName || 'User' }}</span>
-          <span class="text-xs text-gray-400 dark:text-slate-500 uppercase transition-colors">{{ userRole || 'User' }}</span>
-        </div>
-        <div class="w-10 h-10 font-bold text-white bg-indigo-500 border-2 border-white dark:border-slate-800 rounded-full shadow-sm flex items-center justify-center transition-colors">
-          {{ profileData.firstName?.charAt(0) + profileData.lastName?.charAt(0) || 'U' }}
-        </div>
+        <ClientOnly>
+          <div class="flex items-center gap-3">
+            <div class="flex-col items-end hidden sm:flex">
+              <span class="text-sm font-semibold text-gray-700 dark:text-slate-200 transition-colors">{{ profileData.fullName || 'User' }}</span>
+              <span class="text-xs text-gray-400 dark:text-slate-500 uppercase transition-colors">{{ userRole || 'User' }}</span>
+            </div>
+            <div class="w-10 h-10 font-bold text-white bg-indigo-500 border-2 border-white dark:border-slate-800 rounded-full shadow-sm flex items-center justify-center transition-colors">
+              {{ profileData.firstName?.charAt(0) ? profileData.firstName.charAt(0) + (profileData.lastName?.charAt(0) || '') : 'U' }}
+            </div>
+          </div>
+          <template #fallback>
+            <div class="flex items-center gap-3">
+              <div class="flex-col items-end hidden sm:flex space-y-1">
+                <span class="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
+                <span class="h-3 w-12 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
+              </div>
+              <div class="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-full animate-pulse border-2 border-white dark:border-slate-800"></div>
+            </div>
+          </template>
+        </ClientOnly>
       </div>
     </div>
   </nav>

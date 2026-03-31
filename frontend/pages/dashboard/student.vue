@@ -110,11 +110,11 @@
                     <UiSkeleton height="h-48" class="rounded-[2.5rem]" />
                 </template>
                 <template v-else>
-                    <CurrentProgram :program-data="programData" @click="showModal = true" />
-                    <TodayClass :todayClasses="todayClasses" />
-                    <UpcomingExams :upcomingExams="upcomingExams" />
-                    <Assignment :assignments="assignments" />
-                    <PaymentHistory :fees="dashboardData?.fees" />
+                    <CurrentProgram v-if="programData.name && programData.name !== 'N/A'" :program-data="programData" @click="showModal = true" />
+                    <TodayClass v-if="todayClasses && todayClasses.length > 0" :todayClasses="todayClasses" />
+                    <UpcomingExams v-if="upcomingExams && upcomingExams.length > 0" :upcomingExams="upcomingExams" />
+                    <Assignment v-if="assignments && assignments.length > 0" :assignments="assignments" />
+                    <PaymentHistory v-if="dashboardData?.fees && dashboardData.fees.length > 0" :fees="dashboardData?.fees.slice(0, 2)" />
                 </template>
             </div>
 
@@ -126,10 +126,10 @@
                 </template>
                 <template v-else>
                     <!-- ATTENDANCE -->
-                    <Attendance :attendance="attendanceData" />
+                    <Attendance v-if="attendanceData && attendanceData.total_days > 0" :attendance="attendanceData" />
                     <StopWatch />
                     <!-- <BookRecommendetion :recommendedBooks="recommendedBooks" /> -->
-                    <CampusNotice :notices="notices" />
+                    <CampusNotice v-if="notices && notices.length > 0" :notices="notices" />
                     <AcademicCalendar />
                     <!-- <Event /> -->
                 </template>
@@ -241,7 +241,7 @@ if (weekDays.includes(today)) activeDay.value = today;
 
 // notice data
 const { notices: allNotices, fetchNotices } = useNotices();
-const notices = computed(() => allNotices.value.slice(0, 3));
+const notices = computed(() => allNotices.value.slice(0, 2));
 
 /* PROGRAM DATA */
 const programData = computed(() => {

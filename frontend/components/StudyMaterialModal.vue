@@ -1,110 +1,83 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <!-- Backdrop -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="closeModal"></div>
+  <AppModal :model-value="isOpen" @update:model-value="$event ? null : emit('close')"
+    :title="`${props.mode === 'edit' ? 'Edit Study Material' : 'Upload Study Material'}`" max-width="max-w-3xl">
+    <!-- Form Content -->
+    <form @submit.prevent="handleSubmit" class="space-y-6">
 
-    <!-- Modal Panel -->
-    <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-      <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-slate-900 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-        
-        <!-- Header -->
-        <div class="px-6 pt-6 pb-4 border-b border-slate-200 dark:border-slate-800">
-          <div class="flex items-start justify-between">
-            <div>
-              <h3 class="text-lg font-black text-slate-900 dark:text-white" id="modal-title">
-                {{ props.mode === 'edit' ? 'Edit Study Material' : 'Upload Study Material' }}
-              </h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {{ props.mode === 'edit' ? 'Update existing learning resource' : 'Add new learning resources to the course' }}
-              </p>
-            </div>
-            <button
-              @click="closeModal"
-              class="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors"
-            >
-              <i class="fa fa-times"></i>
-            </button>
-          </div>
+      <!-- Section 1: Basic Information -->
+      <div class="space-y-4">
+        <h4
+          class="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <i class="fa fa-info-circle mr-2 text-indigo-500"></i>Basic Information
+        </h4>
+
+        <!-- Title (Required) -->
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
+            Title <span class="text-red-500">*</span>
+          </label>
+          <input type="text" v-model="formData.title"
+            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder-slate-400 dark:placeholder-slate-500"
+            placeholder="Enter study material title" required />
         </div>
 
-        <!-- Form -->
-        <form @submit.prevent="handleSubmit" class="px-6 py-4 space-y-4">
-          
-          <!-- Title (Required) -->
-          <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-              Title <span class="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              v-model="formData.title"
-              class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-              placeholder="Enter study material title"
-              required
-            />
-          </div>
-
+        <!-- Course & Topic Row -->
+        <div class="grid grid-cols-2 gap-4">
           <!-- Course (Required - Pre-selected) -->
           <div>
             <label class="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
               Course <span class="text-red-500">*</span>
             </label>
-            <select
-              v-model="formData.course"
-              @change="onCourseChange"
-              class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-              required
-              :disabled="!!preselectedCourse"
-            >
+            <select v-model="formData.course" @change="onCourseChange"
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+              required :disabled="!!preselectedCourse">
               <option v-if="!preselectedCourse" value="">Select a course</option>
-              <option
-                v-for="course in courses"
-                :key="course.name"
-                :value="course.name"
-              >
+              <option v-for="course in courses" :key="course.name" :value="course.name">
                 {{ course.course_name }}
               </option>
             </select>
-            <p v-if="preselectedCourse" class="text-xs text-slate-400 mt-1">
-              Course is pre-selected from current view
+            <p v-if="preselectedCourse" class="text-xs text-slate-400 mt-2">
+              <i class="fa fa-lock mr-1"></i>Pre-selected from current view
             </p>
           </div>
 
-          <!-- Topic (Optional - Pre-selected if from topic button) -->
+          <!-- Topic (Optional) -->
           <div>
             <label class="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-              Topic <span class="text-slate-400 text-[10px]">(Optional)</span>
+              Topic <span class="text-slate-400 text-[10px] font-normal">(Optional)</span>
             </label>
-            <select
-              v-model="selectedTopicValue"
-              @change="handleTopicChange"
-              class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-              :disabled="!!preselectedTopic"
-            >
-              <option value="">Select a topic (optional)</option>
-              <option
-                v-for="topic in availableTopics"
-                :key="topic.name"
-                :value="topic.topic_name || topic.name"
-              >
+            <select v-model="selectedTopicValue" @change="handleTopicChange"
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+              :disabled="!!preselectedTopic">
+              <option value="">Select a topic</option>
+              <option v-for="topic in availableTopics" :key="topic.name" :value="topic.topic_name || topic.name">
                 {{ topic.topic_name || topic.name }}
               </option>
             </select>
-            <p v-if="preselectedTopicName" class="text-xs text-indigo-500 mt-1">
-              <i class="fa fa-link"></i> Topic is pre-selected for this material
+            <p v-if="preselectedTopicName" class="text-xs text-indigo-500 mt-2">
+              <i class="fa fa-link mr-1"></i>Pre-selected for this material
             </p>
           </div>
+        </div>
+      </div>
 
-          <!-- Category (Required - Now with proper selection) -->
+      <!-- Section 2: Content Details -->
+      <div class="space-y-4">
+        <h4
+          class="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <i class="fa fa-file-o mr-2 text-blue-500"></i>Content Details
+        </h4>
+
+        <!-- Category & Upload Date Row -->
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Category -->
           <div>
             <label class="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-              Category <span>(Optional)</span>
+              Category <span class="text-slate-400 text-[10px] font-normal">(optional)</span>
             </label>
-            <select
-              v-model="formData.category"
-              class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-            >
-              <option value="" disabled>Select a category</option>
+            <select v-model="formData.category"
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all">
+              <option value="">Select a category</option>
               <option value="Lecture Notes">Lecture Notes</option>
               <option value="Syllabus">Syllabus</option>
               <option value="Question Bank">Question Bank</option>
@@ -113,93 +86,90 @@
             </select>
           </div>
 
-          <!-- File Upload (Required) -->
+          <!-- Upload Date -->
           <div>
             <label class="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-              File <span class="text-red-500">*</span>
+              Upload Date <span class="text-slate-400 text-[10px] font-normal">(optional)</span>
             </label>
-            <div class="relative">
-              <input
-                type="file"
-                ref="fileInput"
-                @change="handleFileChange"
-                class="hidden"
-                accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.mp4,.zip"
-              />
-              <div
-                @click="$refs.fileInput.click()"
-                class="w-full px-4 py-3 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-500 transition-all"
-              >
-                <div class="text-center">
-                  <i class="fa fa-cloud-upload text-2xl text-slate-400 mb-2"></i>
-                  <p class="text-sm text-slate-600 dark:text-slate-400">
+            <input type="date" v-model="formData.upload_date"
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all" />
+          </div>
+        </div>
+
+        <!-- Description (Optional) -->
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
+            Description <span class="text-slate-400 text-[10px] font-normal">(optional)</span>
+          </label>
+          <textarea v-model="formData.description" rows="2"
+            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none placeholder-slate-400 dark:placeholder-slate-500"
+            placeholder="Add a detailed description of the study material..."></textarea>
+        </div>
+      </div>
+
+      <!-- Section 3: File Upload -->
+      <div class="space-y-4">
+        <h4
+          class="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <i class="fa fa-cloud-upload mr-2 text-green-500"></i>File Upload
+        </h4>
+
+        <!-- File Upload (Required) -->
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-3">
+            File <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <input type="file" ref="fileInput" @change="handleFileChange" class="hidden"
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.mp4,.zip" />
+            <div @click="$refs.fileInput.click()"
+              class="w-full px-6 py-4 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-700/30 transition-all">
+              <div class="flex items-center justify-center gap-4">
+                <div
+                  class="inline-flex items-center justify-center w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg shrink-0">
+                  <i class="fa fa-cloud-upload text-lg text-indigo-600 dark:text-indigo-400"></i>
+                </div>
+                <div class="text-left">
+                  <p class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">
                     {{ fileSelected ? fileSelected.name : 'Click to upload or drag and drop' }}
                   </p>
-                  <p class="text-xs text-slate-400 mt-1">
+                  <p class="text-xs text-slate-500 dark:text-slate-400">
                     PDF, DOC, PPT, Images, MP4 (Max 50MB)
                   </p>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- Upload Date (Optional) -->
-          <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-              Upload Date <span class="text-slate-400 text-[10px]">(Optional)</span>
-            </label>
-            <input
-              type="date"
-              v-model="formData.upload_date"
-              class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-            />
-          </div>
-
-          <!-- Description (Optional) -->
-          <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-              Description <span class="text-slate-400 text-[10px]">(Optional)</span>
-            </label>
-            <textarea
-              v-model="formData.description"
-              rows="3"
-              class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none"
-              placeholder="Add a detailed description of the study material..."
-            ></textarea>
-          </div>
-
-          <!-- Error Message -->
-          <div v-if="error" class="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-            <p class="text-xs text-red-600 dark:text-red-400">{{ error }}</p>
-          </div>
-
-          <!-- Actions -->
-          <div class="flex gap-3 pt-4">
-            <button
-              type="button"
-              @click="closeModal"
-              class="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              :disabled="loading"
-              class="flex-1 px-4 py-2 rounded-xl bg-indigo-600 dark:bg-indigo-500 text-white text-sm font-bold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              <i v-if="loading" class="fa fa-spinner fa-spin"></i>
-              {{ loading ? (props.mode === 'edit' ? 'Saving...' : 'Uploading...') : (props.mode === 'edit' ? 'Save Changes' : 'Upload Material') }}
-            </button>
-          </div>
-
-        </form>
+        </div>
       </div>
-    </div>
-  </div>
+
+      <!-- Error Message -->
+      <div v-if="error"
+        class="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-start gap-3">
+        <i class="fa fa-exclamation-circle text-red-600 dark:text-red-400 mt-0.5"></i>
+        <p class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+      </div>
+    </form>
+
+    <!-- Submit Buttons -->
+    <template #footer>
+      <button type="button" @click="emit('close')"
+        class="flex-1 px-6 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+        Cancel
+      </button>
+      <button type="submit" @click="handleSubmit" :disabled="loading"
+        class="flex-1 px-6 py-3 rounded-xl bg-indigo-600 dark:bg-indigo-500 text-white text-sm font-bold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+        <i v-if="loading" class="fa fa-spinner fa-spin"></i>
+        {{ loading ? (props.mode === 'edit' ? 'Saving...' : 'Uploading...') : (props.mode === 'edit' ? 'Save Changes' :
+        'Upload Material') }}
+      </button>
+    </template>
+  </AppModal>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
+import AppModal from '~/components/ui/AppModal.vue'
 import { useStudyMaterials } from '~/composable/useStudyMaterials'
 
 const props = defineProps({
@@ -303,7 +273,7 @@ const handleFileChange = (event) => {
       formData.value.file = null
       return
     }
-    
+
     fileSelected.value = file
     formData.value.file = file
     error.value = null
@@ -313,13 +283,13 @@ const handleFileChange = (event) => {
 // Handle form submission
 const handleSubmit = async () => {
   error.value = null
-  
+
   // Validate required fields
   if (!formData.value.title.trim()) {
     error.value = 'Title is required'
     return
   }
-  
+
   if (!formData.value.course) {
     error.value = 'Course is required'
     return
@@ -329,7 +299,7 @@ const handleSubmit = async () => {
     error.value = 'File is required'
     return
   }
-  
+
   try {
     console.log('Submitting form data:', {
       mode: props.mode,
@@ -351,7 +321,8 @@ const handleSubmit = async () => {
 
     if (result?.success) {
       emit('success', result.data || result)
-      closeModal()
+      resetForm()
+      emit('close')
     } else {
       error.value = result?.message || (props.mode === 'edit' ? 'Failed to update study material' : 'Failed to upload study material')
     }
@@ -435,6 +406,7 @@ watch(() => props.isOpen, (isOpen) => {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
