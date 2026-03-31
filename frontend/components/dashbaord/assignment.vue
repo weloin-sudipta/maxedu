@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors">
+  <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors">
 
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
