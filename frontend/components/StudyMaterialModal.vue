@@ -51,6 +51,7 @@
             </label>
             <select
               v-model="formData.course"
+              @change="onCourseChange"
               class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
               required
               :disabled="!!preselectedCourse"
@@ -75,7 +76,8 @@
               Topic <span class="text-slate-400 text-[10px]">(Optional)</span>
             </label>
             <select
-              v-model="formData.topic"
+              v-model="selectedTopicValue"
+              @change="handleTopicChange"
               class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
               :disabled="!!preselectedTopic"
             >
@@ -83,32 +85,31 @@
               <option
                 v-for="topic in availableTopics"
                 :key="topic.name"
-                :value="topic.name"
+                :value="topic.topic_name || topic.name"
               >
                 {{ topic.topic_name || topic.name }}
               </option>
             </select>
-            <p v-if="preselectedTopic" class="text-xs text-indigo-500 mt-1">
+            <p v-if="preselectedTopicName" class="text-xs text-indigo-500 mt-1">
               <i class="fa fa-link"></i> Topic is pre-selected for this material
             </p>
           </div>
 
-          <!-- Category (Optional) -->
+          <!-- Category (Required - Now with proper selection) -->
           <div>
             <label class="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-              Category <span class="text-slate-400 text-[10px]">(Optional)</span>
+              Category <span>(Optional)</span>
             </label>
             <select
               v-model="formData.category"
               class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
             >
-              <option value="">Select category</option>
-              <option value="Lecture Notes">📝 Lecture Notes</option>
-              <option value="Video">🎥 Video</option>
-              <option value="Presentation">📊 Presentation</option>
-              <option value="Assignment">📋 Assignment</option>
-              <option value="Reference">📚 Reference</option>
-              <option value="Other">📄 Other</option>
+              <option value="" disabled>Select a category</option>
+              <option value="Lecture Notes">Lecture Notes</option>
+              <option value="Syllabus">Syllabus</option>
+              <option value="Question Bank">Question Bank</option>
+              <option value="Lab Manuals">Lab Manuals</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 
@@ -198,7 +199,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useStudyMaterials } from '~/composable/useStudyMaterials'
 
 const props = defineProps({
@@ -235,19 +236,12 @@ const loading = computed(() => createLoading.value)
 const error = ref(null)
 const fileSelected = ref(null)
 const fileInput = ref(null)
-
-// Find the selected topic object if topic name is provided
-const selectedTopicObject = computed(() => {
-  if (props.preselectedTopic) {
-    return props.topics.find(t => t.name === props.preselectedTopic)
-  }
-  return null
-})
+const selectedTopicValue = ref('')
 
 const formData = ref({
   title: '',
   course: props.preselectedCourse || '',
-  topic: props.preselectedTopic || '',
+  topic: '',
   category: '',
   file: null,
   upload_date: new Date().toISOString().split('T')[0],
@@ -261,9 +255,19 @@ const availableTopics = computed(() => {
   return selectedCourse?.topics || []
 })
 
-// Watch for course changes to reset topic if not preselected
+// Handle course change
+const onCourseChange = () => {
+  // Reset topic when course changes
+  if (!props.preselectedTopic) {
+    selectedTopicValue.value = ''
+    formData.value.topic = ''
+  }
+}
+
+// Watch for course changes
 watch(() => formData.value.course, (newCourse) => {
   if (!props.preselectedTopic) {
+    selectedTopicValue.value = ''
     formData.value.topic = ''
   }
 })
@@ -274,6 +278,11 @@ watch(() => createError.value, (newError) => {
     error.value = newError
   }
 })
+
+// Handle topic selection - store the actual topic name/value
+const handleTopicChange = () => {
+  formData.value.topic = selectedTopicValue.value
+}
 
 // Handle file selection
 const handleFileChange = (event) => {
@@ -314,6 +323,16 @@ const handleSubmit = async () => {
   }
   
   try {
+    console.log('Submitting form data:', {
+      title: formData.value.title,
+      course: formData.value.course,
+      topic: formData.value.topic,
+      category: formData.value.category,
+      upload_date: formData.value.upload_date,
+      description: formData.value.description,
+      file: formData.value.file?.name
+    })
+    
     const result = await createMaterial(formData.value)
     
     if (result?.success) {
@@ -323,6 +342,7 @@ const handleSubmit = async () => {
       error.value = result?.message || 'Failed to upload study material'
     }
   } catch (err) {
+    console.error('Submission error:', err)
     error.value = err.message || 'An error occurred while uploading'
   }
 }
@@ -338,12 +358,13 @@ const resetForm = () => {
   formData.value = {
     title: '',
     course: props.preselectedCourse || '',
-    topic: props.preselectedTopic || '',
+    topic: '',
     category: '',
     file: null,
     upload_date: new Date().toISOString().split('T')[0],
     description: ''
   }
+  selectedTopicValue.value = ''
   fileSelected.value = null
   if (fileInput.value) {
     fileInput.value.value = ''
@@ -354,9 +375,29 @@ const resetForm = () => {
 // Reset when modal opens with new preselected course/topic
 watch(() => props.isOpen, (isOpen) => {
   if (isOpen) {
+    // Set course
     formData.value.course = props.preselectedCourse || ''
-    formData.value.topic = props.preselectedTopic || ''
-    resetForm()
+    
+    // Handle preselected topic - automatically set the topic
+    if (props.preselectedTopicName) {
+      selectedTopicValue.value = props.preselectedTopicName
+      formData.value.topic = props.preselectedTopicName
+      console.log('Preselected topic set to:', props.preselectedTopicName)
+    } else {
+      selectedTopicValue.value = ''
+      formData.value.topic = ''
+    }
+    
+    // Reset other fields but keep course and topic if preselected
+    formData.value.title = ''
+    formData.value.category = ''
+    formData.value.file = null
+    formData.value.description = ''
+    fileSelected.value = null
+    if (fileInput.value) {
+      fileInput.value.value = ''
+    }
+    error.value = null
   }
 })
 </script>

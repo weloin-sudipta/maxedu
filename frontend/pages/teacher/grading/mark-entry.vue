@@ -21,14 +21,14 @@
         </div>
 
         <!-- Save button -->
-        <button
+        <!-- <button
           @click="handleSave"
           :disabled="saving || !selectedExam || students.length === 0"
           class="h-10 px-6 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-xs font-black uppercase tracking-widest transition-colors shadow-lg shadow-emerald-100 dark:shadow-none flex items-center gap-2"
         >
           <i :class="saving ? 'fa fa-spinner fa-spin' : 'fa fa-save'"></i>
           {{ saving ? 'Saving…' : 'Save Marks' }}
-        </button>
+        </button> -->
 
       </div>
     </HeroHeader>

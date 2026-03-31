@@ -79,7 +79,7 @@
                       {{ topic.topic_name }}
                     </h4>
                   </div>
-                  <span class="text-xs text-slate-400">{{ getMaterialsForTopic(topic.name).length }} materials</span>
+                  <span class="text-xs text-slate-400">{{ getMaterialsForTopic(topic.topic_name).length }} materials</span>
                 </div>
 
                 <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg mb-4">
@@ -87,9 +87,9 @@
                 </p>
 
                 <!-- Display existing materials -->
-                <div v-if="getMaterialsForTopic(topic.name).length > 0" class="flex flex-wrap gap-2 mb-3">
+                <div v-if="getMaterialsForTopic(topic.topic_name).length > 0" class="flex flex-wrap gap-2 mb-3">
                   <div 
-                    v-for="material in getMaterialsForTopic(topic.name)"
+                    v-for="material in getMaterialsForTopic(topic.topic_name)"
                     :key="material.name"
                     class="flex items-center gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg shadow-sm"
                   >
@@ -100,7 +100,7 @@
 
                 <!-- Add Material Button -->
                 <button 
-                  @click="openModalWithTopic(topic.name)"
+                  @click="openModalWithTopic(topic.topic_name)"
                   class="flex items-center gap-2 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 px-3 py-1.5 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
                 >
                   <i class="fa fa-plus"></i> Add Material to {{ topic.topic_name }}
@@ -135,7 +135,7 @@
     <StudyMaterialModal
       :is-open="modalOpen"
       :preselected-course="selectedCourse"
-      :preselected-topic="preselectedTopic"
+      :preselected-topic-name="preselectedTopicName"
       :courses="courses"
       :topics="topics"
       @close="closeModal"
@@ -152,13 +152,13 @@ import { useCourseTopics } from '~/composable/useCourseTopics'
 import { useStudyMaterials } from '~/composable/useStudyMaterials'
 
 const { fetchCourseTopics } = useCourseTopics()
-const { materials, fetchMaterials, loading: materialsLoading } = useStudyMaterials()
+const { materials, fetchMaterials, loading: materialsLoading,fetchMaterialsByTeacher } = useStudyMaterials()
 
 const loading = ref(true)
 const courses = ref([])
 const selectedCourse = ref(null)
 const modalOpen = ref(false)
-const preselectedTopic = ref(null)
+const preselectedTopicName = ref(null)
 const showSuccess = ref(false)
 const showError = ref(false)
 const errorMessage = ref('')
@@ -240,7 +240,7 @@ const getFileIcon = (fileUrl) => {
  * Open modal (without topic pre-selection)
  */
 const openModal = () => {
-  preselectedTopic.value = null
+  preselectedTopicName.value = null
   modalOpen.value = true
 }
 
@@ -249,7 +249,7 @@ const openModal = () => {
  * This is called when clicking the "Add Material" button on a topic
  */
 const openModalWithTopic = (topicName) => {
-  preselectedTopic.value = topicName
+  preselectedTopicName.value = topicName
   modalOpen.value = true
 }
 
@@ -260,7 +260,7 @@ const closeModal = () => {
   modalOpen.value = false
   // Don't reset preselectedTopic immediately to allow modal to use it
   setTimeout(() => {
-    preselectedTopic.value = null
+    preselectedTopicName.value = null
   }, 300)
 }
 
@@ -290,6 +290,7 @@ const handleError = (message) => {
 }
 
 onMounted(() => {
+  fetchMaterialsByTeacher()
   loadData()
 })
 </script>

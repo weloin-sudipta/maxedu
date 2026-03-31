@@ -33,7 +33,10 @@
 
     <div v-else class="grid grid-cols-1 gap-10">
       <div v-for="template in templates" :key="template.name" 
-        class="relative bg-white dark:bg-slate-900 rounded-[3.5rem] border border-slate-100 dark:border-slate-800 p-2 shadow-sm hover:shadow-xl transition-all duration-500">
+        :class="[
+          'relative bg-white dark:bg-slate-900 rounded-[3.5rem] border border-slate-100 dark:border-slate-800 p-2 shadow-sm hover:shadow-xl transition-all duration-500',
+          expandedCard === template.name ? 'shadow-2xl' : ''
+        ]">
         
         <div class="p-8 lg:p-12">
           <div class="flex flex-col xl:flex-row justify-between gap-10">
@@ -52,47 +55,61 @@
               
               <div>
                 <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight leading-tight">{{ template.title }}</h2>
-                <div class="text-slate-500 text-sm leading-relaxed max-w-3xl font-medium" v-html="template.description"></div>
+                
+                <!-- Description with See More functionality -->
+                <div class="text-slate-500 text-sm leading-relaxed max-w-3xl font-medium">
+                  <div v-if="!isDescriptionExpanded(template.name)" v-html="getShortDescription(template.description)"></div>
+                  <div v-else v-html="template.description"></div>
+                  
+                  <button 
+                    v-if="isDescriptionLong(template.description)"
+                    @click="toggleDescription(template.name)"
+                    class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 text-xs font-bold uppercase tracking-wider mt-2 inline-flex items-center gap-1 transition-colors"
+                  >
+                    {{ isDescriptionExpanded(template.name) ? 'See Less' : 'See More' }}
+                    <i :class="isDescriptionExpanded(template.name) ? 'fa fa-chevron-up' : 'fa fa-chevron-down'" class="text-[10px]"></i>
+                  </button>
+                </div>
               </div>
               
               <div class="flex flex-wrap gap-4 pt-4">
-                 <a v-if="template.assignment_file" :href="template.assignment_file" target="_blank" class="flex items-center gap-3 px-5 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-white dark:hover:bg-slate-700 hover:border-indigo-200 dark:hover:border-indigo-800 shadow-sm hover:shadow-md transition-all group/btn">
-                    <div class="w-8 h-8 bg-rose-50 dark:bg-rose-900/30 rounded-lg flex items-center justify-center text-rose-500 group-hover/btn:scale-110 transition-transform">
-                      <i class="fa fa-file-pdf-o"></i>
-                    </div>
-                    <span class="text-[10px] font-black uppercase text-slate-600 dark:text-slate-300 tracking-widest">Master File</span>
-                 </a>
+                <a v-if="template.assignment_file" :href="template.assignment_file" target="_blank" class="flex items-center gap-3 px-5 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-white dark:hover:bg-slate-700 hover:border-indigo-200 dark:hover:border-indigo-800 shadow-sm hover:shadow-md transition-all group/btn">
+                  <div class="w-8 h-8 bg-rose-50 dark:bg-rose-900/30 rounded-lg flex items-center justify-center text-rose-500 group-hover/btn:scale-110 transition-transform">
+                    <i class="fa fa-file-pdf-o"></i>
+                  </div>
+                  <span class="text-[10px] font-black uppercase text-slate-600 dark:text-slate-300 tracking-widest">Master File</span>
+                </a>
 
-                 <button v-if="template.status === 'Draft'" @click="handlePublish(template)" class="flex items-center gap-3 px-6 py-3 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all font-black text-[10px] uppercase tracking-widest">
-                    <i class="fa fa-paper-plane"></i> Publish to Students
-                 </button>
+                <button v-if="template.status === 'Draft'" @click="handlePublish(template)" class="flex items-center gap-3 px-6 py-3 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all font-black text-[10px] uppercase tracking-widest">
+                  <i class="fa fa-paper-plane"></i> Publish to Students
+                </button>
 
-                 <button @click="toggleSubmissions(template)" class="flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-indigo-500 transition-all font-black text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-300">
-                    <i :class="['fa', expandedTemplate === template.name ? 'fa-chevron-up' : 'fa-list-ul']"></i> 
-                    {{ expandedTemplate === template.name ? 'Hide Submissions' : 'Review Submissions' }}
-                 </button>
+                <button @click="toggleSubmissions(template)" class="flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-indigo-500 transition-all font-black text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-300">
+                  <i :class="['fa', expandedTemplate === template.name ? 'fa-chevron-up' : 'fa-list-ul']"></i> 
+                  {{ expandedTemplate === template.name ? 'Hide Submissions' : 'Review Submissions' }}
+                </button>
               </div>
             </div>
 
             <!-- Stats Card -->
             <div class="xl:w-80 bg-slate-50 dark:bg-slate-800/40 rounded-[2.5rem] p-10 flex flex-col justify-center items-center text-center border border-white dark:border-slate-700/50 shadow-inner">
-               <div class="relative w-24 h-24 mb-6">
-                 <svg class="w-full h-full transform -rotate-90">
-                   <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="8" fill="transparent" class="text-slate-200 dark:text-slate-700" />
-                   <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="8" fill="transparent" 
-                     class="text-indigo-500 transition-all duration-1000" 
-                     :stroke-dasharray="2 * Math.PI * 40" 
-                     :stroke-dashoffset="2 * Math.PI * 40 * (template.stats?.total ? (1 - (template.stats.submitted + template.stats.evaluated) / template.stats.total) : 1)" />
-                 </svg>
-                 <div class="absolute inset-0 flex items-center justify-center">
-                   <span class="text-3xl font-black text-indigo-600 dark:text-indigo-400">{{ template.stats?.submitted + template.stats?.evaluated || 0 }}</span>
-                 </div>
-               </div>
-               <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Total: {{ template.stats?.total || 0 }} Submissions</p>
-               <div class="mt-4 flex gap-4">
-                  <span class="text-[9px] font-bold text-green-500 uppercase tracking-tighter">{{ template.stats?.evaluated || 0 }} Graded</span>
-                  <span class="text-[9px] font-bold text-amber-500 uppercase tracking-tighter">{{ template.stats?.submitted || 0 }} Pending</span>
-               </div>
+              <div class="relative w-24 h-24 mb-6">
+                <svg class="w-full h-full transform -rotate-90">
+                  <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="8" fill="transparent" class="text-slate-200 dark:text-slate-700" />
+                  <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="8" fill="transparent" 
+                    class="text-indigo-500 transition-all duration-1000" 
+                    :stroke-dasharray="2 * Math.PI * 40" 
+                    :stroke-dashoffset="2 * Math.PI * 40 * (template.stats?.total ? (1 - (template.stats.submitted + template.stats.evaluated) / template.stats.total) : 1)" />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-3xl font-black text-indigo-600 dark:text-indigo-400">{{ template.stats?.submitted + template.stats?.evaluated || 0 }}</span>
+                </div>
+              </div>
+              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Total: {{ template.stats?.total || 0 }} Submissions</p>
+              <div class="mt-4 flex gap-4">
+                <span class="text-[9px] font-bold text-green-500 uppercase tracking-tighter">{{ template.stats?.evaluated || 0 }} Graded</span>
+                <span class="text-[9px] font-bold text-amber-500 uppercase tracking-tighter">{{ template.stats?.submitted || 0 }} Pending</span>
+              </div>
             </div>
           </div>
 
@@ -111,7 +128,11 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="sub in submissions" :key="sub.name" class="bg-slate-50/50 dark:bg-slate-800/30 group/row hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50 transition-all rounded-[2rem] shadow-sm hover:shadow-lg">
+                <tr 
+                  v-for="sub in submissions" 
+                  :key="sub.name" 
+                  class="bg-slate-50/50 dark:bg-slate-800/30 group/row hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50 transition-all rounded-[2rem] shadow-sm hover:shadow-lg"
+                >
                   <td class="px-8 py-5 rounded-l-[2rem]">
                     <div class="flex items-center gap-4">
                       <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center font-black text-xs text-indigo-700 shadow-inner overflow-hidden">
@@ -121,31 +142,51 @@
                     </div>
                   </td>
                   <td class="px-8 py-5">
-                    <a v-if="sub.submission_file" :href="sub.submission_file" target="_blank" class="flex items-center gap-2 text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors group/link">
+                    <a 
+                      v-if="sub.submission_file" 
+                      :href="sub.submission_file" 
+                      target="_blank" 
+                      class="flex items-center gap-2 text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors group/link"
+                    >
                       <i class="fa fa-file-text-o group-hover/link:translate-y-[-1px]"></i>
                       <span class="text-[10px] font-bold tracking-wide">View Work</span>
                     </a>
                     <span v-else class="text-[10px] text-slate-400 uppercase font-black">No File</span>
                   </td>
                   <td class="px-8 py-5">
-                    <span v-if="sub.status === 'Evaluated'" class="inline-flex items-center px-4 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-xl text-[10px] font-black uppercase gap-2">
+                    <span 
+                      v-if="sub.status === 'Evaluated'" 
+                      class="inline-flex items-center px-4 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-xl text-[10px] font-black uppercase gap-2"
+                    >
                       <i class="fa fa-check-circle"></i> Scored: {{ sub.evaluated_score }}
                     </span>
-                    <span v-else-if="sub.status === 'Submitted'" class="inline-flex items-center px-4 py-1.5 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-xl text-[10px] font-black uppercase gap-2">
+                    <span 
+                      v-else-if="sub.status === 'Submitted'" 
+                      class="inline-flex items-center px-4 py-1.5 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-xl text-[10px] font-black uppercase gap-2"
+                    >
                       <i class="fa fa-clock-o"></i> Needs Review
                     </span>
-                    <span v-else class="inline-flex items-center px-4 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-xl text-[10px] font-black uppercase gap-2">
+                    <span 
+                      v-else 
+                      class="inline-flex items-center px-4 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-xl text-[10px] font-black uppercase gap-2"
+                    >
                       {{ sub.status }}
                     </span>
                   </td>
                   <td class="px-8 py-5 rounded-r-[2rem] text-right">
-                    <button @click="openGradingModal(sub)" :disabled="sub.status === 'Active'" class="bg-slate-900 dark:bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-md disabled:opacity-30 disabled:hover:scale-100 h-10">
+                    <button 
+                      @click="openGradingModal(sub)" 
+                      :disabled="sub.status === 'Active'" 
+                      class="bg-slate-900 dark:bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-md disabled:opacity-30 disabled:hover:scale-100 h-10"
+                    >
                       {{ sub.status === 'Evaluated' ? 'Update Grade' : 'Grade Work' }}
                     </button>
                   </td>
                 </tr>
                 <tr v-if="submissions.length === 0">
-                  <td colspan="4" class="text-center py-10 text-xs font-bold text-slate-400 uppercase tracking-widest">No students have been assigned yet (Publish first)</td>
+                  <td colspan="4" class="text-center py-10 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    No students have been assigned yet (Publish first)
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -199,8 +240,8 @@
         </div>
 
         <div>
-           <label class="block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Reference Document (Link)</label>
-           <input v-model="newTemplate.assignment_file" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl px-5 py-3.5 text-xs font-bold outline-none" placeholder="/files/assignment.pdf" />
+          <label class="block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Reference Document (Link)</label>
+          <input v-model="newTemplate.assignment_file" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl px-5 py-3.5 text-xs font-bold outline-none" placeholder="/files/assignment.pdf" />
         </div>
       </div>
       <template #footer>
@@ -212,8 +253,8 @@
       </template>
     </AppModal>
 
-    <!-- Modal 3: Grading Modal -->
-    <AppModal v-model="showGradeModal" title="Grade student Work" maxWidth="max-w-md">
+    <!-- Modal 2: Grading Modal -->
+    <AppModal v-model="showGradeModal" title="Grade Student Work" maxWidth="max-w-md">
       <div class="space-y-6" v-if="gradingSubmission">
         <div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
           <div class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black text-lg">
@@ -238,8 +279,8 @@
       <template #footer>
         <button @click="showGradeModal = false" class="px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl">Discard</button>
         <button @click="handleGrade" :disabled="grading" class="px-8 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
-           <i v-if="grading" class="fa fa-spinner fa-spin"></i>
-           Update Grade
+          <i v-if="grading" class="fa fa-spinner fa-spin"></i>
+          Update Grade
         </button>
       </template>
     </AppModal>
@@ -263,6 +304,8 @@ const {
 const selectedCourse = ref('')
 const expandedTemplate = ref(null)
 const submissionsLoading = ref(false)
+const expandedCard = ref(null)
+const expandedDescription = ref({})
 
 // Modals
 const showCreateModal = ref(false)
@@ -365,14 +408,40 @@ const formatDate = (dateStr) => {
   if (!dateStr) return '--'
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
-</script>
 
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 99px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
-</style>
+// Helper functions for description management
+const stripHtmlTags = (html) => {
+  if (!html) return ''
+  const temp = document.createElement('div')
+  temp.innerHTML = html
+  return temp.textContent || temp.innerText || ''
+}
+
+const isDescriptionLong = (description) => {
+  if (!description) return false
+  const plainText = stripHtmlTags(description)
+  return plainText.length > 150
+}
+
+const getShortDescription = (description) => {
+  if (!description) return ''
+  const plainText = stripHtmlTags(description)
+  if (plainText.length <= 150) return description
+  const truncated = plainText.substring(0, 150) + '...'
+  return truncated
+}
+
+const isDescriptionExpanded = (templateName) => {
+  return expandedDescription.value[templateName] || false
+}
+
+const toggleDescription = (templateName) => {
+  expandedDescription.value = {
+    ...expandedDescription.value,
+    [templateName]: !expandedDescription.value[templateName]
+  }
+}
+</script>
 
 <style scoped>
 .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
