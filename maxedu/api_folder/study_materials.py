@@ -154,7 +154,7 @@ def create_study_material():
                 "file_name": uploaded_file.filename,
                 "upload_date": str(study_material.upload_date),
                 "description": study_material.description,
-                "status": study_material.status
+                # "status": study_material.status
             }
         }
     except Exception as e:
@@ -236,7 +236,7 @@ def update_study_material():
                 'file_name': study_material.file_name,
                 'upload_date': str(study_material.upload_date),
                 'description': study_material.description,
-                'status': getattr(study_material, 'status', None)
+                # 'status': getattr(study_material, 'status', None)
             }
         }
     except Exception as e:

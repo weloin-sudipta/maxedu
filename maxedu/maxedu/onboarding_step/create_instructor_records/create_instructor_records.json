@@ -1,0 +1,21 @@
+{
+ "action": "Create Entry",
+ "action_label": "Add Instructor",
+ "creation": "2026-04-02 11:43:03.903691",
+ "description": "This step allows you to create instructor profiles by linking them to existing employee records, ensuring a clear connection between HR data and academic responsibilities.\n\nStart by selecting an employee to designate them as an instructor. This linkage ensures that all teaching staff are properly managed within your organizational structure and inherit the correct company association automatically.\n\nNext, assign the courses and programs (classes or streams) that the instructor will teach. This mapping is essential for enabling core academic functionalities such as timetable generation, class scheduling, and workload distribution.\n\nYou can also mark preferred courses or programs for each instructor, helping the system optimize scheduling decisions based on teacher expertise and availability.\n\nBy completing this step, you ensure that:\n\nInstructors are correctly mapped to subjects and classes\nThe timetable generation system has accurate teaching data\nAcademic operations such as attendance, assignments, and grading are properly aligned\n\nThis setup is a critical foundation for running your institute\u2019s academic workflows efficiently.",
+ "docstatus": 0,
+ "doctype": "Onboarding Step",
+ "idx": 0,
+ "is_complete": 0,
+ "is_single": 0,
+ "is_skipped": 0,
+ "modified": "2026-04-02 12:08:35.981628",
+ "modified_by": "Administrator",
+ "name": "Create Instructor records",
+ "owner": "Administrator",
+ "reference_document": "Instructor",
+ "show_form_tour": 0,
+ "show_full_form": 1,
+ "title": "Create Instructor records",
+ "validate_action": 1
+}

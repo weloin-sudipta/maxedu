@@ -1,0 +1,56 @@
+{
+ "allow_roles": [
+  {
+   "role": "Institute Admin"
+  },
+  {
+   "role": "Administrator"
+  },
+  {
+   "role": "System Manager"
+  }
+ ],
+ "creation": "2026-04-02 12:37:24.411912",
+ "docstatus": 0,
+ "doctype": "Module Onboarding",
+ "documentation_url": "https://github.com/Sudipto-tales/vidyaan/blob/main/docs/WORKFLOW.md",
+ "idx": 0,
+ "is_complete": 0,
+ "modified": "2026-04-02 12:37:24.411912",
+ "modified_by": "Administrator",
+ "module": "Maxedu",
+ "name": "Institute Setup",
+ "owner": "Administrator",
+ "steps": [
+  {
+   "step": "Create Employee records"
+  },
+  {
+   "step": "Create Instructor records"
+  },
+  {
+   "step": "Create Other Staff (Accountant, Librarian)"
+  },
+  {
+   "step": "Academic Structure Setup"
+  },
+  {
+   "step": "Create Programs (Classes)"
+  },
+  {
+   "step": "Create Courses (Subjects)"
+  },
+  {
+   "step": "Create Students"
+  },
+  {
+   "step": "Create Student Groups (Sections)"
+  },
+  {
+   "step": "Enroll Students"
+  }
+ ],
+ "subtitle": "Staff Management,Academic Configuration,Student Management",
+ "success_message": "Congratulations! All the necessary setup for your institute has been completed. You may now begin its operations.",
+ "title": "Let's begin your journey with Vidyaan"
+}

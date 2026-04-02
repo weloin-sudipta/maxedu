@@ -250,3 +250,8 @@ whitelisted_methods = [
     "maxedu.api.get_student_schedule",
 ]
 
+fixtures = [
+    {
+        "doctype": "Workspace"
+    }
+]

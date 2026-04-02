@@ -1,0 +1,21 @@
+{
+ "action": "Create Entry",
+ "action_label": "Add Program",
+ "creation": "2026-04-02 12:26:25.208965",
+ "description": "In this step, you will create academic programs, which represent your classes or streams (for example, Class 5, Class 11 - Science, Class 11 - Arts).\n\nPrograms are the backbone of your academic workflow. Each program will be linked to courses, student groups (sections), assessments, and timetable generation. Properly defining programs ensures that your students, courses, and instructors are correctly structured and allows the AI-driven routine generation to function accurately.\n\nTip:\n- Lower classes may not have streams (e.g., Class 5), while higher classes can have multiple streams (e.g., Science, Arts).\n- Ensure that all programs are linked to the correct Academic Year for seamless academic management.",
+ "docstatus": 0,
+ "doctype": "Onboarding Step",
+ "idx": 0,
+ "is_complete": 0,
+ "is_single": 0,
+ "is_skipped": 0,
+ "modified": "2026-04-02 12:26:25.208965",
+ "modified_by": "Administrator",
+ "name": "Create Programs (Classes)",
+ "owner": "Administrator",
+ "reference_document": "Program",
+ "show_form_tour": 0,
+ "show_full_form": 1,
+ "title": "Program (Class) Setup",
+ "validate_action": 1
+}

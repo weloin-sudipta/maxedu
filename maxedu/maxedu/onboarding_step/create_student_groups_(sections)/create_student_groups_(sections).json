@@ -1,0 +1,21 @@
+{
+ "action": "Create Entry",
+ "action_label": "Add Student Group",
+ "creation": "2026-04-02 12:33:20.667863",
+ "description": "In this step, you will create student groups (sections) such as Class 11 Science - A, Class 11 Science - B, or any other subdivision of a program.\n\nStudent Groups are used to organize students within a program into smaller manageable batches. Each group can be assigned instructors and is used for attendance tracking, timetable scheduling, and class-specific academic activities.\n\nWhile creating a student group:\n- Link it to a specific Program (Class)\n- Assign one or more instructors responsible for that section\n- Define the academic year for proper structuring\n\nStudent Groups help in managing parallel sections within the same program and are essential for generating accurate timetables and routine planning.",
+ "docstatus": 0,
+ "doctype": "Onboarding Step",
+ "idx": 0,
+ "is_complete": 0,
+ "is_single": 0,
+ "is_skipped": 0,
+ "modified": "2026-04-02 12:33:20.667863",
+ "modified_by": "Administrator",
+ "name": "Create Student Groups (Sections)",
+ "owner": "Administrator",
+ "reference_document": "Student Group",
+ "show_form_tour": 0,
+ "show_full_form": 0,
+ "title": "Section Setup",
+ "validate_action": 1
+}

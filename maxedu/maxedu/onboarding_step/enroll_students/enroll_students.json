@@ -1,0 +1,21 @@
+{
+ "action": "Create Entry",
+ "action_label": "Add Program Enrollment",
+ "creation": "2026-04-02 12:37:06.854467",
+ "description": "In this step, you will enroll students into a specific program (class) for a given academic year.\n\nProgram Enrollment connects students with:\n- Their assigned program (class)\n- Academic year and term\n- Courses associated with that program\n\nThis enrollment is a critical step that enables academic operations such as attendance tracking, assessments, timetable allocation, and report generation.\n\nWhile enrolling a student:\n- Select the student record\n- Assign the appropriate program\n- Specify the academic year\n- Optionally assign the student to a specific section (student group)\n\nWithout enrollment, students will not be included in academic workflows such as exams, attendance, or timetable scheduling.",
+ "docstatus": 0,
+ "doctype": "Onboarding Step",
+ "idx": 0,
+ "is_complete": 0,
+ "is_single": 0,
+ "is_skipped": 0,
+ "modified": "2026-04-02 12:37:06.854467",
+ "modified_by": "Administrator",
+ "name": "Enroll Students",
+ "owner": "Administrator",
+ "reference_document": "Program Enrollment",
+ "show_form_tour": 0,
+ "show_full_form": 1,
+ "title": "Program Enrollment",
+ "validate_action": 1
+}

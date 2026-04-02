@@ -1,0 +1,23 @@
+{
+ "action": "Go to Page",
+ "action_label": "Setup Academic Year",
+ "callback_message": "Create an academic year and define terms such as First Term and Final Term. These will be used across programs, assessments, and report cards.",
+ "callback_title": "Academic Calendar Setup",
+ "creation": "2026-04-02 12:19:14.976502",
+ "description": "In this step, you will define the academic year and organize it into terms such as First Term, Second Term, or Final Term.\n\nThe academic year represents the overall duration of an academic session (for example, 2025\u20132026), while terms divide the year into smaller periods for better management of exams, assessments, and reporting.\n\nSetting up academic years and terms is essential for structuring your institute\u2019s academic calendar. It allows you to organize programs, schedule assessments, generate report cards, and manage student progression in a systematic way.\n\nEnsure that each academic year is properly defined before proceeding with program creation, enrollments, and assessments.",
+ "docstatus": 0,
+ "doctype": "Onboarding Step",
+ "idx": 0,
+ "is_complete": 0,
+ "is_single": 0,
+ "is_skipped": 0,
+ "modified": "2026-04-02 12:22:40.215723",
+ "modified_by": "Administrator",
+ "name": "Academic Structure Setup",
+ "owner": "Administrator",
+ "path": "/app/academic-year",
+ "show_form_tour": 0,
+ "show_full_form": 0,
+ "title": "Academic Structure Setup",
+ "validate_action": 1
+}

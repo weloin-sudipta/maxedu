@@ -1,0 +1,21 @@
+{
+ "action": "Create Entry",
+ "action_label": "Add Student",
+ "creation": "2026-04-02 12:30:34.578190",
+ "description": "In this step, you will register students in the system by adding their personal details, academic information, and guardian details.\n\nEach student record represents an individual enrolled in your institution and serves as the central entity for managing attendance, assessments, timetables, fee records, and academic performance.\n\nWhile creating a student, you can optionally:\n- Link guardian or parent details\n- Assign the student to a specific program (class)\n- Enable system login access for student portal usage\n- Store contact details such as email and phone number\n\nProper student registration ensures accurate tracking of academic activities and enables seamless communication between the institute, students, and guardians.",
+ "docstatus": 0,
+ "doctype": "Onboarding Step",
+ "idx": 0,
+ "is_complete": 0,
+ "is_single": 0,
+ "is_skipped": 0,
+ "modified": "2026-04-02 12:30:34.578190",
+ "modified_by": "Administrator",
+ "name": "Create Students",
+ "owner": "Administrator",
+ "reference_document": "Student",
+ "show_form_tour": 0,
+ "show_full_form": 1,
+ "title": "Student Registration",
+ "validate_action": 1
+}
